@@ -7,13 +7,18 @@
 #include <set>
 #include <sstream>
 #include <string>
-#include <unistd.h>
 #include <vector>
 
+#ifdef _WIN32
+#include <direct.h>
+#define getcwd _getcwd
+#else
+#include <unistd.h>
+#endif
+
 static const char* VERSION = "0.1";
-static const char* NAME = "gcd";
+static const char* NAME = "gencc";
 static const char* PATH = "PATH";
-static const char* PWD = "PWD";
 static const char* CXX = "CXX";
 static const char* DB_FILENAME = "compile_commands.json";
 static const char* DB_LOCK_FILENAME = ".compile_commands.json.lock";
@@ -43,18 +48,33 @@ int get_env_var(const char* name, std::string& str)
     }
 }
 
+int get_cwd(std::string& str)
+{
+    char buffer[256];
+    if (!getcwd(buffer, sizeof(buffer))) {
+        std::cout << "Couldn't get working directory" << std::endl;
+        str.clear();
+        return -1;
+    }
+    str = buffer;
+    return 0;
+}
+
 /* Helper function to simply set the PATH correctly so that this binary
  * is called instead of the default CXX one */
 void build_call(const std::vector<std::string>& params)
 {
-    std::string origPath, pwd, newPath, newPathCheck;
+    std::string origPath, cwd, newPath, newPathCheck;
     get_env_var(PATH, origPath);
-    get_env_var(PWD, pwd);
+
+    if (get_cwd(cwd)) {
+        throw std::runtime_error("Couldn't get CWD");
+    }
 
     std::cout << "Original PATH = " << origPath << std::endl;
-    std::cout << "PWD = " << pwd << std::endl;
+    std::cout << "CWD = " << cwd << std::endl;
 
-    newPath = pwd + ":" + origPath;
+    newPath = cwd + ":" + origPath;
 
     setenv(CXX, params.at(0).c_str(), 1);
     setenv(PATH, newPath.c_str(), 1);
@@ -63,8 +83,8 @@ void build_call(const std::vector<std::string>& params)
         throw std::runtime_error("Couldn't set new PATH to " + newPath);
     }
 
-    std::string dbFilepath = pwd + "/" + DB_FILENAME;
-    std::string dbLockFilepath = pwd + "/" + DB_LOCK_FILENAME;
+    std::string dbFilepath = cwd + "/" + DB_FILENAME;
+    std::string dbLockFilepath = cwd + "/" + DB_LOCK_FILENAME;
     setenv(GCD_DB_FILE_ENV, dbFilepath.c_str(), 1);
     setenv(GCD_DB_LOCK_FILE_ENV, dbLockFilepath.c_str(), 1);
     std::remove(dbFilepath.c_str());
@@ -86,8 +106,13 @@ void build_call(const std::vector<std::string>& params)
 void compiler_call(const std::vector<std::string>& params)
 {
     std::stringstream ss;
-    std::string directory, command, file;
+    std::string cwd, directory, command, file;
 
+    if (get_cwd(cwd)) {
+        throw std::runtime_error("Couldn't get CWD");
+    }
+
+    directory = cwd;
     for (size_t i = 0; i < params.size(); ++i) {
         ss << params.at(i);
         if (i != params.size() - 1) {
@@ -95,11 +120,10 @@ void compiler_call(const std::vector<std::string>& params)
         }
 
         if (params.at(i).find(C_EXT) != std::string::npos) {
-            file = params.at(i);
+            file = directory + "/" + params.at(i);
         }
     }
     command = ss.str();
-    get_env_var(PWD, directory);
 
     std::cout << command << std::endl;
 
@@ -150,7 +174,7 @@ void compiler_call(const std::vector<std::string>& params)
 
 int main(int argc, char* argv[])
 {
-    std::cout << NAME << " generator v" << VERSION << ": ";
+    std::cout << NAME << " v" << VERSION << ": ";
 
     if (argc < 2) {
         help();

@@ -4,7 +4,7 @@ CXXFLAGS += -fsanitize=address
 
 all: $(NAME)
 
-$(NAME): main.cpp
+$(NAME): gencc.cpp
 	$(CXX) -o $@ $(CXXFLAGS) $<
 
 clean:
