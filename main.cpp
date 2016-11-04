@@ -116,7 +116,7 @@ void compiler_call(const std::vector<std::string>& params)
     do {
         std::ifstream iLockFile(dbLockFilepath);
         if (iLockFile.good()) {
-            unsigned int fallbackValue = rand() % 500;
+            unsigned int fallbackValue = rand() % 50;
             std::cout << dbLockFilepath << " already exists. Trying again in "
                       << fallbackValue << " ms" << std::endl;
             usleep(fallbackValue * 1000u);
