@@ -1,7 +1,9 @@
 SRCS = $(wildcard *.cpp)
 OBJS = $(SRCS:.cpp=.o)
 
-all: clean $(OBJS)
+all: $(OBJS)
+
+$(OBJS): clean
 
 clean:
 	rm -f *.o
