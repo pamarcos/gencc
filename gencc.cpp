@@ -27,6 +27,9 @@ static const char* GCD_DB_FILE_ENV = "GCD_DB_FILE_ENV";
 static const char* GCD_DB_LOCK_FILE_ENV = "GCD_DB_LOCK_FILE_ENV";
 static const char* C_EXT = ".c";
 
+static const int MAX_DB_RETRIES = 100;
+static const int MAX_FALLBACK_SLEEP_IN_MS = 50;
+
 static const std::set<std::string> BUILD_COMMANDS{ "make", "ninja" };
 
 using json = nlohmann::json;
@@ -108,6 +111,52 @@ void build_call(const std::vector<std::string>& params)
     }
 }
 
+void write_to_db(const std::string& directory, const std::string& command, const std::string& file)
+{
+    std::string dbFilepath, dbLockFilepath;
+    if (get_env_var(GCD_DB_FILE_ENV, dbFilepath)) {
+        dbFilepath = DB_FILENAME;
+    }
+    if (get_env_var(GCD_DB_LOCK_FILE_ENV, dbLockFilepath)) {
+        dbLockFilepath = DB_LOCK_FILENAME;
+    }
+
+    int retries = 0;
+    do {
+        std::ifstream iLockFile(dbLockFilepath);
+        if (iLockFile.good()) {
+            unsigned int fallbackValue = rand() % MAX_FALLBACK_SLEEP_IN_MS;
+            std::cout << dbLockFilepath << " already exists. Trying again in "
+                      << fallbackValue << " ms" << std::endl;
+            usleep(fallbackValue * 1000u);
+            continue;
+        }
+        iLockFile.close();
+
+        std::ofstream oLockFile(dbLockFilepath);
+        oLockFile.close();
+
+        std::ifstream idb(dbFilepath);
+
+        json jsonDb = json::array();
+        if (idb.good()) {
+            idb >> jsonDb;
+        }
+
+        json jsonObj;
+        jsonObj["directory"] = directory;
+        jsonObj["command"] = command;
+        jsonObj["file"] = file;
+        jsonDb.push_back(jsonObj);
+
+        std::ofstream odb(dbFilepath);
+        odb << jsonDb.dump(4);
+
+        std::remove(dbLockFilepath.c_str());
+        return;
+    } while (++retries <= MAX_DB_RETRIES);
+}
+
 void compiler_call(const std::vector<std::string>& params)
 {
     std::stringstream ss;
@@ -138,49 +187,7 @@ void compiler_call(const std::vector<std::string>& params)
 
     std::cout << command << std::endl;
 
-    std::string dbFilepath;
-    if (get_env_var(GCD_DB_FILE_ENV, dbFilepath)) {
-        dbFilepath = DB_FILENAME;
-    }
-    std::string dbLockFilepath;
-    if (get_env_var(GCD_DB_LOCK_FILE_ENV, dbLockFilepath)) {
-        dbLockFilepath = DB_LOCK_FILENAME;
-    }
-
-    int retries = 0;
-    do {
-        std::ifstream iLockFile(dbLockFilepath);
-        if (iLockFile.good()) {
-            unsigned int fallbackValue = rand() % 50;
-            std::cout << dbLockFilepath << " already exists. Trying again in "
-                      << fallbackValue << " ms" << std::endl;
-            usleep(fallbackValue * 1000u);
-            continue;
-        }
-        iLockFile.close();
-
-        std::ofstream oLockFile(dbLockFilepath);
-        oLockFile.close();
-
-        std::ifstream idb(dbFilepath);
-
-        json jsonDb = json::array();
-        if (idb.good()) {
-            idb >> jsonDb;
-        }
-
-        json jsonObj;
-        jsonObj["directory"] = directory;
-        jsonObj["command"] = command;
-        jsonObj["file"] = file;
-        jsonDb.push_back(jsonObj);
-
-        std::ofstream odb(dbFilepath);
-        odb << jsonDb.dump(4);
-
-        std::remove(dbLockFilepath.c_str());
-        return;
-    } while (++retries <= 100);
+    write_to_db(directory, command, file);
 }
 
 int main(int argc, char* argv[])
