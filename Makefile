@@ -10,5 +10,10 @@ $(NAME): gencc.cpp
 clean:
 	rm -f $(NAME)
 
+tests:
+	cd tests && $(MAKE)
+
 dbg-%:
 	@echo "Makefile: Value of $* = $($*)"
+
+.PHONY: clean tests all

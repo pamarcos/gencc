@@ -22,6 +22,7 @@ static const char* PATH = "PATH";
 static const char* CXX = "CXX";
 static const char* DB_FILENAME = "compile_commands.json";
 static const char* DB_LOCK_FILENAME = ".compile_commands.json.lock";
+static const char* ORIG_CXX = "ORIG_CXX";
 static const char* GCD_DB_FILE_ENV = "GCD_DB_FILE_ENV";
 static const char* GCD_DB_LOCK_FILE_ENV = "GCD_DB_LOCK_FILE_ENV";
 static const char* C_EXT = ".c";
@@ -42,7 +43,6 @@ int get_env_var(const char* name, std::string& str)
         str = ptr;
         return 0;
     } else {
-        std::cout << "Environment variable is empty: " << name << std::endl;
         str.clear();
         return -1;
     }
@@ -64,14 +64,19 @@ int get_cwd(std::string& str)
  * is called instead of the default CXX one */
 void build_call(const std::vector<std::string>& params)
 {
-    std::string origPath, cwd, newPath, newPathCheck;
+    std::string origPath, origCXX, cwd, newPath, newPathCheck;
     get_env_var(PATH, origPath);
+
+    if (!get_env_var(CXX, origCXX)) {
+        setenv(ORIG_CXX, origCXX.c_str(), 1);
+    }
 
     if (get_cwd(cwd)) {
         throw std::runtime_error("Couldn't get CWD");
     }
 
     std::cout << "Original PATH = " << origPath << std::endl;
+    std::cout << "Original CXX = " << origCXX << std::endl;
     std::cout << "CWD = " << cwd << std::endl;
 
     newPath = cwd + ":" + origPath;
@@ -106,14 +111,20 @@ void build_call(const std::vector<std::string>& params)
 void compiler_call(const std::vector<std::string>& params)
 {
     std::stringstream ss;
-    std::string cwd, directory, command, file;
+    std::string origCXX, cwd, directory, command, file;
 
     if (get_cwd(cwd)) {
         throw std::runtime_error("Couldn't get CWD");
     }
 
+    if (get_env_var(ORIG_CXX, origCXX)) {
+        ss << params[0] << " ";
+    } else {
+        ss << origCXX << " ";
+    }
+
     directory = cwd;
-    for (size_t i = 0; i < params.size(); ++i) {
+    for (size_t i = 1; i < params.size(); ++i) {
         ss << params.at(i);
         if (i != params.size() - 1) {
             ss << " ";
