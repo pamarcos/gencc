@@ -10,8 +10,9 @@ $(NAME): gencc.cpp
 clean:
 	rm -f $(NAME)
 
-tests:
-	cd tests && $(MAKE)
+tests: $(NAME)
+	env CXX=g++ $(GENCC) make -C tests
+	diff -u tests/compile_commands.json compile_commands.json
 
 dbg-%:
 	@echo "Makefile: Value of $* = $($*)"
