@@ -1,12 +1,21 @@
 NAME = gencc
-CXXFLAGS = -g -O0 -std=c++11 -Wall
+CXXFLAGS = -std=c++11 -Wall -Ithird_party
 CXXFLAGS += -fsanitize=address
 UNAME = $(shell uname)
+SRCS = $(wildcard src/*.cpp)
+
+DEBUG = 1
+
+ifneq ($(DEBUG),)
+CXXFLAGS += -g -O0
+else
+CXXFLAGS += -02
+endif
 
 all: $(NAME)
 
-$(NAME): gencc.cpp
-	$(CXX) -o $@ $(CXXFLAGS) $<
+$(NAME): $(SRCS)
+	$(CXX) $(CXXFLAGS) -o $@ $<
 
 clean:
 	rm -f $(NAME)
