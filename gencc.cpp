@@ -21,22 +21,36 @@ static const char* NAME = "gencc";
 static const char* PATH = "PATH";
 static const char* CXX = "CXX";
 static const char* DB_FILENAME = "compile_commands.json";
-static const char* DB_LOCK_FILENAME = ".compile_commands.json.lock";
+static const char* DB_LOCK_FILENAME_EXT = ".lock";
 static const char* ORIG_CXX = "ORIG_CXX";
-static const char* GCD_DB_FILE_ENV = "GCD_DB_FILE_ENV";
-static const char* GCD_DB_LOCK_FILE_ENV = "GCD_DB_LOCK_FILE_ENV";
+static const char* GENCC_MODE = "GENCC_MODE";
+static const char* COMPILER = "COMPILER";
+static const char* GENCC_DB_FILE_ENV = "GCD_DB_FILE_ENV";
+static const char* GENCC_DB_LOCK_FILE_ENV = "GCD_DB_LOCK_FILE_ENV";
 static const char* C_EXT = ".c";
 
 static const int MAX_DB_RETRIES = 100;
 static const int MAX_FALLBACK_SLEEP_IN_MS = 50;
 
-static const std::set<std::string> BUILD_COMMANDS{ "make", "ninja" };
+enum class gencc_mode {
+    BUILDER,
+    COMPILER
+};
+
+typedef struct gencc_options {
+    gencc_mode mode = gencc_mode::BUILDER;
+    std::string cxx;
+    std::string dbFilename = DB_FILENAME;
+} gencc_options_t;
 
 using json = nlohmann::json;
 
+static gencc_options_t options;
+
 void help()
 {
-    std::cout << "Help" << std::endl;
+    std::cout << "Help"
+              << "\n";
 }
 
 int get_env_var(const char* name, std::string& str)
@@ -55,7 +69,8 @@ int get_cwd(std::string& str)
 {
     char buffer[256];
     if (!getcwd(buffer, sizeof(buffer))) {
-        std::cout << "Couldn't get working directory" << std::endl;
+        std::cout << "Couldn't get working directory"
+                  << "\n";
         str.clear();
         return -1;
     }
@@ -78,9 +93,9 @@ void build_call(const std::vector<std::string>& params)
         throw std::runtime_error("Couldn't get CWD");
     }
 
-    std::cout << "Original PATH = " << origPath << std::endl;
-    std::cout << "Original CXX = " << origCXX << std::endl;
-    std::cout << "CWD = " << cwd << std::endl;
+    std::cout << "Original PATH = " << origPath << "\n";
+    std::cout << "Original CXX = " << origCXX << "\n";
+    std::cout << "CWD = " << cwd << "\n";
 
     newPath = cwd + ":" + origPath;
 
@@ -92,9 +107,9 @@ void build_call(const std::vector<std::string>& params)
     }
 
     std::string dbFilepath = cwd + "/" + DB_FILENAME;
-    std::string dbLockFilepath = cwd + "/" + DB_LOCK_FILENAME;
-    setenv(GCD_DB_FILE_ENV, dbFilepath.c_str(), 1);
-    setenv(GCD_DB_LOCK_FILE_ENV, dbLockFilepath.c_str(), 1);
+    std::string dbLockFilepath = cwd + "/" + DB_FILENAME + DB_LOCK_FILENAME_EXT;
+    setenv(GENCC_DB_FILE_ENV, dbFilepath.c_str(), 1);
+    setenv(GENCC_DB_LOCK_FILE_ENV, dbLockFilepath.c_str(), 1);
     std::remove(dbFilepath.c_str());
     std::remove(dbLockFilepath.c_str());
 
@@ -105,20 +120,22 @@ void build_call(const std::vector<std::string>& params)
             ss << " ";
         }
     }
+
+    setenv(GENCC_MODE, COMPILER, 1);
     if (int ret = system(ss.str().c_str())) {
         std::cout << "The command " << ss.str() << " exited with error code "
-                  << ret << std::endl;
+                  << ret << "\n";
     }
 }
 
 void write_to_db(const std::string& directory, const std::string& command, const std::string& file)
 {
     std::string dbFilepath, dbLockFilepath;
-    if (get_env_var(GCD_DB_FILE_ENV, dbFilepath)) {
+    if (get_env_var(GENCC_DB_FILE_ENV, dbFilepath)) {
         dbFilepath = DB_FILENAME;
     }
-    if (get_env_var(GCD_DB_LOCK_FILE_ENV, dbLockFilepath)) {
-        dbLockFilepath = DB_LOCK_FILENAME;
+    if (get_env_var(GENCC_DB_LOCK_FILE_ENV, dbLockFilepath)) {
+        dbLockFilepath = dbFilepath + DB_LOCK_FILENAME_EXT;
     }
 
     int retries = 0;
@@ -127,7 +144,8 @@ void write_to_db(const std::string& directory, const std::string& command, const
         if (iLockFile.good()) {
             unsigned int fallbackValue = rand() % MAX_FALLBACK_SLEEP_IN_MS;
             std::cout << dbLockFilepath << " already exists. Trying again in "
-                      << fallbackValue << " ms" << std::endl;
+                      << fallbackValue << " ms"
+                      << "\n";
             usleep(fallbackValue * 1000u);
             continue;
         }
@@ -166,7 +184,9 @@ void compiler_call(const std::vector<std::string>& params)
         throw std::runtime_error("Couldn't get CWD");
     }
 
-    if (get_env_var(ORIG_CXX, origCXX)) {
+    if (!options.cxx.empty()) {
+        ss << options.cxx << " ";
+    } else if (get_env_var(ORIG_CXX, origCXX)) {
         ss << params[0] << " ";
     } else {
         ss << origCXX << " ";
@@ -185,9 +205,19 @@ void compiler_call(const std::vector<std::string>& params)
     }
     command = ss.str();
 
-    std::cout << command << std::endl;
+    std::cout << command << "\n";
 
     write_to_db(directory, command, file);
+}
+
+void parse_args(std::vector<std::string>& params)
+{
+    bool paramsStart = false;
+    for (auto it = params.begin() + 1; it != params.end(); ++it) {
+        if (!paramsStart && (*it).find("-") != std::string::npos) {
+            paramsStart = true;
+        }
+    }
 }
 
 int main(int argc, char* argv[])
@@ -208,15 +238,23 @@ int main(int argc, char* argv[])
         params[0] = params[0].substr(pos + 1);
     }
 
+    parse_args(params);
+
+    std::string gencc_mode;
+    get_env_var(GENCC_MODE, gencc_mode);
+    if (gencc_mode == COMPILER) {
+        options.mode = gencc_mode::COMPILER;
+    }
+
     try {
-        if (BUILD_COMMANDS.find(params.at(1)) != BUILD_COMMANDS.end()) {
-            std::cout << std::endl;
+        if (options.mode == gencc_mode::BUILDER) {
+            std::cout << "\n";
             build_call(params);
         } else {
             compiler_call(params);
         }
     } catch (const std::exception& e) {
-        std::cout << "ERROR: " << e.what() << std::endl;
+        std::cout << "ERROR: " << e.what() << "\n";
     }
 
     return 0;
