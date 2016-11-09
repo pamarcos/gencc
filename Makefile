@@ -21,7 +21,8 @@ clean:
 	rm -f $(NAME)
 
 tests: $(NAME)
-	env CXX=g++ $(GENCC) $(MAKE) -C tests
+	rm -f compile_commands.json
+	env CXX=g++ ./$(NAME) $(MAKE) -C tests
 	diff -u tests/compile_commands.json compile_commands.json
 
 dbg-%:
