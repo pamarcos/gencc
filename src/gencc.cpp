@@ -212,10 +212,10 @@ void compiler_call(const std::vector<std::string>& params)
 
 void parse_args(std::vector<std::string>& params)
 {
-    bool paramsStart = false;
-    for (auto it = params.begin() + 1; it != params.end(); ++it) {
-        if (!paramsStart && (*it).find("-") != std::string::npos) {
-            paramsStart = true;
+    size_t firstParamPos = 0;
+    for (size_t i = 0; i < params.size(); ++i) {
+        if (firstParamPos == 0 && params.at(i).find("-") != std::string::npos) {
+            firstParamPos = i;
         }
     }
 }
@@ -238,11 +238,12 @@ int main(int argc, char* argv[])
         params[0] = params[0].substr(pos + 1);
     }
 
-    parse_args(params);
+    // TODO: parse arguments to do different behavior
+    //parse_args(params);
 
-    std::string gencc_mode;
-    get_env_var(GENCC_MODE, gencc_mode);
-    if (gencc_mode == COMPILER) {
+    std::string genccMode;
+    get_env_var(GENCC_MODE, genccMode);
+    if (genccMode == COMPILER) {
         options.mode = gencc_mode::COMPILER;
     }
 
