@@ -20,9 +20,11 @@ static const char* VERSION = "0.1";
 static const char* NAME = "gencc";
 static const char* PATH = "PATH";
 static const char* CXX = "CXX";
+static const char* CC = "CC";
 static const char* DB_FILENAME = "compile_commands.json";
 static const char* DB_LOCK_FILENAME_EXT = ".lock";
 static const char* ORIG_CXX = "ORIG_CXX";
+static const char* ORIG_CC = "ORIG_CC";
 static const char* GENCC_MODE = "GENCC_MODE";
 static const char* COMPILER = "COMPILER";
 static const char* GENCC_DB_FILE_ENV = "GCD_DB_FILE_ENV";
@@ -39,7 +41,7 @@ enum class gencc_mode {
 
 typedef struct gencc_options {
     gencc_mode mode = gencc_mode::BUILDER;
-    std::string cxx;
+    std::string compiler;
     std::string dbFilename = DB_FILENAME;
 } gencc_options_t;
 
@@ -82,11 +84,14 @@ int get_cwd(std::string& str)
  * is called instead of the default CXX one */
 void build_call(const std::vector<std::string>& params)
 {
-    std::string origPath, origCXX, cwd, newPath, newPathCheck;
+    std::string origPath, origCXX, origCC, cwd, newPath, newPathCheck;
     get_env_var(PATH, origPath);
 
     if (!get_env_var(CXX, origCXX)) {
         setenv(ORIG_CXX, origCXX.c_str(), 1);
+    }
+    if (!get_env_var(CC, origCC)) {
+        setenv(ORIG_CC, origCC.c_str(), 1);
     }
 
     if (get_cwd(cwd)) {
@@ -100,6 +105,7 @@ void build_call(const std::vector<std::string>& params)
     newPath = cwd + ":" + origPath;
 
     setenv(CXX, params.at(0).c_str(), 1);
+    setenv(CC, params.at(0).c_str(), 1);
     setenv(PATH, newPath.c_str(), 1);
     get_env_var(PATH, newPathCheck);
     if (newPathCheck != newPath) {
@@ -178,18 +184,23 @@ void write_to_db(const std::string& directory, const std::string& command, const
 void compiler_call(const std::vector<std::string>& params)
 {
     std::stringstream ss;
-    std::string origCXX, cwd, directory, command, file;
+    std::string origCXX, origCC, cwd, directory, command, file;
 
     if (get_cwd(cwd)) {
         throw std::runtime_error("Couldn't get CWD");
     }
 
-    if (!options.cxx.empty()) {
-        ss << options.cxx << " ";
-    } else if (get_env_var(ORIG_CXX, origCXX)) {
-        ss << params[0] << " ";
-    } else {
+    get_env_var(ORIG_CXX, origCXX);
+    get_env_var(ORIG_CC, origCC);
+
+    if (!options.compiler.empty()) {
+        ss << options.compiler << " ";
+    } else if (!origCXX.empty()) {
         ss << origCXX << " ";
+    } else if (!origCC.empty()) {
+        ss << origCC << " ";
+    } else {
+        ss << params[0] << " ";
     }
 
     directory = cwd;
