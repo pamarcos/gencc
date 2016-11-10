@@ -41,6 +41,8 @@ typedef struct gencc_options {
     std::string cxx;
     std::string cc;
     std::string compiler;
+    int retries = MAX_DB_RETRIES;
+    int fallback = MAX_FALLBACK_SLEEP_IN_MS;
 } gencc_options_t;
 
 using json = nlohmann::json;
@@ -49,8 +51,13 @@ static gencc_options_t options;
 
 void help()
 {
-    std::cout << "Help"
-              << '\n';
+    std::cout << "Help:\n"
+                 "\t-cxx    [value] - CXX compiler\n"
+                 "\t-cc     [value] - CC compiler\n"
+                 "\t-o      [value] - DB file\n"
+                 "\t-r      [value] - Number of retries if DB locked\n"
+                 "\t-f      [value] - Max fallback time in ms in case of DB locked\n"
+                 "\t-build          - Call the actual compiler\n";
 }
 
 int get_env_var(const char* name, std::string& str)
@@ -154,7 +161,7 @@ void write_to_db(const std::string& directory, const std::string& command, const
     do {
         std::ifstream iLockFile(dbLockFilepath);
         if (iLockFile.good()) {
-            unsigned int fallbackValue = rand() % MAX_FALLBACK_SLEEP_IN_MS;
+            unsigned int fallbackValue = rand() % options.fallback;
             std::cout << dbLockFilepath << " already exists. Trying again in "
                       << fallbackValue << " ms"
                       << '\n';
@@ -184,7 +191,7 @@ void write_to_db(const std::string& directory, const std::string& command, const
 
         std::remove(dbLockFilepath.c_str());
         return;
-    } while (++retries <= MAX_DB_RETRIES);
+    } while (++retries <= options.retries);
 }
 
 void compiler_call(const std::vector<std::string>& params)
@@ -275,7 +282,14 @@ int parse_args(std::vector<std::string>& params)
             params.erase(it);
             options.dbFilename = *it;
             params.erase(it);
-
+        } else if (param == "-r" && it + 1 != params.end()) {
+            params.erase(it);
+            options.retries = std::stoi(*it);
+            params.erase(it);
+        } else if (param == "-f" && it + 1 != params.end()) {
+            params.erase(it);
+            options.fallback = std::stoi(*it);
+            params.erase(it);
         } else if (param == "-c") {
             params.erase(it);
             options.mode = gencc_mode::COMPILER;
