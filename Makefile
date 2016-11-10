@@ -1,8 +1,8 @@
 NAME = gencc
 CXXFLAGS = -std=c++11 -Wall -Ithird_party
 CXXFLAGS += -fsanitize=address
-UNAME = $(shell uname)
 SRCS = $(wildcard src/*.cpp)
+TESTS_DIR = tests
 
 DEBUG = 1
 
@@ -22,8 +22,20 @@ clean:
 
 tests: $(NAME)
 	rm -f compile_commands.json
-	env CXX=g++ ./$(NAME) $(MAKE) -C tests
-	diff -u tests/compile_commands.json compile_commands.json
+	env CXX=g++ CC=gcc ./$(NAME) $(MAKE) -C $(TESTS_DIR)
+	diff -u $(TESTS_DIR)/compile_commands.json compile_commands.json
+	./$(NAME) -cxx g++ -cc gcc $(MAKE) -C $(TESTS_DIR)
+	diff -u $(TESTS_DIR)/compile_commands.json compile_commands.json
+	$(MAKE) -C $(TESTS_DIR) clean
+	./$(NAME) -cxx g++ -cc gcc -build $(MAKE) -C $(TESTS_DIR)
+	test -f $(TESTS_DIR)/test_source1.o
+	test -f $(TESTS_DIR)/test_source2.o
+	test -f $(TESTS_DIR)/test_source3.o
+	test -f $(TESTS_DIR)/test_source4.o
+	test -f $(TESTS_DIR)/test_source5.o
+	test -f $(TESTS_DIR)/test_source6.o
+	test -f $(TESTS_DIR)/test_source7.o
+	test -f $(TESTS_DIR)/test_source8.o
 
 dbg-%:
 	@echo "Makefile: Value of $* = $($*)"

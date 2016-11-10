@@ -20,22 +20,22 @@
         "file": "/Users/pablo/Repos/gencc/tests/test_source4.cpp"
     },
     {
-        "command": "g++ -c -o test_source5.o test_source5.c",
+        "command": "gcc -c -o test_source5.o test_source5.c",
         "directory": "/Users/pablo/Repos/gencc/tests",
         "file": "/Users/pablo/Repos/gencc/tests/test_source5.c"
     },
     {
-        "command": "g++ -c -o test_source6.o test_source6.c",
+        "command": "gcc -c -o test_source6.o test_source6.c",
         "directory": "/Users/pablo/Repos/gencc/tests",
         "file": "/Users/pablo/Repos/gencc/tests/test_source6.c"
     },
     {
-        "command": "g++ -c -o test_source7.o test_source7.c",
+        "command": "gcc -c -o test_source7.o test_source7.c",
         "directory": "/Users/pablo/Repos/gencc/tests",
         "file": "/Users/pablo/Repos/gencc/tests/test_source7.c"
     },
     {
-        "command": "g++ -c -o test_source8.o test_source8.c",
+        "command": "gcc -c -o test_source8.o test_source8.c",
         "directory": "/Users/pablo/Repos/gencc/tests",
         "file": "/Users/pablo/Repos/gencc/tests/test_source8.c"
     }
