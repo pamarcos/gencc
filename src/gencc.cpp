@@ -86,8 +86,6 @@ int get_cwd(std::string& str)
 {
     char buffer[256];
     if (!getcwd(buffer, sizeof(buffer))) {
-        std::cout << "Couldn't get working directory"
-                  << '\n';
         str.clear();
         return -1;
     }
@@ -111,7 +109,7 @@ void build_call(const std::vector<std::string>& params)
     }
 
     if (get_cwd(cwd)) {
-        throw std::runtime_error("Couldn't get CWD");
+        throw std::runtime_error("Couldn't get current working dir");
     }
 
     std::cout << "Original PATH = " << origPath << '\n';
@@ -161,7 +159,7 @@ void write_to_db(const std::string& directory, const std::string& command, const
     do {
         std::ifstream iLockFile(dbLockFilepath);
         if (iLockFile.good()) {
-            unsigned int fallbackValue = rand() % options.fallback;
+            int fallbackValue = rand() % options.fallback;
             std::cout << dbLockFilepath << " already exists. Trying again in "
                       << fallbackValue << " ms"
                       << '\n';
@@ -200,7 +198,7 @@ void compiler_call(const std::vector<std::string>& params)
     std::string cwd, directory, command, file;
 
     if (get_cwd(cwd)) {
-        throw std::runtime_error("Couldn't get CWD");
+        throw std::runtime_error("Couldn't get current working dir");
     }
 
     // Deserialize options embedded in the env variable
@@ -218,11 +216,7 @@ void compiler_call(const std::vector<std::string>& params)
 
     ss.str("");
     ss.clear();
-    if (!options.compiler.empty()) {
-        ss << options.compiler << " ";
-    } else {
-        ss << params[0] << " ";
-    }
+    ss << options.compiler << " ";
 
     directory = cwd;
     for (size_t i = 1; i < params.size(); ++i) {
@@ -290,9 +284,6 @@ int parse_args(std::vector<std::string>& params)
             params.erase(it);
             options.fallback = std::stoi(*it);
             params.erase(it);
-        } else if (param == "-c") {
-            params.erase(it);
-            options.mode = gencc_mode::COMPILER;
         } else if (param == "-build") {
             params.erase(it);
             options.build = true;
