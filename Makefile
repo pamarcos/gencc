@@ -1,6 +1,5 @@
 NAME = gencc
 CXXFLAGS = -std=c++11 -Wall -Ithird_party
-CXXFLAGS += -fsanitize=address
 SRCS = $(wildcard src/*.cpp)
 TESTS_DIR = tests
 
@@ -12,22 +11,73 @@ else
 CXXFLAGS += -02
 endif
 
+ifeq ($(MAKECMDGOALS),verify)
+$(NAME): clean
+CXXFLAGS += -g -fsanitize=address
+endif
+
+ifeq ($(MAKECMDGOALS),coverage)
+$(NAME): clean
+CXXFLAGS += -g -fsanitize=address -fprofile-arcs -ftest-coverage
+endif
+
 all: $(NAME)
 
 $(NAME): $(SRCS)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 clean:
+	rm -f compile_commands.json
+	rm -f *.gcda *.gcno *.html*
 	rm -f $(NAME)
 
-tests: $(NAME)
+define compare_json
+	@bash -c "diff -u <(sort $(TESTS_DIR)/compile_commands.json) <(sort compile_commands.json)"
+endef
+
+tests: clean $(NAME)
+	# No arguments
+	./$(NAME)
+
+	# Wrong arguments
+	./$(NAME) -asd -esd || echo "Fail expected :)"
+
+	# Simple case
+	./$(NAME) $(MAKE) -C $(TESTS_DIR)
+
+	# Wrong target
+	./$(NAME) $(MAKE) -C $(TESTS_DIR) asdasd
+
+	# Passing CXX and CC through env var
 	rm -f compile_commands.json
 	env CXX=g++ CC=gcc ./$(NAME) $(MAKE) -C $(TESTS_DIR)
-	diff -u $(TESTS_DIR)/compile_commands.json compile_commands.json
+	$(call compare_json)
+
+	# Passing CXX and CC through arguments
+	rm -f compile_commands.json
 	./$(NAME) -cxx g++ -cc gcc $(MAKE) -C $(TESTS_DIR)
-	diff -u $(TESTS_DIR)/compile_commands.json compile_commands.json
+	$(call compare_json)
+
+	# Passing CXX and CC through both env var and arguments
+	rm -f compile_commands.json
+	env CXX=clang++ CC=clang ./$(NAME) -cxx g++ -cc gcc $(MAKE) -C $(TESTS_DIR)
+	$(call compare_json)
+
+	# Passing CXX and CC through both env var and arguments
+	rm -f compile_commands.json
+	env CXX=clang++ CC=clang ./$(NAME) -cxx g++ -cc gcc -o compile_commands.json $(MAKE) -C $(TESTS_DIR)
+	$(call compare_json)
+
+	# Using multiple jobs to force collisions
+	rm -f compile_commands.json
+	./$(NAME) -cxx g++ -cc gcc make -j8 -C $(TESTS_DIR)
+	$(call compare_json)
+
+	# Retries, fallback and build arguments
+	rm -f compile_commands.json
 	$(MAKE) -C $(TESTS_DIR) clean
-	./$(NAME) -cxx g++ -cc gcc -build $(MAKE) -C $(TESTS_DIR)
+	./$(NAME) -cxx g++ -cc gcc -build -r 10 -f 100 $(MAKE) -C $(TESTS_DIR)
+	$(call compare_json)
 	test -f $(TESTS_DIR)/test_source1.o
 	test -f $(TESTS_DIR)/test_source2.o
 	test -f $(TESTS_DIR)/test_source3.o
@@ -37,7 +87,10 @@ tests: $(NAME)
 	test -f $(TESTS_DIR)/test_source7.o
 	test -f $(TESTS_DIR)/test_source8.o
 
+coverage: tests
+	gcovr -r . --html --html-details -o coverage.html
+
 dbg-%:
 	@echo "Makefile: Value of $* = $($*)"
 
-.PHONY: clean tests all
+.PHONY: clean tests coverage all
