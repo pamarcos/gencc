@@ -1,5 +1,5 @@
 NAME = gencc
-CXXFLAGS = -std=c++11 -Wall -Ithird_party
+CXXFLAGS = -std=c++11 -Wpedantic -Ithird_party
 SRCS = $(wildcard src/*.cpp)
 TESTS_DIR = tests
 
@@ -18,7 +18,7 @@ endif
 
 ifeq ($(MAKECMDGOALS),coverage)
 $(NAME): clean
-CXXFLAGS += -g -fsanitize=address -fprofile-arcs -ftest-coverage
+CXXFLAGS += -g -fsanitize=address --coverage
 endif
 
 all: $(NAME)
@@ -89,6 +89,16 @@ tests: clean $(NAME)
 
 coverage: tests
 	gcovr -r . --html --html-details -o coverage.html
+
+CLANG_TIDY_CHECKS = *
+CLANG_TIDY_CHECKS += ,-cert-err58-cpp
+CLANG_TIDY_CHECKS += ,-google-runtime-references
+CLANG_TIDY_CHECKS += ,-cppcoreguidelines-pro-type-reinterpret-cast
+CLANG_TIDY_CHECKS += ,-cert-env33-c
+#CLANG_TIDY_FILTER = '[{"name":"src/gencc.cpp", "lines":[[19,1000]]}]'
+
+tidy:
+	clang-tidy -checks='$(CLANG_TIDY_CHECKS)' src/gencc.cpp
 
 dbg-%:
 	@echo "Makefile: Value of $* = $($*)"

@@ -34,7 +34,7 @@ enum class gencc_mode {
     COMPILER
 };
 
-typedef struct gencc_options {
+using gencc_options_t = struct gencc_options {
     gencc_mode mode = gencc_mode::BUILDER;
     bool build = false;
     std::string dbFilename = DB_FILENAME;
@@ -43,7 +43,7 @@ typedef struct gencc_options {
     std::string compiler;
     int retries = MAX_DB_RETRIES;
     int fallback = MAX_FALLBACK_SLEEP_IN_MS;
-} gencc_options_t;
+};
 
 using json = nlohmann::json;
 
@@ -63,13 +63,12 @@ void help()
 int get_env_var(const char* name, std::string& str)
 {
     const char* ptr = getenv(name);
-    if (ptr) {
+    if (ptr != nullptr) {
         str = ptr;
         return 0;
-    } else {
-        str.clear();
-        return -1;
     }
+    str.clear();
+    return -1;
 }
 
 void set_env_var(const char* name, const std::string& value)
@@ -85,11 +84,11 @@ void set_env_var(const char* name, const std::string& value)
 int get_cwd(std::string& str)
 {
     char buffer[256];
-    if (!getcwd(buffer, sizeof(buffer))) {
+    if (getcwd(reinterpret_cast<char*>(buffer), sizeof(buffer)) == nullptr) {
         str.clear();
         return -1;
     }
-    str = buffer;
+    str = reinterpret_cast<char*>(buffer);
     return 0;
 }
 
@@ -101,14 +100,14 @@ void build_call(const std::vector<std::string>& params)
     std::stringstream ss;
 
     get_env_var(PATH, origPath);
-    if (options.cxx.empty() && !get_env_var(CXX, tmp)) {
+    if (options.cxx.empty() && get_env_var(CXX, tmp) == 0) {
         options.cxx = tmp;
     }
-    if (options.cc.empty() && !get_env_var(CC, tmp)) {
+    if (options.cc.empty() && get_env_var(CC, tmp) == 0) {
         options.cc = tmp;
     }
 
-    if (get_cwd(cwd)) {
+    if (get_cwd(cwd) != 0) {
         throw std::runtime_error("Couldn't get current working dir");
     }
 
@@ -159,7 +158,7 @@ void write_to_db(const std::string& directory, const std::string& command, const
     do {
         std::ifstream iLockFile(dbLockFilepath);
         if (iLockFile.good()) {
-            int fallbackValue = rand() % options.fallback;
+            int fallbackValue = arc4random() % options.fallback;
             std::cout << dbLockFilepath << " already exists. Trying again in "
                       << fallbackValue << " ms"
                       << '\n';
@@ -197,20 +196,19 @@ void compiler_call(const std::vector<std::string>& params)
     std::stringstream ss;
     std::string cwd, directory, command, file;
 
-    if (get_cwd(cwd)) {
+    if (get_cwd(cwd) != 0) {
         throw std::runtime_error("Couldn't get current working dir");
     }
 
     // Deserialize options embedded in the env variable
     std::string genccOptions;
     json jsonObj;
-    if (get_env_var(GENCC_OPTIONS, genccOptions)) {
+    if (get_env_var(GENCC_OPTIONS, genccOptions) != 0) {
         throw std::runtime_error(std::string("Couldn't read env var ") + GENCC_OPTIONS);
     }
     ss << genccOptions;
     jsonObj << ss;
 
-    //std::cout << GENCC_OPTIONS << " = " << genccOptions << '\n';
     options.build = jsonObj["build"];
     options.dbFilename = jsonObj["dbFilename"];
 
@@ -253,7 +251,7 @@ int parse_args(std::vector<std::string>& params)
 
     for (; it != params.end();) {
         std::string param = *it;
-        if (param.find("-") == std::string::npos) {
+        if (param.find('-') == std::string::npos) {
             break;
         }
 
@@ -314,13 +312,13 @@ int main(int argc, char* argv[])
     }
 
     std::string mode;
-    if (get_env_var(GENCC_OPTIONS, mode)) {
+    if (get_env_var(GENCC_OPTIONS, mode) != 0) {
         options.mode = gencc_mode::BUILDER;
     } else {
         options.mode = gencc_mode::COMPILER;
     }
 
-    if (parse_args(params)) {
+    if (parse_args(params) != 0) {
         std::cout << "Error parsing arguments"
                   << '\n';
         help();
