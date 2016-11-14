@@ -18,7 +18,6 @@
 
 static const char* VERSION = "0.1";
 static const char* NAME = "gencc";
-static const char* PATH = "PATH";
 static const char* CXX = "CXX";
 static const char* CC = "CC";
 static const char* DB_FILENAME = "compile_commands.json";
@@ -96,10 +95,9 @@ int get_cwd(std::string& str)
  * is called instead of the default CXX one */
 void build_call(const std::vector<std::string>& params)
 {
-    std::string origPath, tmp, cwd, newPath;
+    std::string tmp, cwd;
     std::stringstream ss;
 
-    get_env_var(PATH, origPath);
     if (options.cxx.empty() && get_env_var(CXX, tmp) == 0) {
         options.cxx = tmp;
     }
@@ -111,13 +109,9 @@ void build_call(const std::vector<std::string>& params)
         throw std::runtime_error("Couldn't get current working dir");
     }
 
-    std::cout << "Original PATH = " << origPath << '\n';
     std::cout << "Original CXX = " << options.cxx << '\n';
     std::cout << "Original CC = " << options.cc << '\n';
     std::cout << "CWD = " << cwd << '\n';
-
-    newPath = cwd + ":" + origPath;
-    set_env_var(PATH, newPath);
 
     options.dbFilename = cwd + "/" + options.dbFilename;
     std::remove(options.dbFilename.c_str());
@@ -303,12 +297,21 @@ int main(int argc, char* argv[])
     }
 
     std::vector<std::string> params;
-    for (int i = 0; i < argc; ++i) {
-        params.emplace_back(argv[i]);
-    }
-    std::size_t pos = params[0].find_last_of('/');
+    std::string genccComand = argv[0];
+    std::size_t pos = genccComand.find("./");
+
+    // Add absolute path to GenCC param in case of using a relative path
     if (pos != std::string::npos) {
-        params[0] = params[0].substr(pos + 1);
+        std::string cwd;
+        if (get_cwd(cwd) != 0) {
+            throw std::runtime_error("Couldn't get current working dir");
+        }
+        genccComand = cwd + "/" + genccComand;
+    }
+    params.emplace_back(genccComand);
+
+    for (int i = 1; i < argc; ++i) {
+        params.emplace_back(argv[i]);
     }
 
     std::string mode;
@@ -319,8 +322,7 @@ int main(int argc, char* argv[])
     }
 
     if (parse_args(params) != 0) {
-        std::cout << "Error parsing arguments"
-                  << '\n';
+        std::cout << "Error parsing arguments\n";
         help();
         return -1;
     }
