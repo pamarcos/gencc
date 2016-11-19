@@ -1,10 +1,6 @@
-ROOT = $(shell dirname $PWD)
+ROOT = $(CURDIR)
 include common.mk
 
-BUILD_DIR = $(ROOT)/build
-SRC = $(wildcard $(ROOT)/src/*.cpp)
-OBJ = $(SRC:.cpp=.o)
-OBJ := $(foreach obj,$(OBJ),$(BUILD_DIR)/$(obj))
 DEBUG = 1
 
 ifneq ($(DEBUG),)
@@ -13,7 +9,7 @@ else
 CXXFLAGS += -02
 endif
 
-ifeq ($(MAKECMDGOALS),verify)
+ifeq ($(MAKECMDGOALS),tidy)
 $(NAME) $(OBJ): clean
 CXXFLAGS += -g -fsanitize=address
 endif

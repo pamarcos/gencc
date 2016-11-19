@@ -270,10 +270,9 @@ int gencc(int argc, char* argv[])
     std::vector<std::string> params;
     gencc_options_t options;
     std::string genccComand = argv[0];
-    std::size_t pos = genccComand.find("./");
 
-    // Add absolute path to GenCC param in case of using a relative path
-    if (pos != std::string::npos) {
+    // Ensure the GenCC command uses the absolute path
+    if (genccComand.find_first_of('/') != 0) {
         std::string cwd;
         if (!get_cwd(cwd)) {
             throw std::runtime_error("Couldn't get current working dir");
