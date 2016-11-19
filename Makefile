@@ -1,7 +1,10 @@
 ROOT = $(shell dirname $PWD)
 include common.mk
 
-SRCS = $(wildcard src/*.cpp)
+BUILD_DIR = $(ROOT)/build
+SRC = $(wildcard $(ROOT)/src/*.cpp)
+OBJ = $(SRC:.cpp=.o)
+OBJ := $(foreach obj,$(OBJ),$(BUILD_DIR)/$(obj))
 DEBUG = 1
 
 ifneq ($(DEBUG),)
@@ -11,21 +14,26 @@ CXXFLAGS += -02
 endif
 
 ifeq ($(MAKECMDGOALS),verify)
-$(NAME): clean
+$(NAME) $(OBJ): clean
 CXXFLAGS += -g -fsanitize=address
 endif
 
 ifeq ($(MAKECMDGOALS),coverage)
-$(NAME): clean
+$(NAME) $(OBJ): clean
 CXXFLAGS += -g -fsanitize=address --coverage
 endif
 
 all: $(NAME)
 
-$(NAME): $(SRCS)
-	$(CXX) $(CXXFLAGS) -o $@ $<
+$(BUILD_DIR)/%.o: %.cpp
+	@mkdir -p $(shell dirname $@)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(NAME): $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
 
 clean:
+	rm -rf $(BUILD_DIR)
 	rm -f *.gcda *.gcno *.html*
 	rm -f $(NAME)
 	cd $(TESTS_DIR) && $(MAKE) $@
