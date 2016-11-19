@@ -34,7 +34,7 @@ clean:
 	rm -f $(NAME)
 	cd $(TESTS_DIR) && $(MAKE) $@
 
-tests functional_tests: $(NAME)
+tests functional_tests unit_tests: $(NAME)
 	cd $(TESTS_DIR) && $(MAKE) $@
 
 coverage: tests

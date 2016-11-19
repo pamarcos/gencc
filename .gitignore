@@ -1,7 +1,9 @@
 *.o
 *.dSYM
-compile_commands.json
+**/compile_commands.json
 gencc
+unit_tests
+!unit_tests/
 *.plist
 *.user
 *.creator

@@ -1,5 +1,5 @@
 NAME = gencc
-CXXFLAGS = -std=c++11 -pedantic -Wall -Wextra -Ithird_party
+CXXFLAGS = -std=c++11 -pedantic -Wall -Wextra -I$(ROOT)/src -I$(ROOT)/third_party
 TESTS_DIR = $(ROOT)/tests
 
 BUILD_DIR = $(ROOT)/build
