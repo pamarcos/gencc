@@ -2,6 +2,7 @@
 *.dSYM
 compile_commands.json
 gencc
+*.plist
 *.user
 *.creator
 *.files
