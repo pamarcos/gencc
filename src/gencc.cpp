@@ -46,8 +46,6 @@ using gencc_options_t = struct gencc_options {
 
 using json = nlohmann::json;
 
-static gencc_options_t options;
-
 void help()
 {
     std::cout << "Help:\n"
@@ -93,7 +91,7 @@ bool get_cwd(std::string& str)
 
 /* Helper function to simply set the PATH correctly so that this binary
  * is called instead of the default CXX one */
-void build_call(const std::vector<std::string>& params)
+void build_call(gencc_options_t& options, const std::vector<std::string>& params)
 {
     std::string tmp, cwd;
     std::stringstream ss;
@@ -143,7 +141,7 @@ void build_call(const std::vector<std::string>& params)
     }
 }
 
-void write_to_db(const std::string& directory, const std::string& command, const std::string& file)
+void write_to_db(const gencc_options_t& options, const std::string& directory, const std::string& command, const std::string& file)
 {
     std::string dbFilepath = options.dbFilename;
     std::string dbLockFilepath = dbFilepath + DB_LOCK_FILENAME_EXT;
@@ -185,7 +183,7 @@ void write_to_db(const std::string& directory, const std::string& command, const
     } while (++retries <= options.retries);
 }
 
-void compiler_call(const std::vector<std::string>& params)
+void compiler_call(gencc_options_t& options, const std::vector<std::string>& params)
 {
     std::stringstream ss;
     std::string cwd, directory, command, file;
@@ -224,7 +222,7 @@ void compiler_call(const std::vector<std::string>& params)
     command = ss.str();
 
     std::cout << command << '\n';
-    write_to_db(directory, command, file);
+    write_to_db(options, directory, command, file);
 
     if (options.build) {
         if (int ret = system(ss.str().c_str())) {
@@ -234,7 +232,7 @@ void compiler_call(const std::vector<std::string>& params)
     }
 }
 
-bool parse_args(std::vector<std::string>& params)
+bool parse_args(gencc_options_t& options, std::vector<std::string>& params)
 {
     auto it = params.begin();
     for (; it != params.end(); ++it) {
@@ -297,6 +295,7 @@ int main(int argc, char* argv[])
     }
 
     std::vector<std::string> params;
+    gencc_options_t options;
     std::string genccComand = argv[0];
     std::size_t pos = genccComand.find("./");
 
@@ -321,7 +320,7 @@ int main(int argc, char* argv[])
         options.mode = gencc_mode::COMPILER;
     }
 
-    if (!parse_args(params)) {
+    if (!parse_args(options, params)) {
         std::cout << "Error parsing arguments\n";
         help();
         return -1;
@@ -330,9 +329,9 @@ int main(int argc, char* argv[])
     try {
         if (options.mode == gencc_mode::BUILDER) {
             std::cout << '\n';
-            build_call(params);
+            build_call(options, params);
         } else {
-            compiler_call(params);
+            compiler_call(options, params);
         }
     } catch (const std::exception& e) {
         std::cout << "ERROR: " << e.what() << '\n';
