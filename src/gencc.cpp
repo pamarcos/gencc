@@ -59,15 +59,15 @@ void help()
                  "\t-build          - Call the actual compiler\n";
 }
 
-int get_env_var(const char* name, std::string& str)
+bool get_env_var(const char* name, std::string& str)
 {
     const char* ptr = getenv(name);
-    if (ptr != nullptr) {
-        str = ptr;
-        return 0;
+    if (ptr == nullptr) {
+        str.clear();
+        return false;
     }
-    str.clear();
-    return -1;
+    str = ptr;
+    return true;
 }
 
 void set_env_var(const char* name, const std::string& value)
@@ -80,15 +80,15 @@ void set_env_var(const char* name, const std::string& value)
     }
 }
 
-int get_cwd(std::string& str)
+bool get_cwd(std::string& str)
 {
     char buffer[256];
     if (getcwd(reinterpret_cast<char*>(buffer), sizeof(buffer)) == nullptr) {
         str.clear();
-        return -1;
+        return false;
     }
     str = reinterpret_cast<char*>(buffer);
-    return 0;
+    return true;
 }
 
 /* Helper function to simply set the PATH correctly so that this binary
@@ -98,14 +98,14 @@ void build_call(const std::vector<std::string>& params)
     std::string tmp, cwd;
     std::stringstream ss;
 
-    if (options.cxx.empty() && get_env_var(CXX, tmp) == 0) {
+    if (options.cxx.empty() && get_env_var(CXX, tmp)) {
         options.cxx = tmp;
     }
-    if (options.cc.empty() && get_env_var(CC, tmp) == 0) {
+    if (options.cc.empty() && get_env_var(CC, tmp)) {
         options.cc = tmp;
     }
 
-    if (get_cwd(cwd) != 0) {
+    if (!get_cwd(cwd)) {
         throw std::runtime_error("Couldn't get current working dir");
     }
 
@@ -190,14 +190,14 @@ void compiler_call(const std::vector<std::string>& params)
     std::stringstream ss;
     std::string cwd, directory, command, file;
 
-    if (get_cwd(cwd) != 0) {
+    if (!get_cwd(cwd)) {
         throw std::runtime_error("Couldn't get current working dir");
     }
 
     // Deserialize options embedded in the env variable
     std::string genccOptions;
     json jsonObj;
-    if (get_env_var(GENCC_OPTIONS, genccOptions) != 0) {
+    if (!get_env_var(GENCC_OPTIONS, genccOptions)) {
         throw std::runtime_error(std::string("Couldn't read env var ") + GENCC_OPTIONS);
     }
     ss << genccOptions;
@@ -234,7 +234,7 @@ void compiler_call(const std::vector<std::string>& params)
     }
 }
 
-int parse_args(std::vector<std::string>& params)
+bool parse_args(std::vector<std::string>& params)
 {
     auto it = params.begin();
     for (; it != params.end(); ++it) {
@@ -280,11 +280,11 @@ int parse_args(std::vector<std::string>& params)
             params.erase(it);
             options.build = true;
         } else {
-            return -1;
+            return false;
         }
     }
 
-    return 0;
+    return true;
 }
 
 int main(int argc, char* argv[])
@@ -303,7 +303,7 @@ int main(int argc, char* argv[])
     // Add absolute path to GenCC param in case of using a relative path
     if (pos != std::string::npos) {
         std::string cwd;
-        if (get_cwd(cwd) != 0) {
+        if (!get_cwd(cwd)) {
             throw std::runtime_error("Couldn't get current working dir");
         }
         genccComand = cwd + "/" + genccComand;
@@ -315,13 +315,13 @@ int main(int argc, char* argv[])
     }
 
     std::string mode;
-    if (get_env_var(GENCC_OPTIONS, mode) != 0) {
+    if (!get_env_var(GENCC_OPTIONS, mode)) {
         options.mode = gencc_mode::BUILDER;
     } else {
         options.mode = gencc_mode::COMPILER;
     }
 
-    if (parse_args(params) != 0) {
+    if (!parse_args(params)) {
         std::cout << "Error parsing arguments\n";
         help();
         return -1;
