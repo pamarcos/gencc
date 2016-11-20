@@ -5,6 +5,7 @@ TESTS_DIR = $(ROOT)/tests
 BUILD_DIR = $(ROOT)/build
 SRC = $(wildcard $(ROOT)/src/*.cpp)
 OBJ = $(SRC:.cpp=.o)
+OBJ := $(foreach obj,$(OBJ),$(subst $(ROOT)/,,$(obj)))
 OBJ := $(foreach obj,$(OBJ),$(BUILD_DIR)/$(obj))
 
 dbg-%:
