@@ -2,24 +2,38 @@ ROOT = $(CURDIR)
 include common.mk
 
 ifeq ($(MAKECMDGOALS),tests)
-$(OUTPUT_BIN): clean
+$(OUTPUT_BIN) $(OBJ): clean
 CXXFLAGS += -fsanitize=address
 endif
 
+ifeq ($(MAKECMDGOALS),unit_tests)
+$(OUTPUT_BIN) $(OBJ): clean
+CXXFLAGS += -g -fsanitize=address
+endif
+
+ifeq ($(MAKECMDGOALS),functional_tests)
+$(OUTPUT_BIN) $(OBJ): clean
+CXXFLAGS += -g -fsanitize=address
+endif
+
 ifeq ($(MAKECMDGOALS),coverage)
-$(OUTPUT_BIN): clean
-CXXFLAGS += --coverage
+$(OUTPUT_BIN) $(OBJ): clean
+CXXFLAGS += -fsanitize=address --coverage
 endif
 
 all: $(OUTPUT_BIN)
 
-$(OUTPUT_BIN):
-	cd $(SRC_DIR) && $(MAKE)
+$(BUILD_DIR)/%.o: %.cpp
+	@mkdir -p $(shell dirname $@)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(OUTPUT_BIN): $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
 
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -f *.gcda *.gcno *.html*
-	cd $(SRC_DIR) && $(MAKE) $@
+	rm -f $(OUTPUT_BIN)
 	cd $(TESTS_DIR) && $(MAKE) $@
 
 tests functional_tests unit_tests: $(OUTPUT_BIN)
