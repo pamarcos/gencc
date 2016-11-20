@@ -1,0 +1,13 @@
+#ifndef COMPILER_H
+#define COMPILER_H
+
+#include "common.h"
+
+class Compiler final : public Common, public GenccWorker {
+public:
+    Compiler(GenccOptions* options, Helper* helper);
+    void doWork(const std::vector<std::string>& params) override;
+    void writeToDb(const std::string& directory, const std::string& command, const std::string& file);
+};
+
+#endif // COMPILER_H
