@@ -1,6 +1,7 @@
 *.o
 *.dSYM
 **/compile_commands.json
+build/
 gencc
 unit_tests
 !unit_tests/

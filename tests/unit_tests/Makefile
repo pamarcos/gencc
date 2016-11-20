@@ -3,7 +3,7 @@ include $(ROOT)/common.mk
 
 CXXFLAGS += -fsanitize=address --coverage -I$(CURDIR)/googletest
 
-TESTS_BUILD_DIR = $(BUILD_DIR)/unit_tests
+TESTS_BUILD_DIR = $(BUILD_DIR)/tests/unit_tests
 
 TESTS_SRC = $(wildcard *.cpp) $(wildcard googletest/*.cpp)
 TESTS_OBJ = $(TESTS_SRC:.cpp=.o)
