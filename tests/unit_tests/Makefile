@@ -12,20 +12,23 @@ TESTS_OBJ := $(foreach obj,$(TESTS_OBJ),$(TESTS_BUILD_DIR)/$(obj))
 OBJ := $(filter-out $(BUILD_DIR)/src/main.o,$(OBJ))
 OBJ += $(TESTS_OBJ)
 
+UNIT_TESTS_BIN = $(ROOT)/unit_tests
+
 all: run_unit_tests
 
 $(TESTS_BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(shell dirname $@)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-unit_tests: $(TESTS_OBJ)
-	$(CXX) $(CXXFLAGS) -o $(ROOT)/$@ $(OBJ)
+$(UNIT_TESTS_BIN): $(TESTS_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
 
-run_unit_tests: unit_tests
-	$(ROOT)/unit_tests
+run_unit_tests: $(ROOT)/unit_tests
+	$(UNIT_TESTS_BIN)
 
 clean:
 	rm -rf $(TESTS_BUILD_DIR)
+	rm -f $(UNIT_TESTS_BIN)
 
-.PHONY: clean run_unit_tests unit_tests
+.PHONY: clean run_unit_tests
 

@@ -8,10 +8,12 @@ else
 CXXFLAGS += -02
 endif
 
+OUTPUT_BIN = $(ROOT)/$(NAME)
 TESTS_DIR = $(ROOT)/tests
 
 BUILD_DIR = $(ROOT)/build
-SRC = $(wildcard $(ROOT)/src/*.cpp)
+SRC_DIR = $(ROOT)/src
+SRC = $(wildcard $(SRC_DIR)/*.cpp)
 OBJ = $(SRC:.cpp=.o)
 OBJ := $(foreach obj,$(OBJ),$(subst $(ROOT)/,,$(obj)))
 OBJ := $(foreach obj,$(OBJ),$(BUILD_DIR)/$(obj))

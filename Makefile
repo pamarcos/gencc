@@ -2,31 +2,27 @@ ROOT = $(CURDIR)
 include common.mk
 
 ifeq ($(MAKECMDGOALS),tests)
-$(NAME) $(OBJ): clean
+$(OUTPUT_BIN): clean
 CXXFLAGS += -fsanitize=address
 endif
 
 ifeq ($(MAKECMDGOALS),coverage)
-$(NAME) $(OBJ): clean
+$(OUTPUT_BIN): clean
 CXXFLAGS += --coverage
 endif
 
-all: $(NAME)
+all: $(OUTPUT_BIN)
 
-$(BUILD_DIR)/%.o: %.cpp
-	@mkdir -p $(shell dirname $@)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-$(NAME): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
+$(OUTPUT_BIN):
+	cd $(SRC_DIR) && $(MAKE)
 
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -f *.gcda *.gcno *.html*
-	rm -f $(NAME)
+	cd $(SRC_DIR) && $(MAKE) $@
 	cd $(TESTS_DIR) && $(MAKE) $@
 
-tests functional_tests unit_tests: $(NAME)
+tests functional_tests unit_tests: $(OUTPUT_BIN)
 	cd $(TESTS_DIR) && $(MAKE) $@
 
 coverage: tests
@@ -42,4 +38,4 @@ CLANG_TIDY_CHECKS += ,-cert-env33-c
 tidy:
 	clang-tidy -checks='$(CLANG_TIDY_CHECKS)' src/gencc.cpp
 
-.PHONY: clean tests functional_tests coverage all
+.PHONY: clean tests unit_tests functional_tests coverage all
