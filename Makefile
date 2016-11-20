@@ -1,22 +1,14 @@
 ROOT = $(CURDIR)
 include common.mk
 
-DEBUG = 1
-
-ifneq ($(DEBUG),)
-CXXFLAGS += -g -O0
-else
-CXXFLAGS += -02
-endif
-
-ifeq ($(MAKECMDGOALS),tidy)
+ifeq ($(MAKECMDGOALS),tests)
 $(NAME) $(OBJ): clean
-CXXFLAGS += -g -fsanitize=address
+CXXFLAGS += -fsanitize=address
 endif
 
 ifeq ($(MAKECMDGOALS),coverage)
 $(NAME) $(OBJ): clean
-CXXFLAGS += -g -fsanitize=address --coverage
+CXXFLAGS += --coverage
 endif
 
 all: $(NAME)

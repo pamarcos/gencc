@@ -2,5 +2,8 @@
 
 int main(int argc, char* argv[])
 {
-    return gencc(argc, argv);
+    GenccOptions options;
+    Helper helper;
+    Gencc gencc(&options, &helper);
+    return gencc.init(argc, argv);
 }

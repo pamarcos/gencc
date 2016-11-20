@@ -1,7 +1,7 @@
 ROOT = $(CURDIR)/../..
 include $(ROOT)/common.mk
 
-CXXFLAGS += -I$(CURDIR)/googletest
+CXXFLAGS += -g -fsanitize=address -I$(CURDIR)/googletest
 
 TESTS_BUILD_DIR = $(BUILD_DIR)/unit_tests
 

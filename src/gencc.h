@@ -21,7 +21,7 @@ enum class gencc_mode {
     COMPILER
 };
 
-using gencc_options_t = struct gencc_options {
+using GenccOptions = struct GenccOptions_s {
     gencc_mode mode = gencc_mode::BUILDER;
     bool build = false;
     std::string dbFilename = DB_FILENAME;
@@ -32,15 +32,67 @@ using gencc_options_t = struct gencc_options {
     int fallback = MAX_FALLBACK_SLEEP_IN_MS;
 };
 
-int gencc(int argc, char* argv[]);
-bool parse_args(gencc_options_t& options, std::vector<std::string>& params);
-void compiler_call(gencc_options_t& options, const std::vector<std::string>& params);
-void write_to_db(const gencc_options_t& options, const std::string& directory, const std::string& command, const std::string& file);
-void build_call(gencc_options_t& options, const std::vector<std::string>& params);
+class IHelper {
+public:
+    virtual ~IHelper() = default;
+    virtual bool getEnvVar(const char* name, std::string& str) const noexcept = 0;
+    virtual void setEnvVar(const char* name, const std::string& value) const = 0;
+    virtual bool getCwd(std::string& str) noexcept = 0;
+};
 
-bool get_cwd(std::string& str);
-void set_env_var(const char* name, const std::string& value);
-bool get_env_var(const char* name, std::string& str);
-void help();
+class Helper final : public IHelper {
+public:
+    bool getEnvVar(const char* name, std::string& str) const noexcept override;
+    void setEnvVar(const char* name, const std::string& value) const override;
+    bool getCwd(std::string& str) noexcept override;
+
+public:
+    char m_buffer[128];
+};
+
+class Common {
+public:
+    Common(GenccOptions* options, Helper* helper);
+
+    Helper* getHelper() const noexcept { return m_helper; }
+    void setHelper(Helper* value) noexcept { m_helper = value; }
+
+    GenccOptions* getOptions() const noexcept { return m_options; }
+    void setOptions(GenccOptions* value) noexcept { m_options = value; }
+
+protected:
+    GenccOptions* m_options;
+    Helper* m_helper;
+};
+
+class GenccWorker {
+public:
+    virtual ~GenccWorker() = default;
+    virtual void doWork(const std::vector<std::string>& params) = 0;
+};
+
+class Builder final : public Common, public GenccWorker {
+public:
+    Builder(GenccOptions* options, Helper* helper);
+    void doWork(const std::vector<std::string>& params) override;
+};
+
+class Compiler final : public Common, public GenccWorker {
+public:
+    Compiler(GenccOptions* options, Helper* helper);
+    void doWork(const std::vector<std::string>& params) override;
+    void writeToDb(const std::string& directory, const std::string& command, const std::string& file);
+};
+
+class Gencc final : public Common {
+public:
+    Gencc(GenccOptions* options, Helper* helper);
+    int init(int argc, char* argv[]);
+
+private:
+    bool parseArgs(std::vector<std::string>& params);
+    void help();
+    std::unique_ptr<GenccWorker> m_worker;
+};
 
 #endif // GENCC_H

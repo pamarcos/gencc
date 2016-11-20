@@ -19,18 +19,7 @@
 
 using json = nlohmann::json;
 
-void help()
-{
-    std::cout << "Help:\n"
-                 "\t-cxx    [value] - CXX compiler\n"
-                 "\t-cc     [value] - CC compiler\n"
-                 "\t-o      [value] - DB file\n"
-                 "\t-r      [value] - Number of retries if DB locked\n"
-                 "\t-f      [value] - Max fallback time in ms in case of DB locked\n"
-                 "\t-build          - Call the actual compiler\n";
-}
-
-bool get_env_var(const char* name, std::string& str)
+bool Helper::getEnvVar(const char* name, std::string& str) const noexcept
 {
     const char* ptr = getenv(name);
     if (ptr == nullptr) {
@@ -41,63 +30,73 @@ bool get_env_var(const char* name, std::string& str)
     return true;
 }
 
-void set_env_var(const char* name, const std::string& value)
+void Helper::setEnvVar(const char* name, const std::string& value) const
 {
     std::string var;
     setenv(name, value.c_str(), 1);
-    get_env_var(name, var);
+    getEnvVar(name, var);
     if (var != value) {
         throw std::runtime_error(std::string("Couldn't set new var ") + name + " to " + value);
     }
 }
 
-bool get_cwd(std::string& str)
+bool Helper::getCwd(std::string& str) noexcept
 {
-    char buffer[256];
-    if (getcwd(reinterpret_cast<char*>(buffer), sizeof(buffer)) == nullptr) {
+    if (getcwd(reinterpret_cast<char*>(m_buffer), sizeof(m_buffer)) == nullptr) {
         str.clear();
         return false;
     }
-    str = reinterpret_cast<char*>(buffer);
+    str = reinterpret_cast<char*>(m_buffer);
     return true;
+}
+
+Common::Common(GenccOptions* options, Helper* helper)
+    : m_options(options)
+    , m_helper(helper)
+{
+}
+
+Builder::Builder(GenccOptions* options, Helper* helper)
+    : Common(options, helper)
+{
 }
 
 /* Helper function to simply set the PATH correctly so that this binary
  * is called instead of the default CXX one */
-void build_call(gencc_options_t& options, const std::vector<std::string>& params)
+void Builder::doWork(const std::vector<std::string>& params)
 {
     std::string tmp, cwd;
     std::stringstream ss;
 
-    if (options.cxx.empty() && get_env_var(CXX, tmp)) {
-        options.cxx = tmp;
+    if (m_options->cxx.empty() && m_helper->getEnvVar(CXX, tmp)) {
+        m_options->cxx = tmp;
     }
-    if (options.cc.empty() && get_env_var(CC, tmp)) {
-        options.cc = tmp;
+    if (m_options->cc.empty() && m_helper->getEnvVar(CC, tmp)) {
+        m_options->cc = tmp;
     }
 
-    if (!get_cwd(cwd)) {
+    if (!m_helper->getCwd(cwd)) {
         throw std::runtime_error("Couldn't get current working dir");
     }
 
-    std::cout << "Original CXX = " << options.cxx << '\n';
-    std::cout << "Original CC = " << options.cc << '\n';
+    std::cout << "Original CXX = " << m_options->cxx << '\n';
+    std::cout << "Original CC = " << m_options->cc << '\n';
     std::cout << "CWD = " << cwd << '\n';
 
-    options.dbFilename = cwd + "/" + options.dbFilename;
-    std::remove(options.dbFilename.c_str());
-    std::remove((options.dbFilename + DB_LOCK_FILENAME_EXT).c_str());
+    m_options->dbFilename = cwd + "/" + m_options->dbFilename;
+    std::remove(m_options->dbFilename.c_str());
+    std::remove((m_options->dbFilename + DB_LOCK_FILENAME_EXT).c_str());
 
     // Serialize the options through an environment variable
     json jsonObj;
-    jsonObj["build"] = options.build;
-    jsonObj["dbFilename"] = options.dbFilename;
+    jsonObj["build"] = m_options->build;
+    jsonObj["dbFilename"] = m_options->dbFilename;
     ss.str("");
     ss.clear();
     ss << jsonObj;
-    set_env_var(GENCC_OPTIONS, ss.str());
-    set_env_var(CXX, params.at(0) + " -gencc-compiler " + options.cxx);
-    set_env_var(CC, params.at(0) + " -gencc-compiler " + options.cc);
+    m_helper->setEnvVar(GENCC_OPTIONS, ss.str());
+    m_helper->setEnvVar(CXX, params.at(0) + " -gencc-compiler " + m_options->cxx);
+    m_helper->setEnvVar(CC, params.at(0) + " -gencc-compiler " + m_options->cc);
 
     ss.str("");
     ss.clear();
@@ -114,16 +113,21 @@ void build_call(gencc_options_t& options, const std::vector<std::string>& params
     }
 }
 
-void write_to_db(const gencc_options_t& options, const std::string& directory, const std::string& command, const std::string& file)
+Compiler::Compiler(GenccOptions* options, Helper* helper)
+    : Common(options, helper)
 {
-    std::string dbFilepath = options.dbFilename;
+}
+
+void Compiler::writeToDb(const std::string& directory, const std::string& command, const std::string& file)
+{
+    std::string dbFilepath = m_options->dbFilename;
     std::string dbLockFilepath = dbFilepath + DB_LOCK_FILENAME_EXT;
 
     int retries = 0;
     do {
         std::ifstream iLockFile(dbLockFilepath);
         if (iLockFile.good()) {
-            int fallbackValue = arc4random() % options.fallback;
+            int fallbackValue = arc4random() % m_options->fallback;
             std::cout << dbLockFilepath << " already exists. Trying again in "
                       << fallbackValue << " ms"
                       << '\n';
@@ -135,7 +139,7 @@ void write_to_db(const gencc_options_t& options, const std::string& directory, c
         std::ofstream oLockFile(dbLockFilepath);
         oLockFile.close();
 
-        std::ifstream idb(options.dbFilename);
+        std::ifstream idb(m_options->dbFilename);
 
         json jsonDb = json::array();
         if (idb.good()) {
@@ -148,38 +152,38 @@ void write_to_db(const gencc_options_t& options, const std::string& directory, c
         jsonObj["file"] = file;
         jsonDb.push_back(jsonObj);
 
-        std::ofstream odb(options.dbFilename);
+        std::ofstream odb(m_options->dbFilename);
         odb << jsonDb.dump(4);
 
         std::remove(dbLockFilepath.c_str());
         return;
-    } while (++retries <= options.retries);
+    } while (++retries <= m_options->retries);
 }
 
-void compiler_call(gencc_options_t& options, const std::vector<std::string>& params)
+void Compiler::doWork(const std::vector<std::string>& params)
 {
     std::stringstream ss;
     std::string cwd, directory, command, file;
 
-    if (!get_cwd(cwd)) {
+    if (!m_helper->getCwd(cwd)) {
         throw std::runtime_error("Couldn't get current working dir");
     }
 
     // Deserialize options embedded in the env variable
     std::string genccOptions;
     json jsonObj;
-    if (!get_env_var(GENCC_OPTIONS, genccOptions)) {
+    if (!m_helper->getEnvVar(GENCC_OPTIONS, genccOptions)) {
         throw std::runtime_error(std::string("Couldn't read env var ") + GENCC_OPTIONS);
     }
     ss << genccOptions;
     jsonObj << ss;
 
-    options.build = jsonObj["build"];
-    options.dbFilename = jsonObj["dbFilename"];
+    m_options->build = jsonObj["build"];
+    m_options->dbFilename = jsonObj["dbFilename"];
 
     ss.str("");
     ss.clear();
-    ss << options.compiler << " ";
+    ss << m_options->compiler << " ";
 
     directory = cwd;
     for (size_t i = 1; i < params.size(); ++i) {
@@ -195,9 +199,9 @@ void compiler_call(gencc_options_t& options, const std::vector<std::string>& par
     command = ss.str();
 
     std::cout << command << '\n';
-    write_to_db(options, directory, command, file);
+    writeToDb(directory, command, file);
 
-    if (options.build) {
+    if (m_options->build) {
         if (int ret = system(ss.str().c_str())) {
             std::cout << "The command " << ss.str() << " exited with error code "
                       << ret << '\n';
@@ -205,7 +209,12 @@ void compiler_call(gencc_options_t& options, const std::vector<std::string>& par
     }
 }
 
-bool parse_args(gencc_options_t& options, std::vector<std::string>& params)
+Gencc::Gencc(GenccOptions* options, Helper* helper)
+    : Common(options, helper)
+{
+}
+
+bool Gencc::parseArgs(std::vector<std::string>& params)
 {
     auto it = params.begin();
     for (; it != params.end(); ++it) {
@@ -222,34 +231,34 @@ bool parse_args(gencc_options_t& options, std::vector<std::string>& params)
 
         if (param == "-gencc-compiler" && it + 1 != params.end()) {
             params.erase(it);
-            options.compiler = *it;
+            m_options->compiler = *it;
             params.erase(it);
 
             // The compiler is the only parameter that needs to be parsed in compiler mode
             break;
         } else if (param == "-cxx" && it + 1 != params.end()) {
             params.erase(it);
-            options.cxx = *it;
+            m_options->cxx = *it;
             params.erase(it);
         } else if (param == "-cc" && it + 1 != params.end()) {
             params.erase(it);
-            options.cc = *it;
+            m_options->cc = *it;
             params.erase(it);
         } else if (param == "-o" && it + 1 != params.end()) {
             params.erase(it);
-            options.dbFilename = *it;
+            m_options->dbFilename = *it;
             params.erase(it);
         } else if (param == "-r" && it + 1 != params.end()) {
             params.erase(it);
-            options.retries = std::stoi(*it);
+            m_options->retries = std::stoi(*it);
             params.erase(it);
         } else if (param == "-f" && it + 1 != params.end()) {
             params.erase(it);
-            options.fallback = std::stoi(*it);
+            m_options->fallback = std::stoi(*it);
             params.erase(it);
         } else if (param == "-build") {
             params.erase(it);
-            options.build = true;
+            m_options->build = true;
         } else {
             return false;
         }
@@ -258,8 +267,24 @@ bool parse_args(gencc_options_t& options, std::vector<std::string>& params)
     return true;
 }
 
-int gencc(int argc, char* argv[])
+void Gencc::help()
 {
+    std::cout << "Help:\n"
+                 "\t-cxx    [value] - CXX compiler\n"
+                 "\t-cc     [value] - CC compiler\n"
+                 "\t-o      [value] - DB file\n"
+                 "\t-r      [value] - Number of retries if DB locked\n"
+                 "\t-f      [value] - Max fallback time in ms in case of DB locked\n"
+                 "\t-build          - Call the actual compiler\n";
+}
+
+int Gencc::init(int argc, char* argv[])
+{
+    if (m_options == nullptr || m_helper == nullptr) {
+        std::cout << "Options and helper cannot be null\n";
+        return -1;
+    }
+
     std::cout << NAME << " v" << VERSION << ": ";
 
     if (argc < 2) {
@@ -268,13 +293,12 @@ int gencc(int argc, char* argv[])
     }
 
     std::vector<std::string> params;
-    gencc_options_t options;
     std::string genccComand = argv[0];
 
     // Ensure the GenCC command uses the absolute path
     if (genccComand.find_first_of('/') != 0) {
         std::string cwd;
-        if (!get_cwd(cwd)) {
+        if (!m_helper->getCwd(cwd)) {
             throw std::runtime_error("Couldn't get current working dir");
         }
         genccComand = cwd + "/" + genccComand;
@@ -286,27 +310,30 @@ int gencc(int argc, char* argv[])
     }
 
     std::string mode;
-    if (!get_env_var(GENCC_OPTIONS, mode)) {
-        options.mode = gencc_mode::BUILDER;
+    if (!m_helper->getEnvVar(GENCC_OPTIONS, mode)) {
+        m_options->mode = gencc_mode::BUILDER;
     } else {
-        options.mode = gencc_mode::COMPILER;
+        m_options->mode = gencc_mode::COMPILER;
     }
 
-    if (!parse_args(options, params)) {
+    if (!parseArgs(params)) {
         std::cout << "Error parsing arguments\n";
         help();
         return -1;
     }
 
     try {
-        if (options.mode == gencc_mode::BUILDER) {
+        if (m_options->mode == gencc_mode::BUILDER) {
             std::cout << '\n';
-            build_call(options, params);
+            m_worker = std::unique_ptr<GenccWorker>(new Builder(m_options, m_helper));
         } else {
-            compiler_call(options, params);
+            m_worker = std::unique_ptr<GenccWorker>(new Compiler(m_options, m_helper));
         }
+
+        m_worker->doWork(params);
     } catch (const std::exception& e) {
         std::cout << "ERROR: " << e.what() << '\n';
+        return -1;
     }
 
     return 0;
