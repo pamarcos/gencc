@@ -13,10 +13,10 @@ Compiler::Compiler(GenccOptions* options, Helper* helper)
 {
 }
 
-void Compiler::writeToDb(const std::string& directory, const std::string& command, const std::string& file)
+void Compiler::writeCompilationDB(const std::string& directory, const std::string& command, const std::string& file) const noexcept
 {
     std::string dbFilepath = m_options->dbFilename;
-    std::string dbLockFilepath = dbFilepath + DB_LOCK_FILENAME_EXT;
+    std::string dbLockFilepath = dbFilepath + COMPILATION_DB_LOCK_EXT;
 
     int retries = 0;
     do {
@@ -94,7 +94,7 @@ void Compiler::doWork(const std::vector<std::string>& params)
     command = ss.str();
 
     std::cout << command << '\n';
-    writeToDb(directory, command, file);
+    writeCompilationDB(directory, command, file);
 
     if (m_options->build) {
         if (int ret = system(ss.str().c_str())) {

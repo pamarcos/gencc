@@ -8,7 +8,7 @@
 class Gencc final : public Common {
 public:
     Gencc(GenccOptions* options, Helper* helper);
-    int init(int argc, char* argv[]);
+    int init(std::vector<std::string>& params);
 
     void setWorker(std::unique_ptr<GenccWorker>& worker);
 

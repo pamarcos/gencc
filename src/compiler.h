@@ -7,7 +7,9 @@ class Compiler final : public Common, public GenccWorker {
 public:
     Compiler(GenccOptions* options, Helper* helper);
     void doWork(const std::vector<std::string>& params) override;
-    void writeToDb(const std::string& directory, const std::string& command, const std::string& file);
+
+private:
+    void writeCompilationDB(const std::string& directory, const std::string& command, const std::string& file) const noexcept;
 };
 
 #endif // COMPILER_H

@@ -8,30 +8,30 @@ static const char* VERSION = "0.1";
 static const char* NAME = "gencc";
 static const char* CXX = "CXX";
 static const char* CC = "CC";
-static const char* DB_FILENAME = "compile_commands.json";
-static const char* DB_LOCK_FILENAME_EXT = ".lock";
+static const char* COMPILATION_DB = "compile_commands.json";
+static const char* COMPILATION_DB_LOCK_EXT = ".lock";
 static const char* GENCC_OPTIONS = "GENCC_OPTIONS";
 static const char* C_EXT = ".c";
 
-static const int MAX_DB_RETRIES = 100;
-static const int MAX_FALLBACK_SLEEP_IN_MS = 50;
+static const int MAX_CDB_RETRIES = 100;
+static const int MAX_CDB_FALLBACK_SLEEP_IN_MS = 50;
 
 class Helper;
 
-enum class gencc_mode {
+enum class GenccMode {
     BUILDER,
     COMPILER
 };
 
 using GenccOptions = struct GenccOptions_s {
-    gencc_mode mode = gencc_mode::BUILDER;
+    GenccMode mode = GenccMode::BUILDER;
     bool build = false;
-    std::string dbFilename = DB_FILENAME;
+    std::string dbFilename = COMPILATION_DB;
     std::string cxx;
     std::string cc;
     std::string compiler;
-    int retries = MAX_DB_RETRIES;
-    int fallback = MAX_FALLBACK_SLEEP_IN_MS;
+    int retries = MAX_CDB_RETRIES;
+    int fallback = MAX_CDB_FALLBACK_SLEEP_IN_MS;
 };
 
 class GenccWorker {

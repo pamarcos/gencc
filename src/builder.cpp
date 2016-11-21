@@ -15,15 +15,8 @@ Builder::Builder(GenccOptions* options, Helper* helper)
  * is called instead of the default CXX one */
 void Builder::doWork(const std::vector<std::string>& params)
 {
-    std::string tmp, cwd;
+    std::string cwd;
     std::stringstream ss;
-
-    if (m_options->cxx.empty() && m_helper->getEnvVar(CXX, tmp)) {
-        m_options->cxx = tmp;
-    }
-    if (m_options->cc.empty() && m_helper->getEnvVar(CC, tmp)) {
-        m_options->cc = tmp;
-    }
 
     if (!m_helper->getCwd(cwd)) {
         throw std::runtime_error("Couldn't get current working dir");
@@ -35,7 +28,7 @@ void Builder::doWork(const std::vector<std::string>& params)
 
     m_options->dbFilename = cwd + "/" + m_options->dbFilename;
     std::remove(m_options->dbFilename.c_str());
-    std::remove((m_options->dbFilename + DB_LOCK_FILENAME_EXT).c_str());
+    std::remove((m_options->dbFilename + COMPILATION_DB_LOCK_EXT).c_str());
 
     // Serialize the options through an environment variable
     json jsonObj;
