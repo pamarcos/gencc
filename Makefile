@@ -41,7 +41,7 @@ tests functional_tests unit_tests: $(OUTPUT_BIN)
 coverage: unit_tests
 	# Workaround for gcovr failing if source code is not in the build folder
 	cp tests/unit_tests/*.cpp $(BUILD_DIR)/tests/unit_tests
-	gcovr -r . --html --html-details -o coverage.html -e ".*googletest.*" -e "third_party.*"
+	gcovr -r . --html --html-details -o coverage.html -e ".*googletest.*" -e "third_party.*" -e ".*unit_tests.*"
 
 CLANG_TIDY_CHECKS = *
 CLANG_TIDY_CHECKS += ,-cert-err58-cpp

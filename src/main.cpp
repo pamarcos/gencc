@@ -5,9 +5,8 @@
 
 int main(int argc, char* argv[])
 {
-    GenccOptions options;
-    Helper helper;
-    Gencc gencc(&options, &helper);
+    HelperImpl helper;
+    Gencc gencc(&helper);
 
     std::vector<std::string> params;
     for (int i = 0; i < argc; ++i) {

@@ -3,19 +3,19 @@
 
 #include <string>
 
-class IHelper {
+class Helper {
 public:
-    virtual ~IHelper() = default;
-    virtual bool getEnvVar(const char* name, std::string& str) const noexcept = 0;
+    virtual ~Helper() = default;
+    virtual bool getEnvVar(const char* name, std::string& str) const = 0;
     virtual void setEnvVar(const char* name, const std::string& value) const = 0;
-    virtual bool getCwd(std::string& str) noexcept = 0;
+    virtual bool getCwd(std::string& str) = 0;
 };
 
-class Helper final : public IHelper {
+class HelperImpl final : public Helper {
 public:
-    bool getEnvVar(const char* name, std::string& str) const noexcept override;
+    bool getEnvVar(const char* name, std::string& str) const override;
     void setEnvVar(const char* name, const std::string& value) const override;
-    bool getCwd(std::string& str) noexcept override;
+    bool getCwd(std::string& str) override;
 
 public:
     char m_buffer[128];

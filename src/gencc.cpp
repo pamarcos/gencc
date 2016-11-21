@@ -8,8 +8,8 @@
 #include <exception>
 #include <iostream>
 
-Gencc::Gencc(GenccOptions* options, Helper* helper)
-    : Common(options, helper)
+Gencc::Gencc(Helper* helper)
+    : Common(&m_genccOptions, helper)
 {
 }
 
@@ -85,7 +85,7 @@ void Gencc::help()
                  "\t-build          - Call the actual compiler\n";
 }
 
-void Gencc::setWorker(std::unique_ptr<GenccWorker>& worker)
+void Gencc::setWorker(std::unique_ptr<GenccWorker>&& worker)
 {
     m_worker = std::move(worker);
 }

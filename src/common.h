@@ -19,12 +19,13 @@ static const int MAX_CDB_FALLBACK_SLEEP_IN_MS = 50;
 class Helper;
 
 enum class GenccMode {
+    NONE,
     BUILDER,
     COMPILER
 };
 
 using GenccOptions = struct GenccOptions_s {
-    GenccMode mode = GenccMode::BUILDER;
+    GenccMode mode = GenccMode::NONE;
     bool build = false;
     std::string dbFilename = COMPILATION_DB;
     std::string cxx;

@@ -11,7 +11,7 @@
 #include <unistd.h>
 #endif
 
-bool Helper::getEnvVar(const char* name, std::string& str) const noexcept
+bool HelperImpl::getEnvVar(const char* name, std::string& str) const
 {
     const char* ptr = getenv(name);
     if (ptr == nullptr) {
@@ -22,7 +22,7 @@ bool Helper::getEnvVar(const char* name, std::string& str) const noexcept
     return true;
 }
 
-void Helper::setEnvVar(const char* name, const std::string& value) const
+void HelperImpl::setEnvVar(const char* name, const std::string& value) const
 {
     std::string var;
     setenv(name, value.c_str(), 1);
@@ -32,7 +32,7 @@ void Helper::setEnvVar(const char* name, const std::string& value) const
     }
 }
 
-bool Helper::getCwd(std::string& str) noexcept
+bool HelperImpl::getCwd(std::string& str)
 {
     if (getcwd(reinterpret_cast<char*>(m_buffer), sizeof(m_buffer)) == nullptr) {
         str.clear();
