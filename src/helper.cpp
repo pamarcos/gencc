@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <exception>
+#include <stdexcept>
 
 #ifdef _WIN32
 #include <direct.h>

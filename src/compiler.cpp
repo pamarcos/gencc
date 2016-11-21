@@ -2,9 +2,13 @@
 #include "helper.h"
 #include "json.hpp"
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
+
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 using json = nlohmann::json;
 
@@ -22,7 +26,7 @@ void Compiler::writeCompilationDB(const std::string& directory, const std::strin
     do {
         std::ifstream iLockFile(dbLockFilepath);
         if (iLockFile.good()) {
-            int fallbackValue = arc4random() % m_options->fallback;
+            int fallbackValue = rand() % m_options->fallback;
             std::cout << dbLockFilepath << " already exists. Trying again in "
                       << fallbackValue << " ms"
                       << '\n';

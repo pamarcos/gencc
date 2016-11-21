@@ -2,6 +2,7 @@
 #define GENCC_H
 
 #include "common.h"
+#include <memory>
 #include <string>
 #include <vector>
 
