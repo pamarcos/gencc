@@ -7,7 +7,6 @@ CXXFLAGS += -fsanitize=address
 endif
 
 ifeq ($(MAKECMDGOALS),unit_tests)
-$(OUTPUT_BIN) $(OBJ): clean
 CXXFLAGS += -g -fsanitize=address
 endif
 
@@ -24,7 +23,7 @@ endif
 all: $(OUTPUT_BIN)
 
 $(BUILD_DIR)/%.o: %.cpp
-	@mkdir -p $(shell dirname $@)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OUTPUT_BIN): $(OBJ)

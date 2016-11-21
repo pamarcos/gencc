@@ -22,12 +22,14 @@ UNIT_TESTS_BIN = $(ROOT)/unit_tests
 all: run_unit_tests
 
 $(GTEST_OBJ): $(GTEST_SRC)
-	@mkdir -p $(shell dirname $@)
+	@mkdir -p $(dir $@)
 	$(CXX) $(GTEST_CXXFLAGS) -c -o $@ $<
 
 $(TESTS_BUILD_DIR)/%.o: %.cpp
-	@mkdir -p $(shell dirname $@)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+unit_tests: $(UNIT_TESTS_BIN)
 
 $(UNIT_TESTS_BIN): $(TESTS_OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
@@ -39,5 +41,5 @@ clean:
 	rm -rf $(TESTS_BUILD_DIR)
 	rm -f $(UNIT_TESTS_BIN)
 
-.PHONY: clean run_unit_tests
+.PHONY: clean run_unit_tests unit_tests
 
