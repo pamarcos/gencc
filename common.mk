@@ -17,6 +17,7 @@ SRC = $(wildcard $(SRC_DIR)/*.cpp)
 OBJ = $(SRC:.cpp=.o)
 OBJ := $(foreach obj,$(OBJ),$(subst $(ROOT)/,,$(obj)))
 OBJ := $(foreach obj,$(OBJ),$(BUILD_DIR)/$(obj))
+DEP = $(OBJ:.o=.d)
 
 dbg-%:
 	@echo "Makefile: Value of $* = $($*)"

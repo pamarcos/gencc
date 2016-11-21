@@ -1,4 +1,4 @@
-ROOT = $(CURDIR)/../..
+ROOT = $(realpath $(CURDIR)/../..)
 include $(ROOT)/common.mk
 
 CXXFLAGS += -I$(CURDIR)/googletest
@@ -16,6 +16,7 @@ TESTS_OBJ += $(GTEST_OBJ)
 
 OBJ := $(filter-out $(BUILD_DIR)/src/main.o,$(OBJ))
 OBJ += $(TESTS_OBJ)
+DEP = $(subst .o,.d,$(filter-out $(GTEST_OBJ),$(OBJ)))
 
 UNIT_TESTS_BIN = $(ROOT)/unit_tests
 
@@ -25,7 +26,14 @@ $(GTEST_OBJ): $(GTEST_SRC)
 	@mkdir -p $(dir $@)
 	$(CXX) $(GTEST_CXXFLAGS) -c -o $@ $<
 
-$(TESTS_BUILD_DIR)/%.o: %.cpp
+$(TESTS_BUILD_DIR)/%.d: %.cpp
+	@mkdir -p $(dir $@)
+	@echo "Generating dependency for $<..."
+	@$(CXX) -MM -MP -MF $@ $(CXXFLAGS) $<
+	@sed -i '' 's:$(subst .d,.o,$(notdir $@)):$(dir $@)$(subst .d,.o,$(notdir $@)):' $@
+	@cat $@ | sed 's:$(subst .d,.o,$(notdir $@)):$(notdir $@):' >> $@
+
+$(TESTS_BUILD_DIR)/%.o: %.cpp $(TESTS_BUILD_DIR)/%.d
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
@@ -39,7 +47,12 @@ run_unit_tests: $(ROOT)/unit_tests
 
 clean:
 	rm -rf $(TESTS_BUILD_DIR)
+	rm -f $(DEP)
 	rm -f $(UNIT_TESTS_BIN)
 
 .PHONY: clean run_unit_tests unit_tests
+
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEP)
+endif
 

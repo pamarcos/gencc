@@ -1,4 +1,4 @@
-ROOT = $(CURDIR)/../..
+ROOT = $(realpath $(CURDIR)/../..)
 include $(ROOT)/common.mk
 
 COMPILE_COMMANDS = compile_commands.json
