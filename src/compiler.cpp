@@ -101,7 +101,7 @@ void Compiler::doWork(const std::vector<std::string>& params)
     writeCompilationDB(directory, command, file);
 
     if (m_options->build) {
-        if (int ret = system(ss.str().c_str())) {
+        if (int ret = m_helper->runCommand(ss.str())) {
             std::cout << "The command " << ss.str() << " exited with error code "
                       << ret << '\n';
         }

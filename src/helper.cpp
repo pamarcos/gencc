@@ -41,3 +41,8 @@ bool HelperImpl::getCwd(std::string& str)
     str = reinterpret_cast<char*>(m_buffer);
     return true;
 }
+
+int HelperImpl::runCommand(const std::string& str)
+{
+    return system(str.c_str());
+}
