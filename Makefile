@@ -26,7 +26,8 @@ $(BUILD_DIR)/%.d: %.cpp
 	@mkdir -p $(dir $@)
 	@echo "Generating dependency for $<..."
 	@$(CXX) -MM -MP -MF $@ $(CXXFLAGS) $<
-	@sed -i '' 's:$(subst .d,.o,$(notdir $@)):$(dir $@)$(subst .d,.o,$(notdir $@)):' $@
+	@sed -i.bak 's:$(subst .d,.o,$(notdir $@)):$(dir $@)$(subst .d,.o,$(notdir $@)):' $@
+	@rm -f "$(@:.d=.d.bak)"
 	@cat $@ | sed 's:$(subst .d,.o,$(notdir $@)):$(notdir $@):' >> $@
 
 $(BUILD_DIR)/%.o: %.cpp $(BUILD_DIR)/%.d

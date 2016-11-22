@@ -3,7 +3,7 @@ include $(ROOT)/common.mk
 
 CXXFLAGS += -I$(CURDIR)/googletest
 GTEST_CXXFLAGS := $(CXXFLAGS)
-CXXFLAGS += -fsanitize=address --coverage
+CXXFLAGS += -fsanitize=address
 
 TESTS_BUILD_DIR = $(BUILD_DIR)/tests/unit_tests
 
@@ -30,7 +30,8 @@ $(TESTS_BUILD_DIR)/%.d: %.cpp
 	@mkdir -p $(dir $@)
 	@echo "Generating dependency for $<..."
 	@$(CXX) -MM -MP -MF $@ $(CXXFLAGS) $<
-	@sed -i '' 's:$(subst .d,.o,$(notdir $@)):$(dir $@)$(subst .d,.o,$(notdir $@)):' $@
+	@sed -i.bak 's:$(subst .d,.o,$(notdir $@)):$(dir $@)$(subst .d,.o,$(notdir $@)):' $@
+	@rm -f "$(@:.d=.d.bak)"
 	@cat $@ | sed 's:$(subst .d,.o,$(notdir $@)):$(notdir $@):' >> $@
 
 $(TESTS_BUILD_DIR)/%.o: %.cpp $(TESTS_BUILD_DIR)/%.d
