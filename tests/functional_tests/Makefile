@@ -17,7 +17,7 @@ functional_tests:
 	cd $(ROOT)
 
 	# No arguments
-	$(GENCC)
+	$(GENCC) | echo "Fail expected :)"
 
 	# Wrong arguments
 	$(GENCC) -asd -esd | echo "Fail expected :)"

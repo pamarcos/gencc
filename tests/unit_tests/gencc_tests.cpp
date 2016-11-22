@@ -27,10 +27,16 @@ public:
     std::unique_ptr<GenccWorker> worker;
 };
 
+TEST_F(GenccTest, NoHelper)
+{
+    gencc.setHelper(nullptr);
+    EXPECT_NE(gencc.init(params), 0);
+}
+
 TEST_F(GenccTest, NotEnoughParameters)
 {
     params = { "gencc" };
-    EXPECT_FALSE(gencc.init(params));
+    EXPECT_NE(gencc.init(params), 0);
 }
 
 TEST_F(GenccTest, ErrorGettingCWD)

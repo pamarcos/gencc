@@ -101,7 +101,7 @@ int Gencc::init(std::vector<std::string>& params)
 
     if (params.size() < 2) {
         help();
-        return 0;
+        return -1;
     }
 
     std::string genccComand = params.at(0);
