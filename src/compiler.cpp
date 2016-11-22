@@ -27,9 +27,7 @@ void Compiler::writeCompilationDB(const std::string& directory, const std::strin
         std::ifstream iLockFile(dbLockFilepath);
         if (iLockFile.good()) {
             int fallbackValue = rand() % m_options->fallback;
-            std::cout << dbLockFilepath << " already exists. Trying again in "
-                      << fallbackValue << " ms"
-                      << '\n';
+            LOG("Lock file %s already exists. Trying again in %d ms\n", dbLockFilepath.c_str(), fallbackValue);
             usleep(fallbackValue * 1000u);
             continue;
         }
@@ -97,13 +95,12 @@ void Compiler::doWork(const std::vector<std::string>& params)
     }
     command = ss.str();
 
-    std::cout << command << '\n';
+    LOG("%s\n", command.c_str());
     writeCompilationDB(directory, command, file);
 
     if (m_options->build) {
         if (int ret = m_helper->runCommand(ss.str())) {
-            std::cout << "The command " << ss.str() << " exited with error code "
-                      << ret << '\n';
+            LOG("The command %s exited with error code %d\n", ss.str().c_str(), ret);
         }
     }
 }

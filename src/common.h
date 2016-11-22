@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "logger.h"
+
 static const char* VERSION = "0.1";
 static const char* NAME = "gencc";
 static const char* CXX = "CXX";

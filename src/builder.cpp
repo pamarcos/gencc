@@ -22,9 +22,9 @@ void Builder::doWork(const std::vector<std::string>& params)
         throw std::runtime_error("Couldn't get current working dir");
     }
 
-    std::cout << "Original CXX = " << m_options->cxx << '\n';
-    std::cout << "Original CC = " << m_options->cc << '\n';
-    std::cout << "CWD = " << cwd << '\n';
+    LOG("Original CXX = %s\n", m_options->cxx.c_str());
+    LOG("Original CC = %s\n", m_options->cc.c_str());
+    LOG("CWD = %s\n", cwd.c_str());
 
     m_options->dbFilename = cwd + "/" + m_options->dbFilename;
     std::remove(m_options->dbFilename.c_str());
@@ -51,7 +51,6 @@ void Builder::doWork(const std::vector<std::string>& params)
     }
 
     if (int ret = m_helper->runCommand(ss.str())) {
-        std::cout << "The command " << ss.str() << " exited with error code "
-                  << ret << '\n';
+        LOG("The command %s exited with error code %d\n", ss.str().c_str(), ret);
     }
 }

@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
     try {
         return gencc.init(params);
     } catch (const std::exception& ex) {
-        std::cout << "ERROR: " << ex.what() << '\n';
+        LOG("ERROR: %s\n", ex.what());
         return -1;
     }
 }

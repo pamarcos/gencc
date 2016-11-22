@@ -76,13 +76,13 @@ bool Gencc::parseArgs(std::vector<std::string>& params)
 
 void Gencc::help()
 {
-    std::cout << "Help:\n"
-                 "\t-cxx    [value] - CXX compiler\n"
-                 "\t-cc     [value] - CC compiler\n"
-                 "\t-o      [value] - DB file\n"
-                 "\t-r      [value] - Number of retries if DB locked\n"
-                 "\t-f      [value] - Max fallback time in ms in case of DB locked\n"
-                 "\t-build          - Call the actual compiler\n";
+    LOG("\nHelp:\n"
+        "\t-cxx    [value] - CXX compiler\n"
+        "\t-cc     [value] - CC compiler\n"
+        "\t-o      [value] - DB file\n"
+        "\t-r      [value] - Number of retries if DB locked\n"
+        "\t-f      [value] - Max fallback time in ms in case of DB locked\n"
+        "\t-build          - Call the actual compiler\n");
 }
 
 void Gencc::setWorker(GenccWorker* worker)
@@ -93,11 +93,11 @@ void Gencc::setWorker(GenccWorker* worker)
 int Gencc::init(std::vector<std::string>& params)
 {
     if (m_options == nullptr || m_helper == nullptr) {
-        std::cout << "Options and helper cannot be null\n";
+        LOG("Options and helper cannot be null\n");
         return -1;
     }
 
-    std::cout << NAME << " v" << VERSION << ": ";
+    LOG("%s v%s:", NAME, VERSION);
 
     if (params.size() < 2) {
         help();
@@ -124,13 +124,13 @@ int Gencc::init(std::vector<std::string>& params)
     }
 
     if (!parseArgs(params)) {
-        std::cout << "Error parsing arguments\n";
+        LOG("Error parsing arguments\n");
         help();
         return -1;
     }
 
     if (m_options->mode == GenccMode::BUILDER) {
-        std::cout << '\n';
+        LOG("\n");
         m_worker = std::unique_ptr<GenccWorker>(new Builder(m_options, m_helper));
     } else if (m_options->mode == GenccMode::COMPILER) {
         m_worker = std::unique_ptr<GenccWorker>(new Compiler(m_options, m_helper));

@@ -19,6 +19,7 @@ public:
     {
         gencc.setHelper(&helper);
         gencc.setWorker(new MockGenccWorker());
+        Logger::getInstance().disable();
     }
 
     Gencc gencc;
