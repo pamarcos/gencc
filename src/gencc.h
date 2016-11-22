@@ -11,7 +11,7 @@ public:
     Gencc(Helper* helper);
     int init(std::vector<std::string>& params);
 
-    void setWorker(std::unique_ptr<GenccWorker>&& worker);
+    void setWorker(GenccWorker* worker);
 
 private:
     bool parseArgs(std::vector<std::string>& params);

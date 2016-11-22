@@ -85,9 +85,9 @@ void Gencc::help()
                  "\t-build          - Call the actual compiler\n";
 }
 
-void Gencc::setWorker(std::unique_ptr<GenccWorker>&& worker)
+void Gencc::setWorker(GenccWorker* worker)
 {
-    m_worker = std::move(worker);
+    m_worker = std::unique_ptr<GenccWorker>(worker);
 }
 
 int Gencc::init(std::vector<std::string>& params)

@@ -18,7 +18,7 @@ public:
     void SetUp()
     {
         gencc.setHelper(&helper);
-        gencc.setWorker(std::unique_ptr<GenccWorker>(new MockGenccWorker()));
+        gencc.setWorker(new MockGenccWorker());
     }
 
     Gencc gencc;
@@ -27,13 +27,13 @@ public:
     std::unique_ptr<GenccWorker> worker;
 };
 
-TEST_F(GenccTest, paramError)
+TEST_F(GenccTest, NotEnoughParameters)
 {
     params = { "gencc" };
     EXPECT_FALSE(gencc.init(params));
 }
 
-TEST_F(GenccTest, getCwdError)
+TEST_F(GenccTest, ErrorGettingCWD)
 {
     params = { "gencc", "-h" };
     EXPECT_CALL(helper, getCwd(_)).WillOnce(Return(false));

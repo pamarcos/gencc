@@ -1,9 +1,9 @@
 ROOT = $(realpath $(CURDIR)/../..)
 include $(ROOT)/common.mk
 
-CXXFLAGS += -I$(CURDIR)/googletest
+CXXFLAGS += -I$(CURDIR)/googletest -fsanitize=address
 GTEST_CXXFLAGS := $(CXXFLAGS)
-CXXFLAGS += -fsanitize=address
+LDFLAGS = --coverage
 
 TESTS_BUILD_DIR = $(BUILD_DIR)/tests/unit_tests
 
@@ -41,7 +41,7 @@ $(TESTS_BUILD_DIR)/%.o: %.cpp $(TESTS_BUILD_DIR)/%.d
 unit_tests: $(UNIT_TESTS_BIN)
 
 $(UNIT_TESTS_BIN): $(TESTS_OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ)
 
 run_unit_tests: $(ROOT)/unit_tests
 	$(UNIT_TESTS_BIN)
