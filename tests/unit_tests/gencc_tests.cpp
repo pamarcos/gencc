@@ -17,8 +17,9 @@ public:
 
     void SetUp()
     {
+        worker = std::unique_ptr<GenccWorker>(new MockGenccWorker());
         gencc.setHelper(&helper);
-        gencc.setWorker(new MockGenccWorker());
+        gencc.setWorker(worker);
         Logger::getInstance().disable();
     }
 
