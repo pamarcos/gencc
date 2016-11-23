@@ -1,8 +1,11 @@
 #include "helper.h"
 
+#include <cstdio>
 #include <cstdlib>
 #include <exception>
+#include <fstream>
 #include <stdexcept>
+#include <thread>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -42,7 +45,35 @@ bool HelperImpl::getCwd(std::string& str)
     return true;
 }
 
-int HelperImpl::runCommand(const std::string& str)
+int HelperImpl::runCommand(const std::string& str) const
 {
     return system(str.c_str());
+}
+
+void HelperImpl::msleep(int ms) const
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+}
+
+bool HelperImpl::fileExists(const std::string& filename) const
+{
+    std::ifstream file(filename);
+    return file.good();
+}
+
+std::unique_ptr<FileLock> HelperImpl::getFileLock(const std::string& filename) const
+{
+    return std::unique_ptr<FileLock>(new FileLockImpl(filename));
+}
+
+std::unique_ptr<std::istream> HelperImpl::getFileIstream(const std::string& filename) const
+{
+    std::unique_ptr<std::istream> ifs(new std::ifstream(filename));
+    return ifs;
+}
+
+std::unique_ptr<std::ostream> HelperImpl::getFileOstream(const std::string& filename) const
+{
+    std::unique_ptr<std::ostream> ofs(new std::ofstream(filename));
+    return ofs;
 }

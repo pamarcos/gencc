@@ -3,8 +3,8 @@
 #include "json.hpp"
 
 #include <cstdlib>
-#include <fstream>
 #include <iostream>
+#include <random>
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -15,46 +15,6 @@ using json = nlohmann::json;
 Compiler::Compiler(GenccOptions* options, Helper* helper)
     : Common(options, helper)
 {
-}
-
-void Compiler::writeCompilationDB(const std::string& directory, const std::string& command, const std::string& file) const noexcept
-{
-    std::string dbFilepath = m_options->dbFilename;
-    std::string dbLockFilepath = dbFilepath + COMPILATION_DB_LOCK_EXT;
-
-    int retries = 0;
-    do {
-        std::ifstream iLockFile(dbLockFilepath);
-        if (iLockFile.good()) {
-            int fallbackValue = rand() % m_options->fallback;
-            LOG("Lock file %s already exists. Trying again in %d ms\n", dbLockFilepath.c_str(), fallbackValue);
-            usleep(fallbackValue * 1000u);
-            continue;
-        }
-        iLockFile.close();
-
-        std::ofstream oLockFile(dbLockFilepath);
-        oLockFile.close();
-
-        std::ifstream idb(m_options->dbFilename);
-
-        json jsonDb = json::array();
-        if (idb.good()) {
-            idb >> jsonDb;
-        }
-
-        json jsonObj;
-        jsonObj["directory"] = directory;
-        jsonObj["command"] = command;
-        jsonObj["file"] = file;
-        jsonDb.push_back(jsonObj);
-
-        std::ofstream odb(m_options->dbFilename);
-        odb << jsonDb.dump(4);
-
-        std::remove(dbLockFilepath.c_str());
-        return;
-    } while (++retries <= m_options->retries);
 }
 
 void Compiler::doWork(const std::vector<std::string>& params)
@@ -103,4 +63,42 @@ void Compiler::doWork(const std::vector<std::string>& params)
             LOG("The command %s exited with error code %d\n", ss.str().c_str(), ret);
         }
     }
+}
+
+void Compiler::writeCompilationDB(const std::string& directory, const std::string& command, const std::string& file) const
+{
+    std::string dbFilepath = m_options->dbFilename;
+    std::string dbLockFilepath = dbFilepath + COMPILATION_DB_LOCK_EXT;
+
+    int retries = 1;
+    do {
+        if (m_helper->fileExists(dbLockFilepath)) {
+            std::random_device rd;
+            std::mt19937 mt(rd());
+            std::uniform_int_distribution<int> dist(1, m_options->fallback);
+            int fallbackValue = dist(mt);
+            LOG("Lock file %s already exists. Trying again in %d ms\n", dbLockFilepath.c_str(), fallbackValue);
+            m_helper->msleep(fallbackValue);
+            continue;
+        }
+        FileLockGuard dbLockFile(m_helper->getFileLock(dbLockFilepath));
+
+        json jsonDb = json::array();
+        if (m_helper->fileExists(m_options->dbFilename)) {
+            std::unique_ptr<std::istream> dbStream = m_helper->getFileIstream(m_options->dbFilename);
+            *dbStream >> jsonDb;
+        }
+
+        json jsonObj;
+        jsonObj["directory"] = directory;
+        jsonObj["command"] = command;
+        jsonObj["file"] = file;
+        jsonDb.push_back(jsonObj);
+
+        std::unique_ptr<std::ostream> dbStream = m_helper->getFileOstream(m_options->dbFilename);
+        *dbStream << jsonDb.dump(4);
+        dbStream->flush();
+
+        break;
+    } while (++retries <= m_options->retries);
 }
