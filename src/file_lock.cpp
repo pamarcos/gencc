@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-FileLock::FileLock(const std::__1::string& filename)
+FileLock::FileLock(const std::string& filename)
     : m_filename(filename)
 {
 }
