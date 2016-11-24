@@ -50,7 +50,7 @@ int HelperImpl::runCommand(const std::string& str) const
     return system(str.c_str());
 }
 
-void HelperImpl::msleep(int ms) const
+void HelperImpl::msleep(unsigned ms) const
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
@@ -59,6 +59,11 @@ bool HelperImpl::fileExists(const std::string& filename) const
 {
     std::ifstream file(filename);
     return file.good();
+}
+
+void HelperImpl::removeFile(const std::string& filename) const
+{
+    std::remove(filename.c_str());
 }
 
 std::unique_ptr<FileLock> HelperImpl::getFileLock(const std::string& filename) const

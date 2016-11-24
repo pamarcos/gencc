@@ -97,7 +97,7 @@ int Gencc::init(std::vector<std::string>& params)
         return -1;
     }
 
-    LOG("%s v%s:", NAME, VERSION);
+    LOG("%s v%s: ", NAME, VERSION);
 
     if (params.size() < 2) {
         help();

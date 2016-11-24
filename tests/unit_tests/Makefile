@@ -1,7 +1,7 @@
 ROOT = $(realpath $(CURDIR)/../..)
 include $(ROOT)/common.mk
 
-CXXFLAGS += -g -I$(CURDIR)/googletest -fsanitize=address
+CXXFLAGS += -g -I$(CURDIR)/googletest -fsanitize=address -pthread
 GTEST_CXXFLAGS := $(CXXFLAGS)
 LDFLAGS = --coverage
 

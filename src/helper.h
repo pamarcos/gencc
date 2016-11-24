@@ -18,10 +18,11 @@ public:
 
     // System commands
     virtual int runCommand(const std::string& str) const = 0;
-    virtual void msleep(int ms) const = 0;
+    virtual void msleep(unsigned ms) const = 0;
 
     // File commands
     virtual bool fileExists(const std::string& filename) const = 0;
+    virtual void removeFile(const std::string& filename) const = 0;
     virtual std::unique_ptr<FileLock> getFileLock(const std::string& filename) const = 0;
     virtual std::unique_ptr<std::istream> getFileIstream(const std::string& filename) const = 0;
     virtual std::unique_ptr<std::ostream> getFileOstream(const std::string& filename) const = 0;
@@ -36,10 +37,11 @@ public:
 
     // System commands
     int runCommand(const std::string& str) const override;
-    virtual void msleep(int ms) const override;
+    virtual void msleep(unsigned ms) const override;
 
     // File commands
     virtual bool fileExists(const std::string& filename) const override;
+    virtual void removeFile(const std::string& filename) const override;
     virtual std::unique_ptr<FileLock> getFileLock(const std::string& filename) const override;
     virtual std::unique_ptr<std::istream> getFileIstream(const std::string& filename) const override;
     virtual std::unique_ptr<std::ostream> getFileOstream(const std::string& filename) const override;

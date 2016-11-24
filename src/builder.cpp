@@ -27,8 +27,8 @@ void Builder::doWork(const std::vector<std::string>& params)
     LOG("CWD = %s\n", cwd.c_str());
 
     m_options->dbFilename = cwd + "/" + m_options->dbFilename;
-    std::remove(m_options->dbFilename.c_str());
-    std::remove((m_options->dbFilename + COMPILATION_DB_LOCK_EXT).c_str());
+    m_helper->removeFile(m_options->dbFilename);
+    m_helper->removeFile(m_options->dbFilename + COMPILATION_DB_LOCK_EXT);
 
     // Serialize the options through an environment variable
     json jsonObj;
