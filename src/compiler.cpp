@@ -20,7 +20,7 @@ Compiler::Compiler(GenccOptions* options, Helper* helper)
 void Compiler::doWork(const std::vector<std::string>& params)
 {
     std::stringstream ss;
-    std::string cwd, directory, command, file;
+    std::string cwd;
 
     if (!m_helper->getCwd(cwd)) {
         throw std::runtime_error("Couldn't get current working dir");
@@ -42,7 +42,7 @@ void Compiler::doWork(const std::vector<std::string>& params)
     ss.clear();
     ss << m_options->compiler << " ";
 
-    directory = cwd;
+    m_directory = cwd;
     for (size_t i = 1; i < params.size(); ++i) {
         ss << params.at(i);
         if (i != params.size() - 1) {
@@ -50,13 +50,13 @@ void Compiler::doWork(const std::vector<std::string>& params)
         }
 
         if (params.at(i).find(C_EXT) != std::string::npos) {
-            file = directory + "/" + params.at(i);
+            m_file = m_directory + "/" + params.at(i);
         }
     }
-    command = ss.str();
+    m_command = ss.str();
 
-    LOG("%s\n", command.c_str());
-    writeCompilationDB(directory, command, file);
+    LOG("%s\n", m_command.c_str());
+    writeCompilationDB();
 
     if (m_options->build) {
         if (int ret = m_helper->runCommand(ss.str())) {
@@ -65,23 +65,23 @@ void Compiler::doWork(const std::vector<std::string>& params)
     }
 }
 
-void Compiler::writeCompilationDB(const std::string& directory, const std::string& command, const std::string& file) const
+void Compiler::writeCompilationDB() const
 {
     std::string dbFilepath = m_options->dbFilename;
     std::string dbLockFilepath = dbFilepath + COMPILATION_DB_LOCK_EXT;
 
-    int retries = 1;
+    unsigned retries = 1;
     do {
         if (m_helper->fileExists(dbLockFilepath)) {
-            std::random_device rd;
-            std::mt19937 mt(rd());
-            std::uniform_int_distribution<int> dist(1, m_options->fallback);
-            int fallbackValue = dist(mt);
-            LOG("Lock file %s already exists. Trying again in %d ms\n", dbLockFilepath.c_str(), fallbackValue);
-            m_helper->msleep(fallbackValue);
+            fallback(retries);
             continue;
         }
         FileLockGuard dbLockFile(m_helper->getFileLock(dbLockFilepath));
+
+        if (!dbLockFile.getLockFile()->writeToFile(m_command)) {
+            fallback(retries);
+            continue;
+        }
 
         json jsonDb = json::array();
         if (m_helper->fileExists(m_options->dbFilename)) {
@@ -90,15 +90,49 @@ void Compiler::writeCompilationDB(const std::string& directory, const std::strin
         }
 
         json jsonObj;
-        jsonObj["directory"] = directory;
-        jsonObj["command"] = command;
-        jsonObj["file"] = file;
+        jsonObj["directory"] = m_directory;
+        jsonObj["command"] = m_command;
+        jsonObj["file"] = m_file;
         jsonDb.push_back(jsonObj);
 
-        std::unique_ptr<std::ostream> dbStream = m_helper->getFileOstream(m_options->dbFilename);
-        *dbStream << jsonDb.dump(4);
-        dbStream->flush();
+        std::string checkStr;
 
-        break;
+        if (!dbLockFile.getLockFile()->readFromFile(checkStr)) {
+            fallback(retries);
+            continue;
+        }
+
+        // Check to ensure that there was no race condition when creating dbLockFile
+        // In case the string read now is not the same as the one written after creating
+        // that file, we know a different process created it at the same time
+        if (checkStr == m_command) {
+            std::unique_ptr<std::ostream> dbStream = m_helper->getFileOstream(m_options->dbFilename);
+            *dbStream << jsonDb.dump(4);
+            dbStream->flush();
+            break;
+        } else {
+            // Do not remove the dbLockFile because the other process is the one that
+            // created it. However, there might be another race condition when checking
+            // the content, so we need to check again to ensure the file is removed
+            dbLockFile.removeFile(false);
+            fallback(retries);
+            std::string newCheck;
+            dbLockFile.getLockFile()->readFromFile(newCheck);
+            if (newCheck == checkStr) {
+                dbLockFile.removeFile(true);
+            }
+            continue;
+        }
     } while (++retries <= m_options->retries);
+}
+
+void Compiler::fallback(unsigned retries) const
+{
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<unsigned> dist(1, m_options->fallback);
+    unsigned fallbackValue = dist(mt);
+    LOG("%s - Lock file already exists. Trying again in %d ms. Attempt #%d\n",
+        m_command.c_str(), fallbackValue, retries);
+    m_helper->msleep(fallbackValue);
 }

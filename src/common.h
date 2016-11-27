@@ -33,8 +33,8 @@ using GenccOptions = struct GenccOptions_s {
     std::string cxx;
     std::string cc;
     std::string compiler;
-    int retries = MAX_CDB_RETRIES;
-    int fallback = MAX_CDB_FALLBACK_SLEEP_IN_MS;
+    unsigned retries = MAX_CDB_RETRIES;
+    unsigned fallback = MAX_CDB_FALLBACK_SLEEP_IN_MS;
 };
 
 class GenccWorker {

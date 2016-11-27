@@ -1,9 +1,13 @@
 ROOT = $(realpath $(CURDIR)/../..)
 include $(ROOT)/common.mk
 
-CXXFLAGS += -g -I$(CURDIR)/googletest -fsanitize=address -pthread
+CXXFLAGS += -g -I$(CURDIR)/googletest -fsanitize=address
 GTEST_CXXFLAGS := $(CXXFLAGS)
 LDFLAGS = --coverage
+
+ifneq ($(shell uname), "Darwin")
+LDFLAGS += -pthread
+endif
 
 TESTS_BUILD_DIR = $(BUILD_DIR)/tests/unit_tests
 
