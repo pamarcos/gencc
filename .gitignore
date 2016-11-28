@@ -1,6 +1,7 @@
 *.o
 *.dSYM
 **/compile_commands.json
+**/compile_commands.json.exp.real
 build/
 gencc
 unit_tests
