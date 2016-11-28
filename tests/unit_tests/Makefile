@@ -1,11 +1,11 @@
 ROOT = $(realpath $(CURDIR)/../..)
 include $(ROOT)/common.mk
 
-CXXFLAGS += -g -I$(CURDIR)/googletest -fsanitize=address
+CXXFLAGS += -g -I$(CURDIR)/googletest -fsanitize=address --coverage
 GTEST_CXXFLAGS := $(CXXFLAGS)
 LDFLAGS = --coverage
 
-ifneq ($(shell uname), "Darwin")
+ifneq ($(shell uname),Darwin)
 LDFLAGS += -pthread
 endif
 

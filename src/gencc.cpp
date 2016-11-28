@@ -129,13 +129,13 @@ int Gencc::init(std::vector<std::string>& params)
         return -1;
     }
 
-    if (m_options->mode == GenccMode::BUILDER) {
-        LOG("\n");
-        m_worker = std::unique_ptr<GenccWorker>(new Builder(m_options, m_helper));
-    } else if (m_options->mode == GenccMode::COMPILER) {
-        m_worker = std::unique_ptr<GenccWorker>(new Compiler(m_options, m_helper));
-    } else if (m_worker == nullptr) {
-        throw std::runtime_error("Worker cannot be null");
+    if (m_worker == nullptr) {
+        if (m_options->mode == GenccMode::BUILDER) {
+            LOG("\n");
+            m_worker = std::unique_ptr<GenccWorker>(new Builder(m_options, m_helper));
+        } else if (m_options->mode == GenccMode::COMPILER) {
+            m_worker = std::unique_ptr<GenccWorker>(new Compiler(m_options, m_helper));
+        }
     }
 
     m_worker->doWork(params);

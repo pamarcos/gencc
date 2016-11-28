@@ -17,16 +17,31 @@ public:
 
     void SetUp()
     {
-        worker = std::unique_ptr<GenccWorker>(new MockGenccWorker());
+        worker = new MockGenccWorker();
+        std::unique_ptr<GenccWorker> genccWorker(worker);
         gencc.setHelper(&helper);
-        gencc.setWorker(worker);
+        gencc.setWorker(genccWorker);
         Logger::getInstance().disable();
+    }
+
+    void generateParams(const std::string& str = "")
+    {
+        params.clear();
+        if (str.empty()) {
+            return;
+        }
+        size_t lastPos = 0;
+        while (lastPos != std::string::npos) {
+            size_t pos = str.find(' ', lastPos + 1);
+            params.emplace_back(str.substr(lastPos, pos));
+            lastPos = pos;
+        }
     }
 
     Gencc gencc;
     MockHelper helper;
     std::vector<std::string> params;
-    std::unique_ptr<GenccWorker> worker;
+    MockGenccWorker* worker;
 };
 
 TEST_F(GenccTest, NoHelper)
@@ -37,13 +52,45 @@ TEST_F(GenccTest, NoHelper)
 
 TEST_F(GenccTest, NotEnoughParameters)
 {
-    params = { "gencc" };
+    generateParams("gencc");
     EXPECT_NE(gencc.init(params), 0);
 }
 
 TEST_F(GenccTest, ErrorGettingCWD)
 {
-    params = { "gencc", "-h" };
+    generateParams("gencc -h");
     EXPECT_CALL(helper, getCwd(_)).WillOnce(Return(false));
     EXPECT_THROW(gencc.init(params), std::runtime_error);
+}
+
+TEST_F(GenccTest, AddCWDtoBinaryPath)
+{
+    generateParams("gencc -h");
+    EXPECT_CALL(helper, getCwd(_)).WillOnce(Return(true));
+    EXPECT_CALL(helper, getEnvVar(_, _)).WillRepeatedly(Return(false));
+    EXPECT_NE(gencc.init(params), 0);
+}
+
+TEST_F(GenccTest, AbsoluteBinaryPath)
+{
+    generateParams("/my/absolute/path/gencc -h");
+    EXPECT_CALL(helper, getEnvVar(_, _)).WillRepeatedly(Return(false));
+    EXPECT_NE(gencc.init(params), 0);
+}
+
+TEST_F(GenccTest, CompilerMode)
+{
+    generateParams("gencc -h");
+    EXPECT_CALL(helper, getCwd(_)).WillOnce(Return(true));
+    EXPECT_CALL(helper, getEnvVar(_, _)).WillRepeatedly(Return(true));
+    EXPECT_NE(gencc.init(params), 0);
+}
+
+TEST_F(GenccTest, CompilerModeWork)
+{
+    generateParams("gencc foo");
+    EXPECT_CALL(helper, getCwd(_)).WillOnce(Return(true));
+    EXPECT_CALL(helper, getEnvVar(_, _)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*worker, doWork(_));
+    EXPECT_EQ(gencc.init(params), 0);
 }
