@@ -1,0 +1,7 @@
+language: cpp
+dist: trusty
+compiler:
+  - clang
+  - gcc
+os: linux
+script: make
