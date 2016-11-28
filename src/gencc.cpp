@@ -97,7 +97,7 @@ bool Gencc::parseArgs(std::vector<std::string>& params)
 
 void Gencc::help()
 {
-    LOG("\nHelp:\n"
+    LOG("\nUsage:\n"
         "\t-cxx    [value] - CXX compiler\n"
         "\t-cc     [value] - CC compiler\n"
         "\t-o      [value] - DB file\n"
