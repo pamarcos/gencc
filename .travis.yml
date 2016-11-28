@@ -5,20 +5,26 @@ language: cpp
 addons:
   sources:
     - ubuntu-toolchain-r-test
+    - jonathonf/binutils
   packages:
     - gcovr
 
 matrix:
   include:
     - compiler: gcc
+      env: COMPILER=g++-5
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
             - g++-5
-      env: COMPILER=g++-5
+      after_success:
+        - make coverage
+        - bash <(curl -s https://codecov.io/bash)
+
     - compiler: clang
+      env: COMPILER=clang++-3.8
       addons:
         apt:
           sources:
@@ -26,10 +32,11 @@ matrix:
             - llvm-toolchain-precise-3.8
           packages:
             - clang-3.8
-      env: COMPILER=clang++-3.8
 
 before_install:
-  - sudo apt-get update -qq
+  - sudo add-apt-repository ppa:jonathonf/binutils --yes || true
+  - sudo apt-get update -qq --yes || true
+  - sudo apt-get install -qq --yes --force-yes binutils
 
 before_script:
   - export CXX=$COMPILER
@@ -38,6 +45,4 @@ before_script:
 script:
   - make
 
-after_success:
-  - make coverage
-  - bash <(curl -s https://codecov.io/bash)
+
