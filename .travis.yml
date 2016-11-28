@@ -1,14 +1,6 @@
+sudo: required
+dist: trusty
 language: cpp
-os: linux
-
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-      - llvm-toolchain-precise-3.6
-    packages:
-      - g++-5
-      - clang-3.6
 
 matrix:
   include:
@@ -19,16 +11,23 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-5
-      env: CXX=g++-5
+      env: COMPILER=g++-5
     - compiler: clang
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.6
+            - llvm-toolchain-precise-3.8
           packages:
-            - clang-3.6
-      env: CXX=clang++-3.6
+            - clang-3.8
+      env: COMPILER=clang++-3.8
 
-script: 
-  make
+before_install:
+  - sudo apt-get update -qq
+
+before_script:
+  - export CXX=$COMPILER
+  - $CXX --version
+
+script:
+  - make

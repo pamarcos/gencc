@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/pamarcos/gencc.svg?branch=master)](https://travis-ci.org/pamarcos/gencc)
 # gencc
 
 *gencc* (**gen**erator of **c**ompile **c**ommands) is a simple standalone application developed in **C++11** that generates [compilation databases for clang](http://clang.llvm.org/docs/JSONCompilationDatabase.html). It is similar to [bear](https://github.com/rizsotto/Bear), but it does not rely on *LD_PRELOAD*, enabling its use in latest **OS X** versions (without disabling security features) and **Linux** with *SELinux* enabled.
