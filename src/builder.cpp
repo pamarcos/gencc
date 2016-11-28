@@ -32,8 +32,6 @@ Builder::Builder(GenccOptions* options, Helper* helper)
 {
 }
 
-/* Helper function to simply set the PATH correctly so that this binary
- * is called instead of the default CXX one */
 void Builder::doWork(const std::vector<std::string>& params)
 {
     std::string cwd;

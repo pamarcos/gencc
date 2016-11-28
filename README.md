@@ -3,6 +3,8 @@
 
 *gencc* (**gen**erator of **c**ompile **c**ommands) is a simple standalone application developed in **C++11** that generates [compilation databases for clang](http://clang.llvm.org/docs/JSONCompilationDatabase.html). It is similar to [bear](https://github.com/rizsotto/Bear), but it does not rely on *LD_PRELOAD*, enabling its use in latest **OS X** versions (without disabling security features) and **Linux** with *SELinux* enabled.
 
+*gencc* is useful to run build systems such as *make*, capturing compiler calls. If you are using *CMake*, forget about this and use directly *CMAKE\_EXPORT\_COMPILE\_COMMANDS* so that it exports the database at the same time it generates the build files.
+
 ## How to build
 
 You just need *make* and a *C++11* compiler. Just run on the top directory: ```make```. This will generate the *gencc* binary.
