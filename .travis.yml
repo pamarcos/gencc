@@ -11,7 +11,8 @@ addons:
 
 matrix:
   include:
-    - compiler: gcc
+    - os: linux
+      compiler: gcc
       env: COMPILER=g++-5
       addons:
         apt:
@@ -23,7 +24,8 @@ matrix:
         - make coverage
         - bash <(curl -s https://codecov.io/bash)
 
-    - compiler: clang
+    - os: linux
+      compiler: clang
       env: COMPILER=clang++-3.8
       addons:
         apt:
@@ -33,10 +35,17 @@ matrix:
           packages:
             - clang-3.8
 
+    - os: osx
+      compiler: clang
+      env: COMPILER=clang
+      osx_image: xcode8.2
+
 before_install:
-  - sudo add-apt-repository ppa:jonathonf/binutils --yes || true
-  - sudo apt-get update -qq --yes || true
-  - sudo apt-get install -qq --yes --force-yes binutils
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      sudo add-apt-repository ppa:jonathonf/binutils --yes || true;
+      sudo apt-get update -qq --yes || true;
+      sudo apt-get install -qq --yes --force-yes binutils;
+    fi
 
 before_script:
   - export CXX=$COMPILER
