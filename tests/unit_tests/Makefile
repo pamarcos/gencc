@@ -36,7 +36,7 @@ $(TESTS_BUILD_DIR)/%.d: %.cpp
 	@$(CXX) -MM -MP -MF $@ $(CXXFLAGS) $<
 	@sed -i.bak 's:$(subst .d,.o,$(notdir $@)):$(dir $@)$(subst .d,.o,$(notdir $@)):' $@
 	@rm -f "$(@:.d=.d.bak)"
-	@cat $@ | sed 's:$(subst .d,.o,$(notdir $@)):$(notdir $@):' >> $@
+	@sed 's:$(subst .d,.o,$(notdir $@)):$(notdir $@):' $@ >> $@
 
 $(TESTS_BUILD_DIR)/%.o: %.cpp $(TESTS_BUILD_DIR)/%.d
 	@mkdir -p $(dir $@)

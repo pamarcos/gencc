@@ -3,10 +3,11 @@ include $(ROOT)/common.mk
 
 COMPILE_COMMANDS = compile_commands.json
 EXPECTED_COMPILE_COMMANDS = $(CURDIR)/$(COMPILE_COMMANDS).exp
+EXPECTED_COMPILE_COMMANDS_REAL = $(EXPECTED_COMPILE_COMMANDS).real
 FUNC_TESTS_DIR = test
 
 define compare_json
-	@bash -c "diff -u <(sort $(EXPECTED_COMPILE_COMMANDS)) <(sort $(COMPILE_COMMANDS))"
+	@bash -c "diff -u <(sort $(EXPECTED_COMPILE_COMMANDS_REAL)) <(sort $(COMPILE_COMMANDS))"
 endef
 
 GENCC = $(ROOT)/$(NAME)
@@ -15,6 +16,9 @@ all: functional_tests
 
 functional_tests:
 	cd $(ROOT)
+
+	# Generate expected output independently of the project folder
+	sed 's:$$PWD:$(CURDIR):g' $(EXPECTED_COMPILE_COMMANDS) > $(EXPECTED_COMPILE_COMMANDS_REAL)
 
 	# No arguments
 	$(GENCC) | echo "Fail expected :)"

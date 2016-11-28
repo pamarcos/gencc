@@ -2,6 +2,12 @@ sudo: required
 dist: trusty
 language: cpp
 
+addons:
+  sources:
+    - ubuntu-toolchain-r-test
+  packages:
+    - gcovr
+
 matrix:
   include:
     - compiler: gcc
@@ -31,3 +37,7 @@ before_script:
 
 script:
   - make
+
+after_success:
+  - make coverage
+  - bash <(curl -s https://codecov.io/bash)
