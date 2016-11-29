@@ -36,9 +36,14 @@ struct Constants {
     static const char* COMPILATION_DB_LOCK_EXT;
     static const char* GENCC_OPTIONS;
     static const char* C_EXT;
-
-    static const int MAX_CDB_RETRIES;
-    static const int MAX_CDB_FALLBACK_SLEEP_IN_MS;
+    static const char* GENCC_COMPILER_PARAM;
+    static const char* DIRECTORY;
+    static const char* COMMAND;
+    static const char* FILE;
+    static const char* BUILD;
+    static const char* DB_FILENAME;
+    static const unsigned MAX_CDB_RETRIES;
+    static const unsigned MAX_CDB_FALLBACK_SLEEP_IN_MS;
 };
 
 class Helper;

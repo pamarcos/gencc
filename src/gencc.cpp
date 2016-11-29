@@ -57,7 +57,7 @@ bool Gencc::parseArgs(std::vector<std::string>& params)
             break;
         }
 
-        if (param == "-gencc-compiler" && it + 1 != params.end()) {
+        if (param == Constants::GENCC_COMPILER_PARAM && it + 1 != params.end()) {
             params.erase(it);
             m_options->compiler = *it;
             params.erase(it);

@@ -51,14 +51,14 @@ void Builder::doWork(const std::vector<std::string>& params)
 
     // Serialize the options through an environment variable
     json jsonObj;
-    jsonObj["build"] = m_options->build;
-    jsonObj["dbFilename"] = m_options->dbFilename;
+    jsonObj[Constants::BUILD] = m_options->build;
+    jsonObj[Constants::DB_FILENAME] = m_options->dbFilename;
     ss.str("");
     ss.clear();
     ss << jsonObj;
     m_helper->setEnvVar(Constants::GENCC_OPTIONS, ss.str());
-    m_helper->setEnvVar(Constants::CXX, params.at(0) + " -gencc-compiler " + m_options->cxx);
-    m_helper->setEnvVar(Constants::CC, params.at(0) + " -gencc-compiler " + m_options->cc);
+    m_helper->setEnvVar(Constants::CXX, params.at(0) + " " + Constants::GENCC_COMPILER_PARAM + " " + m_options->cxx);
+    m_helper->setEnvVar(Constants::CC, params.at(0) + " " + Constants::GENCC_COMPILER_PARAM + " " + m_options->cc);
 
     ss.str("");
     ss.clear();

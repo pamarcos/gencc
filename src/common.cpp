@@ -29,6 +29,11 @@ const char* Constants::COMPILATION_DB = "compile_commands.json";
 const char* Constants::COMPILATION_DB_LOCK_EXT = ".lock";
 const char* Constants::GENCC_OPTIONS = "GENCC_OPTIONS";
 const char* Constants::C_EXT = ".c";
-
-const int Constants::MAX_CDB_RETRIES = 100;
-const int Constants::MAX_CDB_FALLBACK_SLEEP_IN_MS = 50;
+const char* Constants::GENCC_COMPILER_PARAM = "-gencc-compiler";
+const char* Constants::DIRECTORY = "directory";
+const char* Constants::COMMAND = "command";
+const char* Constants::FILE = "file";
+const char* Constants::BUILD = "build";
+const char* Constants::DB_FILENAME = "dbFilename";
+const unsigned Constants::MAX_CDB_RETRIES = 100;
+const unsigned Constants::MAX_CDB_FALLBACK_SLEEP_IN_MS = 50;

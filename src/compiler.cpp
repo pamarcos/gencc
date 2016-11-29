@@ -56,8 +56,8 @@ void Compiler::doWork(const std::vector<std::string>& params)
     ss << genccOptions;
     jsonObj << ss;
 
-    m_options->build = jsonObj["build"];
-    m_options->dbFilename = jsonObj["dbFilename"];
+    m_options->build = jsonObj[Constants::BUILD];
+    m_options->dbFilename = jsonObj[Constants::DB_FILENAME];
 
     ss.str("");
     ss.clear();
@@ -111,9 +111,9 @@ void Compiler::writeCompilationDB() const
         }
 
         json jsonObj;
-        jsonObj["directory"] = m_directory;
-        jsonObj["command"] = m_command;
-        jsonObj["file"] = m_file;
+        jsonObj[Constants::DIRECTORY] = m_directory;
+        jsonObj[Constants::COMMAND] = m_command;
+        jsonObj[Constants::FILE] = m_file;
         jsonDb.push_back(jsonObj);
 
         std::string checkStr;
