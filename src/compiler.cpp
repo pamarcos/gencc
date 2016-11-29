@@ -50,8 +50,8 @@ void Compiler::doWork(const std::vector<std::string>& params)
     // Deserialize options embedded in the env variable
     std::string genccOptions;
     json jsonObj;
-    if (!m_helper->getEnvVar(GENCC_OPTIONS, genccOptions)) {
-        throw std::runtime_error(std::string("Couldn't read env var ") + GENCC_OPTIONS);
+    if (!m_helper->getEnvVar(Constants::GENCC_OPTIONS, genccOptions)) {
+        throw std::runtime_error(std::string("Couldn't read env var ") + Constants::GENCC_OPTIONS);
     }
     ss << genccOptions;
     jsonObj << ss;
@@ -70,7 +70,7 @@ void Compiler::doWork(const std::vector<std::string>& params)
             ss << " ";
         }
 
-        if (params.at(i).find(C_EXT) != std::string::npos) {
+        if (params.at(i).find(Constants::C_EXT) != std::string::npos) {
             m_file = m_directory + "/" + params.at(i);
         }
     }
@@ -89,7 +89,7 @@ void Compiler::doWork(const std::vector<std::string>& params)
 void Compiler::writeCompilationDB() const
 {
     std::string dbFilepath = m_options->dbFilename;
-    std::string dbLockFilepath = dbFilepath + COMPILATION_DB_LOCK_EXT;
+    std::string dbLockFilepath = dbFilepath + Constants::COMPILATION_DB_LOCK_EXT;
 
     unsigned retries = 1;
     do {

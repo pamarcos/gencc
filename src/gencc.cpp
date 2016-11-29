@@ -37,10 +37,10 @@ Gencc::Gencc(Helper* helper)
 bool Gencc::parseArgs(std::vector<std::string>& params)
 {
     std::string envValue;
-    if (m_helper->getEnvVar(CXX, envValue)) {
+    if (m_helper->getEnvVar(Constants::CXX, envValue)) {
         m_options->cxx = envValue;
     }
-    if (m_helper->getEnvVar(CC, envValue)) {
+    if (m_helper->getEnvVar(Constants::CC, envValue)) {
         m_options->cc = envValue;
     }
 
@@ -82,7 +82,7 @@ bool Gencc::parseArgs(std::vector<std::string>& params)
             params.erase(it);
         } else if (param == "-f" && it + 1 != params.end()) {
             params.erase(it);
-            m_options->fallback = std::stoi(*it);
+            m_options->fallback = std::stoul(*it);
             params.erase(it);
         } else if (param == "-build") {
             params.erase(it);
@@ -118,7 +118,7 @@ int Gencc::init(std::vector<std::string>& params)
         return -1;
     }
 
-    LOG("%s v%s: ", NAME, VERSION);
+    LOG("%s v%s: ", Constants::NAME, Constants::VERSION);
 
     if (params.size() < 2) {
         help();
@@ -138,7 +138,7 @@ int Gencc::init(std::vector<std::string>& params)
     }
 
     std::string mode;
-    if (!m_helper->getEnvVar(GENCC_OPTIONS, mode)) {
+    if (!m_helper->getEnvVar(Constants::GENCC_OPTIONS, mode)) {
         m_options->mode = GenccMode::BUILDER;
     } else {
         m_options->mode = GenccMode::COMPILER;

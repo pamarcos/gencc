@@ -27,17 +27,19 @@
 
 #include "logger.h"
 
-static const char* VERSION = "0.1";
-static const char* NAME = "gencc";
-static const char* CXX = "CXX";
-static const char* CC = "CC";
-static const char* COMPILATION_DB = "compile_commands.json";
-static const char* COMPILATION_DB_LOCK_EXT = ".lock";
-static const char* GENCC_OPTIONS = "GENCC_OPTIONS";
-static const char* C_EXT = ".c";
+struct Constants {
+    static const char* VERSION;
+    static const char* NAME;
+    static const char* CXX;
+    static const char* CC;
+    static const char* COMPILATION_DB;
+    static const char* COMPILATION_DB_LOCK_EXT;
+    static const char* GENCC_OPTIONS;
+    static const char* C_EXT;
 
-static const int MAX_CDB_RETRIES = 100;
-static const int MAX_CDB_FALLBACK_SLEEP_IN_MS = 50;
+    static const int MAX_CDB_RETRIES;
+    static const int MAX_CDB_FALLBACK_SLEEP_IN_MS;
+};
 
 class Helper;
 
@@ -50,12 +52,12 @@ enum class GenccMode {
 using GenccOptions = struct GenccOptions_s {
     GenccMode mode = GenccMode::NONE;
     bool build = false;
-    std::string dbFilename = COMPILATION_DB;
+    std::string dbFilename = Constants::COMPILATION_DB;
     std::string cxx;
     std::string cc;
     std::string compiler;
-    unsigned retries = MAX_CDB_RETRIES;
-    unsigned fallback = MAX_CDB_FALLBACK_SLEEP_IN_MS;
+    unsigned retries = Constants::MAX_CDB_RETRIES;
+    unsigned fallback = Constants::MAX_CDB_FALLBACK_SLEEP_IN_MS;
 };
 
 class GenccWorker {

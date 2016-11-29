@@ -47,7 +47,7 @@ void Builder::doWork(const std::vector<std::string>& params)
 
     m_options->dbFilename = cwd + "/" + m_options->dbFilename;
     m_helper->removeFile(m_options->dbFilename);
-    m_helper->removeFile(m_options->dbFilename + COMPILATION_DB_LOCK_EXT);
+    m_helper->removeFile(m_options->dbFilename + Constants::COMPILATION_DB_LOCK_EXT);
 
     // Serialize the options through an environment variable
     json jsonObj;
@@ -56,9 +56,9 @@ void Builder::doWork(const std::vector<std::string>& params)
     ss.str("");
     ss.clear();
     ss << jsonObj;
-    m_helper->setEnvVar(GENCC_OPTIONS, ss.str());
-    m_helper->setEnvVar(CXX, params.at(0) + " -gencc-compiler " + m_options->cxx);
-    m_helper->setEnvVar(CC, params.at(0) + " -gencc-compiler " + m_options->cc);
+    m_helper->setEnvVar(Constants::GENCC_OPTIONS, ss.str());
+    m_helper->setEnvVar(Constants::CXX, params.at(0) + " -gencc-compiler " + m_options->cxx);
+    m_helper->setEnvVar(Constants::CC, params.at(0) + " -gencc-compiler " + m_options->cc);
 
     ss.str("");
     ss.clear();

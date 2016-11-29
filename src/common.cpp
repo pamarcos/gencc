@@ -1,0 +1,34 @@
+/**
+ * gencc is an application that generates compilation databases for clang
+ *
+ * Copyright (C) 2016 Pablo Marcos Oltra
+ *
+ * This file is part of gencc.
+ *
+ * gencc is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * gencc is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "common.h"
+
+const char* Constants::VERSION = "0.1";
+const char* Constants::NAME = "gencc";
+const char* Constants::CXX = "CXX";
+const char* Constants::CC = "CC";
+const char* Constants::COMPILATION_DB = "compile_commands.json";
+const char* Constants::COMPILATION_DB_LOCK_EXT = ".lock";
+const char* Constants::GENCC_OPTIONS = "GENCC_OPTIONS";
+const char* Constants::C_EXT = ".c";
+
+const int Constants::MAX_CDB_RETRIES = 100;
+const int Constants::MAX_CDB_FALLBACK_SLEEP_IN_MS = 50;
