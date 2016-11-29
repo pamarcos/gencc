@@ -34,8 +34,6 @@ tests functional_tests unit_tests: $(OUTPUT_BIN)
 	cd $(TESTS_DIR) && $(MAKE) $@
 
 coverage: unit_tests functional_tests
-	# Workaround for gcovr failing if source code is not in the build folder
-	cp tests/unit_tests/*.cpp $(BUILD_DIR)/tests/unit_tests
 	gcovr -r . --html --html-details -o coverage.html -e "third_party.*" -e ".*unit_tests.*"
 
 CLANG_TIDY_CHECKS = *

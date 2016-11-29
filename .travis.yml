@@ -2,13 +2,6 @@ sudo: required
 dist: trusty
 language: cpp
 
-addons:
-  sources:
-    - ubuntu-toolchain-r-test
-    - jonathonf/binutils
-  packages:
-    - gcovr
-
 matrix:
   include:
     - os: linux
@@ -20,6 +13,7 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-5
+            - gcovr
       after_success:
         - make coverage
         - bash <(curl -s https://codecov.io/bash)
@@ -37,10 +31,11 @@ matrix:
 
     - os: osx
       compiler: clang
-      env: COMPILER=clang
+      env: COMPILER=clang++
       osx_image: xcode8.2
 
 before_install:
+  # Workaround for --push-state error when linking unit_tests
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo add-apt-repository ppa:jonathonf/binutils --yes || true;
       sudo apt-get update -qq --yes || true;
