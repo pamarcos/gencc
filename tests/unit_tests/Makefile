@@ -28,19 +28,11 @@ all: run_unit_tests
 
 $(GTEST_OBJ): $(GTEST_SRC)
 	@mkdir -p $(dir $@)
-	$(CXX) $(GTEST_CXXFLAGS) -c -o $@ $<
+	$(CXX) -c $(GTEST_CXXFLAGS) -o $@ $<
 
-$(TESTS_BUILD_DIR)/%.d: %.cpp
+$(TESTS_BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	@echo "Generating dependency for $<..."
-	@$(CXX) -MM -MP -MF $@ $(CXXFLAGS) $<
-	@sed -i.bak 's:$(subst .d,.o,$(notdir $@)):$(dir $@)$(subst .d,.o,$(notdir $@)):' $@
-	@rm -f "$(@:.d=.d.bak)"
-	@sed 's:$(subst .d,.o,$(notdir $@)):$(notdir $@):' $@ >> $@
-
-$(TESTS_BUILD_DIR)/%.o: %.cpp $(TESTS_BUILD_DIR)/%.d
-	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 unit_tests: $(UNIT_TESTS_BIN)
 
@@ -57,7 +49,4 @@ clean:
 
 .PHONY: clean run_unit_tests unit_tests
 
-ifneq ($(MAKECMDGOALS),clean)
 -include $(DEP)
-endif
-

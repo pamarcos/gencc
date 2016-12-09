@@ -1,7 +1,7 @@
 NAME = gencc
-CXXFLAGS = -std=c++11 -pedantic -Wall -Wextra -I$(ROOT)/src -I$(ROOT)/third_party
+CXXFLAGS = -MMD -MP -std=c++11 -pedantic -Wall -Wextra -I$(ROOT)/src -I$(ROOT)/third_party
 
-#DEBUG = 1
+DEBUG = 1
 ifneq ($(DEBUG),)
 CXXFLAGS += -g -O0 -fsanitize=address
 else

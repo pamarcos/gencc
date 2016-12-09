@@ -8,17 +8,9 @@ endif
 
 all: $(OUTPUT_BIN)
 
-$(BUILD_DIR)/%.d: %.cpp
+$(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	@echo "Generating dependency for $<..."
-	@$(CXX) -MM -MP -MF $@ $(CXXFLAGS) $<
-	@sed -i.bak 's:$(subst .d,.o,$(notdir $@)):$(dir $@)$(subst .d,.o,$(notdir $@)):' $@
-	@rm -f "$(@:.d=.d.bak)"
-	@sed 's:$(subst .d,.o,$(notdir $@)):$(notdir $@):' $@ >> $@
-
-$(BUILD_DIR)/%.o: %.cpp $(BUILD_DIR)/%.d
-	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 $(OUTPUT_BIN): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
@@ -47,6 +39,4 @@ tidy:
 
 .PHONY: clean tests unit_tests functional_tests coverage all
 
-ifneq ($(MAKECMDGOALS),clean)
 -include $(DEP)
-endif
