@@ -16,7 +16,6 @@ $(OUTPUT_BIN): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
 
 clean:
-	find . -iname "*.gcda" -o -iname "*.gcno" -o -iname "*.html*" | xargs rm -f
 	rm -rf $(BUILD_DIR)
 	rm -f $(OUTPUT_BIN)
 	rm -f $(DEP)

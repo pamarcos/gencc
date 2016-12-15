@@ -43,16 +43,17 @@ bool Gencc::parseArgs(std::vector<std::string>& params)
         m_options->cc = envValue;
     }
 
-    auto it = params.begin();
-    for (; it != params.end(); ++it) {
-        if (it == params.begin() + 1 && it->find("-") != std::string::npos) {
-            break;
-        }
+    auto it = params.begin() + 1;
+
+    // In case this is build mode and there are no parameters to process, return inmediately
+    if (it->find("-") == std::string::npos) {
+        return true;
     }
 
     for (; it != params.end();) {
         std::string param = *it;
 
+        // If every gencc parameter has already been parsed, break the loop
         if (param.find('-') == std::string::npos) {
             break;
         }
