@@ -22,7 +22,7 @@
 #ifndef HELPER_H
 #define HELPER_H
 
-#include "file_lock.h"
+#include "lock_file.h"
 
 #include <fstream>
 #include <memory>
@@ -44,7 +44,7 @@ public:
     // File commands
     virtual bool fileExists(const std::string& filename) const = 0;
     virtual void removeFile(const std::string& filename) const = 0;
-    virtual std::unique_ptr<FileLock> getFileLock(const std::string& filename) const = 0;
+    virtual std::unique_ptr<LockFile> getLockFile(const std::string& filename) const = 0;
     virtual std::unique_ptr<std::istream> getFileIstream(const std::string& filename) const = 0;
     virtual std::unique_ptr<std::ostream> getFileOstream(const std::string& filename) const = 0;
 };
@@ -63,7 +63,7 @@ public:
     // File commands
     virtual bool fileExists(const std::string& filename) const override;
     virtual void removeFile(const std::string& filename) const override;
-    virtual std::unique_ptr<FileLock> getFileLock(const std::string& filename) const override;
+    virtual std::unique_ptr<LockFile> getLockFile(const std::string& filename) const override;
     virtual std::unique_ptr<std::istream> getFileIstream(const std::string& filename) const override;
     virtual std::unique_ptr<std::ostream> getFileOstream(const std::string& filename) const override;
 

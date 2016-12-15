@@ -86,9 +86,9 @@ void HelperImpl::removeFile(const std::string& filename) const
     std::remove(filename.c_str());
 }
 
-std::unique_ptr<FileLock> HelperImpl::getFileLock(const std::string& filename) const
+std::unique_ptr<LockFile> HelperImpl::getLockFile(const std::string& filename) const
 {
-    return std::unique_ptr<FileLock>(new FileLockImpl(filename));
+    return std::unique_ptr<LockFile>(new LockFileImpl(filename));
 }
 
 std::unique_ptr<std::istream> HelperImpl::getFileIstream(const std::string& filename) const

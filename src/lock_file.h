@@ -26,9 +26,9 @@
 #include <memory>
 #include <string>
 
-class FileLock {
+class LockFile {
 public:
-    FileLock(const std::string& filename);
+    LockFile(const std::string& filename);
 
     virtual void createFile() = 0;
     virtual void removeFile() = 0;
@@ -38,22 +38,22 @@ public:
     std::string m_filename;
 };
 
-class FileLockGuard {
+class LockFileGuard {
 public:
-    FileLockGuard(std::unique_ptr<FileLock> lockFile);
-    ~FileLockGuard();
+    LockFileGuard(std::unique_ptr<LockFile> lockFile);
+    ~LockFileGuard();
 
-    FileLock* getLockFile() const;
+    LockFile* getLockFile() const;
     void removeFile(bool remove);
 
 private:
-    std::unique_ptr<FileLock> m_lockFile;
+    std::unique_ptr<LockFile> m_lockFile;
     bool m_removeFile;
 };
 
-class FileLockImpl : public FileLock {
+class LockFileImpl : public LockFile {
 public:
-    FileLockImpl(const std::string& filename);
+    LockFileImpl(const std::string& filename);
 
     void createFile() override;
     void removeFile() override;

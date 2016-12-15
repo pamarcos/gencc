@@ -34,7 +34,7 @@ public:
     MOCK_CONST_METHOD1(msleep, void(unsigned));
     MOCK_CONST_METHOD1(fileExists, bool(const std::string& filename));
     MOCK_CONST_METHOD1(removeFile, void(const std::string& filename));
-    MOCK_CONST_METHOD1(getFileLock, std::unique_ptr<FileLock>(const std::string& filename));
+    MOCK_CONST_METHOD1(getLockFile, std::unique_ptr<LockFile>(const std::string& filename));
     MOCK_CONST_METHOD1(getFileIstream, std::unique_ptr<std::istream>(const std::string& filename));
     MOCK_CONST_METHOD1(getFileOstream, std::unique_ptr<std::ostream>(const std::string& filename));
 };

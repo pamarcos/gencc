@@ -102,7 +102,7 @@ void Compiler::writeCompilationDB() const
             fallback(retries);
             continue;
         }
-        FileLockGuard dbLockFile(m_helper->getFileLock(dbLockFilepath));
+        LockFileGuard dbLockFile(m_helper->getLockFile(dbLockFilepath));
 
         if (!dbLockFile.getLockFile()->writeToFile(m_command)) {
             fallback(retries);

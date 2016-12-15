@@ -19,55 +19,55 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "file_lock.h"
+#include "lock_file.h"
 
 #include <fstream>
 
-FileLock::FileLock(const std::string& filename)
+LockFile::LockFile(const std::string& filename)
     : m_filename(filename)
 {
 }
 
-FileLockGuard::FileLockGuard(std::unique_ptr<FileLock> lockFile)
+LockFileGuard::LockFileGuard(std::unique_ptr<LockFile> lockFile)
     : m_lockFile(std::move(lockFile))
     , m_removeFile(true)
 {
     m_lockFile->createFile();
 }
 
-FileLockGuard::~FileLockGuard()
+LockFileGuard::~LockFileGuard()
 {
     if (m_removeFile) {
         m_lockFile->removeFile();
     }
 }
 
-FileLock* FileLockGuard::getLockFile() const
+LockFile* LockFileGuard::getLockFile() const
 {
     return m_lockFile.get();
 }
 
-void FileLockGuard::removeFile(bool remove)
+void LockFileGuard::removeFile(bool remove)
 {
     m_removeFile = remove;
 }
 
-FileLockImpl::FileLockImpl(const std::string& filename)
-    : FileLock(filename)
+LockFileImpl::LockFileImpl(const std::string& filename)
+    : LockFile(filename)
 {
 }
 
-void FileLockImpl::createFile()
+void LockFileImpl::createFile()
 {
     std::ofstream ofs(m_filename);
 }
 
-void FileLockImpl::removeFile()
+void LockFileImpl::removeFile()
 {
     std::remove(m_filename.c_str());
 }
 
-bool FileLockImpl::writeToFile(const std::string& from)
+bool LockFileImpl::writeToFile(const std::string& from)
 {
     std::ofstream ofs(m_filename, std::ios::app);
     if (ofs.good()) {
@@ -78,7 +78,7 @@ bool FileLockImpl::writeToFile(const std::string& from)
     return false;
 }
 
-bool FileLockImpl::readFromFile(std::string& to)
+bool LockFileImpl::readFromFile(std::string& to)
 {
     std::ifstream ifs(m_filename);
     if (ifs.good()) {
