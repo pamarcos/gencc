@@ -16,8 +16,8 @@ $(OUTPUT_BIN): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
 
 clean:
+	find . -iname "*.gcda" -o -iname "*.gcno" -o -iname "*.html*" | xargs rm -f
 	rm -rf $(BUILD_DIR)
-	rm -f *.gcda *.gcno *.html*
 	rm -f $(OUTPUT_BIN)
 	rm -f $(DEP)
 	cd $(TESTS_DIR) && $(MAKE) $@
@@ -25,7 +25,10 @@ clean:
 tests functional_tests unit_tests: $(OUTPUT_BIN)
 	cd $(TESTS_DIR) && $(MAKE) $@
 
-coverage: unit_tests functional_tests
+clean_coverage:
+	find . -iname "*.gcda" | xargs rm -f
+
+coverage: clean_coverage unit_tests functional_tests
 	gcovr -r . --html --html-details -o coverage.html -e "third_party.*" -e ".*unit_tests.*"
 
 CLANG_TIDY_CHECKS = *

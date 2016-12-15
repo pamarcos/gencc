@@ -44,6 +44,12 @@ struct Constants {
     static const char* DB_FILENAME;
     static const unsigned MAX_CDB_RETRIES;
     static const unsigned MAX_CDB_FALLBACK_SLEEP_IN_MS;
+    static const char* PARAM_CXX;
+    static const char* PARAM_CC;
+    static const char* PARAM_OUTPUT;
+    static const char* PARAM_RETRIES;
+    static const char* PARAM_FALLBACK;
+    static const char* PARAM_BUILD;
 };
 
 class Helper;

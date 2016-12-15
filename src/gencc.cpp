@@ -26,7 +26,6 @@
 #include "helper.h"
 
 #include "json.hpp"
-#include <exception>
 #include <iostream>
 
 Gencc::Gencc(Helper* helper)
@@ -53,6 +52,7 @@ bool Gencc::parseArgs(std::vector<std::string>& params)
 
     for (; it != params.end();) {
         std::string param = *it;
+
         if (param.find('-') == std::string::npos) {
             break;
         }
@@ -64,27 +64,27 @@ bool Gencc::parseArgs(std::vector<std::string>& params)
 
             // The compiler is the only parameter that needs to be parsed in compiler mode
             break;
-        } else if (param == "-cxx" && it + 1 != params.end()) {
+        } else if (param == Constants::PARAM_CXX && it + 1 != params.end()) {
             params.erase(it);
             m_options->cxx = *it;
             params.erase(it);
-        } else if (param == "-cc" && it + 1 != params.end()) {
+        } else if (param == Constants::PARAM_CC && it + 1 != params.end()) {
             params.erase(it);
             m_options->cc = *it;
             params.erase(it);
-        } else if (param == "-o" && it + 1 != params.end()) {
+        } else if (param == Constants::PARAM_OUTPUT && it + 1 != params.end()) {
             params.erase(it);
             m_options->dbFilename = *it;
             params.erase(it);
-        } else if (param == "-r" && it + 1 != params.end()) {
+        } else if (param == Constants::PARAM_RETRIES && it + 1 != params.end()) {
             params.erase(it);
-            m_options->retries = std::stoi(*it);
+            m_options->retries = std::stoul(*it);
             params.erase(it);
-        } else if (param == "-f" && it + 1 != params.end()) {
+        } else if (param == Constants::PARAM_FALLBACK && it + 1 != params.end()) {
             params.erase(it);
             m_options->fallback = std::stoul(*it);
             params.erase(it);
-        } else if (param == "-build") {
+        } else if (param == Constants::PARAM_BUILD) {
             params.erase(it);
             m_options->build = true;
         } else {

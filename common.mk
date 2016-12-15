@@ -1,5 +1,5 @@
 NAME = gencc
-CXXFLAGS = -MMD -MP -std=c++11 -pedantic -Wall -Wextra -I$(ROOT)/src -I$(ROOT)/third_party
+CXXFLAGS = -MMD -MP -std=c++11 -Wpedantic -Wall -Wextra -Werror -I$(ROOT)/src -I$(ROOT)/third_party
 
 DEBUG = 1
 ifneq ($(DEBUG),)

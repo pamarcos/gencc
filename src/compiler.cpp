@@ -54,7 +54,12 @@ void Compiler::doWork(const std::vector<std::string>& params)
         throw std::runtime_error(std::string("Couldn't read env var ") + Constants::GENCC_OPTIONS);
     }
     ss << genccOptions;
-    jsonObj << ss;
+
+    try {
+        jsonObj << ss;
+    } catch (const std::exception& ex) {
+        throw std::runtime_error(std::string("Error parsing ") + Constants::NAME + " options: " + ex.what());
+    }
 
     m_options->build = jsonObj[Constants::BUILD];
     m_options->dbFilename = jsonObj[Constants::DB_FILENAME];

@@ -23,7 +23,6 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <exception>
 #include <fstream>
 #include <stdexcept>
 #include <thread>
