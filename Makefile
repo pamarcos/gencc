@@ -17,6 +17,7 @@ $(OUTPUT_BIN): $(OBJ)
 
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -f *.html*
 	rm -f $(OUTPUT_BIN)
 	rm -f $(DEP)
 	cd $(TESTS_DIR) && $(MAKE) $@
