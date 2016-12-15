@@ -32,6 +32,9 @@ functional_tests:
 	# Wrong target
 	$(GENCC) $(MAKE) -C $(FUNC_TESTS_DIR) asdasd
 
+	# Wrong GENCC_OPTIONS
+	env GENCC_OPTIONS=asdasd $(GENCC) $(MAKE) -C $(FUNC_TESTS_DIR) | echo "Fail expected :)"
+
 	# Passing CXX and CC through env var
 	rm -f $(COMPILE_COMMANDS)
 	env CXX=g++ CC=gcc $(GENCC) $(MAKE) -C $(FUNC_TESTS_DIR)
