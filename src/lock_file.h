@@ -29,11 +29,12 @@
 class LockFile {
 public:
     LockFile(const std::string& filename);
+    virtual ~LockFile() = default;
 
-    virtual void createFile() = 0;
-    virtual void removeFile() = 0;
-    virtual bool writeToFile(const std::string& from) = 0;
-    virtual bool readFromFile(std::string& to) = 0;
+    virtual void createFile() const = 0;
+    virtual void removeFile() const = 0;
+    virtual bool writeToFile(const std::string& from) const = 0;
+    virtual bool readFromFile(std::string& to) const = 0;
 
     std::string m_filename;
 };
@@ -55,10 +56,10 @@ class LockFileImpl : public LockFile {
 public:
     LockFileImpl(const std::string& filename);
 
-    void createFile() override;
-    void removeFile() override;
-    bool writeToFile(const std::string& from) override;
-    bool readFromFile(std::string& to) override;
+    void createFile() const override;
+    void removeFile() const override;
+    bool writeToFile(const std::string& from) const override;
+    bool readFromFile(std::string& to) const override;
 };
 
 #endif // FILE_LOCK_H

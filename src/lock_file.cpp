@@ -57,17 +57,17 @@ LockFileImpl::LockFileImpl(const std::string& filename)
 {
 }
 
-void LockFileImpl::createFile()
+void LockFileImpl::createFile() const
 {
     std::ofstream ofs(m_filename);
 }
 
-void LockFileImpl::removeFile()
+void LockFileImpl::removeFile() const
 {
     std::remove(m_filename.c_str());
 }
 
-bool LockFileImpl::writeToFile(const std::string& from)
+bool LockFileImpl::writeToFile(const std::string& from) const
 {
     std::ofstream ofs(m_filename, std::ios::app);
     if (ofs.good()) {
@@ -78,7 +78,7 @@ bool LockFileImpl::writeToFile(const std::string& from)
     return false;
 }
 
-bool LockFileImpl::readFromFile(std::string& to)
+bool LockFileImpl::readFromFile(std::string& to) const
 {
     std::ifstream ifs(m_filename);
     if (ifs.good()) {
