@@ -34,6 +34,8 @@ public:
 
     void setWorker(std::unique_ptr<GenccWorker>& worker);
 
+    GenccOptions getGenccOptions() const;
+
 private:
     bool parseArgs(std::vector<std::string>& params);
     void help();

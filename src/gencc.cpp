@@ -107,6 +107,11 @@ void Gencc::help()
         "\t-build          - Call the actual compiler\n");
 }
 
+GenccOptions Gencc::getGenccOptions() const
+{
+    return m_genccOptions;
+}
+
 void Gencc::setWorker(std::unique_ptr<GenccWorker>& worker)
 {
     m_worker = std::move(worker);

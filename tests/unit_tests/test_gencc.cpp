@@ -172,6 +172,7 @@ TEST_F(GenccTest, CompilerParamValue)
     EXPECT_CALL(helper, getEnvVar(_, _)).WillRepeatedly(Return(true));
     EXPECT_CALL(*worker, doWork(_));
     EXPECT_EQ(gencc.init(params), 0);
+    EXPECT_EQ(gencc.getGenccOptions().compiler, "foo");
 }
 
 TEST_F(GenccTest, CxxParamNoValue)
@@ -189,6 +190,7 @@ TEST_F(GenccTest, CxxParamValue)
     EXPECT_CALL(helper, getEnvVar(_, _)).WillRepeatedly(Return(true));
     EXPECT_CALL(*worker, doWork(_));
     EXPECT_EQ(gencc.init(params), 0);
+    EXPECT_EQ(gencc.getGenccOptions().cxx, "foo");
 }
 
 TEST_F(GenccTest, CcParamNoValue)
@@ -206,6 +208,7 @@ TEST_F(GenccTest, CcParamValue)
     EXPECT_CALL(helper, getEnvVar(_, _)).WillRepeatedly(Return(true));
     EXPECT_CALL(*worker, doWork(_));
     EXPECT_EQ(gencc.init(params), 0);
+    EXPECT_EQ(gencc.getGenccOptions().cc, "foo");
 }
 
 TEST_F(GenccTest, OutputParamNoValue)
@@ -223,6 +226,7 @@ TEST_F(GenccTest, OutputParamValue)
     EXPECT_CALL(helper, getEnvVar(_, _)).WillRepeatedly(Return(true));
     EXPECT_CALL(*worker, doWork(_));
     EXPECT_EQ(gencc.init(params), 0);
+    EXPECT_EQ(gencc.getGenccOptions().dbFilename, "foo");
 }
 
 TEST_F(GenccTest, RetriesParamNoValue)
@@ -235,11 +239,12 @@ TEST_F(GenccTest, RetriesParamNoValue)
 
 TEST_F(GenccTest, RetriesParamValue)
 {
-    generateParams(std::string("gencc ") + Constants::PARAM_RETRIES + " 1");
+    generateParams(std::string("gencc ") + Constants::PARAM_RETRIES + " 123");
     EXPECT_CALL(helper, getCwd(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(helper, getEnvVar(_, _)).WillRepeatedly(Return(true));
     EXPECT_CALL(*worker, doWork(_));
     EXPECT_EQ(gencc.init(params), 0);
+    EXPECT_EQ(gencc.getGenccOptions().retries, 123u);
 }
 
 TEST_F(GenccTest, FallbackParamNoValue)
@@ -252,11 +257,12 @@ TEST_F(GenccTest, FallbackParamNoValue)
 
 TEST_F(GenccTest, FallbackParamValue)
 {
-    generateParams(std::string("gencc ") + Constants::PARAM_FALLBACK + " 1");
+    generateParams(std::string("gencc ") + Constants::PARAM_FALLBACK + " 456");
     EXPECT_CALL(helper, getCwd(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(helper, getEnvVar(_, _)).WillRepeatedly(Return(true));
     EXPECT_CALL(*worker, doWork(_));
     EXPECT_EQ(gencc.init(params), 0);
+    EXPECT_EQ(gencc.getGenccOptions().fallback, 456u);
 }
 
 TEST_F(GenccTest, BuildParam)
@@ -266,6 +272,7 @@ TEST_F(GenccTest, BuildParam)
     EXPECT_CALL(helper, getEnvVar(_, _)).WillRepeatedly(Return(true));
     EXPECT_CALL(*worker, doWork(_));
     EXPECT_EQ(gencc.init(params), 0);
+    EXPECT_TRUE(gencc.getGenccOptions().build);
 }
 
 TEST_F(GenccTest, BuildParamWithMoreParams)
@@ -275,4 +282,5 @@ TEST_F(GenccTest, BuildParamWithMoreParams)
     EXPECT_CALL(helper, getEnvVar(_, _)).WillRepeatedly(Return(true));
     EXPECT_CALL(*worker, doWork(_));
     EXPECT_EQ(gencc.init(params), 0);
+    EXPECT_TRUE(gencc.getGenccOptions().build);
 }
