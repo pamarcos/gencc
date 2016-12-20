@@ -1,10 +1,11 @@
 ROOT = $(CURDIR)
-include common.mk
 
 ifeq ($(MAKECMDGOALS),coverage)
 $(OUTPUT_BIN) $(OBJ): clean
-CXXFLAGS += --coverage
+DEBUG = 1
 endif
+
+include common.mk
 
 all: $(OUTPUT_BIN)
 
@@ -23,7 +24,7 @@ clean:
 	cd $(TESTS_DIR) && $(MAKE) $@
 
 tests functional_tests unit_tests: $(OUTPUT_BIN)
-	cd $(TESTS_DIR) && $(MAKE) $@
+	cd $(TESTS_DIR) && $(MAKE) DEBUG=1 $@
 
 clean_coverage:
 	find . -iname "*.gcda" | xargs rm -f

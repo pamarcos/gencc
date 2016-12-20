@@ -1,9 +1,11 @@
 ROOT = $(realpath $(CURDIR)/../..)
 include $(ROOT)/common.mk
 
-CXXFLAGS += -g -I$(CURDIR)/googletest -fsanitize=address --coverage
-GTEST_CXXFLAGS := $(CXXFLAGS)
-LDFLAGS = --coverage
+CXXFLAGS += -I$(CURDIR)/googletest
+
+# Do not measure coverage for unit tests themselves
+CXXFLAGS := $(filter-out --coverage,$(CXXFLAGS))
+LDFLAGS += --coverage
 
 ifneq ($(shell uname),Darwin)
 LDFLAGS += -pthread
@@ -28,7 +30,7 @@ all: run_unit_tests
 
 $(GTEST_OBJ): $(GTEST_SRC)
 	@mkdir -p $(dir $@)
-	$(CXX) -c $(GTEST_CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 $(TESTS_BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
