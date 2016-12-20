@@ -24,6 +24,7 @@
 
 #include "lock_file.h"
 
+#include <array>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -68,7 +69,7 @@ public:
     virtual std::unique_ptr<std::ostream> getFileOstream(const std::string& filename) const override;
 
 public:
-    char m_buffer[128];
+    std::array<char, 128> m_buffer;
 };
 
 #endif // HELPER_H
