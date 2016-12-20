@@ -1,11 +1,14 @@
 ROOT = $(CURDIR)
 
 ifeq ($(MAKECMDGOALS),coverage)
-$(OUTPUT_BIN) $(OBJ): clean
 DEBUG = 1
 endif
 
 include common.mk
+
+ifeq ($(MAKECMDGOALS),coverage)
+$(OBJ): clean
+endif
 
 all: $(OUTPUT_BIN)
 
@@ -16,7 +19,7 @@ $(BUILD_DIR)/%.o: %.cpp
 $(OUTPUT_BIN): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
 
-clean:
+clean: clean_coverage
 	rm -rf $(BUILD_DIR)
 	rm -f *.html*
 	rm -f $(OUTPUT_BIN)
@@ -29,7 +32,7 @@ tests functional_tests unit_tests: $(OUTPUT_BIN)
 clean_coverage:
 	find . -iname "*.gcda" | xargs rm -f
 
-coverage: clean_coverage unit_tests functional_tests
+coverage: unit_tests functional_tests
 	gcovr -r . --html --html-details -o coverage.html -e "third_party.*" -e ".*unit_tests.*"
 
 CLANG_TIDY_CHECKS = *
