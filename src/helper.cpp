@@ -30,6 +30,7 @@
 #ifdef _WIN32
 #include <direct.h>
 #define getcwd _getcwd
+#define setenv(x, y, z) _putenv_s(x, y)
 #else
 #include <unistd.h>
 #endif
