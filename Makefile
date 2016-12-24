@@ -44,6 +44,9 @@ CLANG_TIDY_CHECKS += ,-cert-env33-c
 tidy:
 	clang-tidy -checks='$(CLANG_TIDY_CHECKS)' src/gencc.cpp
 
+cppcheck:
+	cppcheck --enable=all --inconclusive src tests/unit_tests -igoogletest
+
 .PHONY: clean tests unit_tests functional_tests coverage all
 
 -include $(DEP)

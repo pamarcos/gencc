@@ -59,30 +59,30 @@ bool Gencc::parseArgs(std::vector<std::string>& params)
         }
 
         if (param == Constants::GENCC_COMPILER_PARAM && it + 1 != params.end()) {
-            params.erase(it);
+            it = params.erase(it);
             m_options->compiler = *it;
             params.erase(it);
 
             // The compiler is the only parameter that needs to be parsed in compiler mode
             break;
         } else if (param == Constants::PARAM_CXX && it + 1 != params.end()) {
-            params.erase(it);
+            it = params.erase(it);
             m_options->cxx = *it;
             params.erase(it);
         } else if (param == Constants::PARAM_CC && it + 1 != params.end()) {
-            params.erase(it);
+            it = params.erase(it);
             m_options->cc = *it;
             params.erase(it);
         } else if (param == Constants::PARAM_OUTPUT && it + 1 != params.end()) {
-            params.erase(it);
+            it = params.erase(it);
             m_options->dbFilename = *it;
             params.erase(it);
         } else if (param == Constants::PARAM_RETRIES && it + 1 != params.end()) {
-            params.erase(it);
+            it = params.erase(it);
             m_options->retries = std::stoul(*it);
             params.erase(it);
         } else if (param == Constants::PARAM_FALLBACK && it + 1 != params.end()) {
-            params.erase(it);
+            it = params.erase(it);
             m_options->fallback = std::stoul(*it);
             params.erase(it);
         } else if (param == Constants::PARAM_BUILD) {
@@ -134,7 +134,8 @@ int Gencc::init(std::vector<std::string>& params)
     std::string genccComand = params.at(0);
 
     // Ensure the GenCC command uses the absolute path
-    if (genccComand.find_first_of('/') != 0) {
+    size_t pos = genccComand.find_first_of('/');
+    if (pos != 0) {
         std::string cwd;
         if (!m_helper->getCwd(cwd)) {
             throw std::runtime_error("Couldn't get current working dir");

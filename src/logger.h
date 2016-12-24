@@ -33,12 +33,13 @@ public:
         return logger;
     }
 
-    void log(const char* fmt, ...)
+    void log(const char* fmt, ...) const
     {
         if (m_enable) {
             va_list vl;
             va_start(vl, fmt);
             vprintf(fmt, vl);
+            va_end(vl);
         }
     }
 

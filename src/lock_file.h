@@ -28,7 +28,7 @@
 
 class LockFile {
 public:
-    LockFile(const std::string& filename);
+    explicit LockFile(const std::string& filename);
     virtual ~LockFile() = default;
 
     virtual void createFile() const = 0;
@@ -41,7 +41,7 @@ public:
 
 class LockFileGuard {
 public:
-    LockFileGuard(std::unique_ptr<LockFile> lockFile);
+    explicit LockFileGuard(std::unique_ptr<LockFile> lockFile);
     ~LockFileGuard();
 
     LockFile* getLockFile() const;
@@ -54,7 +54,7 @@ private:
 
 class LockFileImpl : public LockFile {
 public:
-    LockFileImpl(const std::string& filename);
+    explicit LockFileImpl(const std::string& filename);
 
     void createFile() const override;
     void removeFile() const override;

@@ -58,7 +58,7 @@ void HelperImpl::setEnvVar(const char* name, const std::string& value) const
 
 bool HelperImpl::getCwd(std::string& str)
 {
-    if (getcwd(reinterpret_cast<char*>(m_buffer.data()), sizeof(m_buffer) * sizeof(m_buffer.at(0))) == nullptr) {
+    if (getcwd(reinterpret_cast<char*>(m_buffer.data()), sizeof(m_buffer)) == nullptr) {
         str.clear();
         return false;
     }

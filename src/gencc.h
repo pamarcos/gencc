@@ -29,7 +29,7 @@
 
 class Gencc final : public Common {
 public:
-    Gencc(Helper* helper);
+    explicit Gencc(Helper* helper);
     int init(std::vector<std::string>& params);
 
     void setWorker(std::unique_ptr<GenccWorker>& worker);
