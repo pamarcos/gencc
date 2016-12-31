@@ -41,7 +41,7 @@ public:
 
 class LockFileGuard {
 public:
-    explicit LockFileGuard(std::unique_ptr<LockFile> lockFile);
+    explicit LockFileGuard(std::unique_ptr<LockFile>&& lockFile);
     ~LockFileGuard();
 
     LockFile* getLockFile() const;

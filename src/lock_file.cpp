@@ -28,7 +28,7 @@ LockFile::LockFile(const std::string& filename)
 {
 }
 
-LockFileGuard::LockFileGuard(std::unique_ptr<LockFile> lockFile)
+LockFileGuard::LockFileGuard(std::unique_ptr<LockFile>&& lockFile)
     : m_lockFile(std::move(lockFile))
     , m_removeFile(true)
 {
@@ -59,7 +59,8 @@ LockFileImpl::LockFileImpl(const std::string& filename)
 
 void LockFileImpl::createFile() const
 {
-    std::ofstream ofs(m_filename);
+    std::ofstream ofs;
+    ofs.open(m_filename);
 }
 
 void LockFileImpl::removeFile() const

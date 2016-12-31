@@ -36,7 +36,7 @@ public:
     {
     }
 
-    void SetUp()
+    void SetUp() override
     {
         Logger::getInstance().disable();
     }

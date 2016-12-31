@@ -38,7 +38,7 @@ public:
 
 private:
     bool parseArgs(std::vector<std::string>& params);
-    void help();
+    static void help();
     std::unique_ptr<GenccWorker> m_worker;
     GenccOptions m_genccOptions;
 };

@@ -38,7 +38,7 @@ public:
     {
     }
 
-    void SetUp()
+    void SetUp() override
     {
         m_worker = new MockGenccWorker();
         std::unique_ptr<GenccWorker> genccWorker(m_worker);
