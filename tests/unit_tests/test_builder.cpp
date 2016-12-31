@@ -24,6 +24,7 @@
 
 #include "builder.h"
 #include "mock_helper.h"
+#include "test_utils.h"
 
 using ::testing::_;
 using ::testing::Return;
@@ -40,6 +41,7 @@ public:
         Logger::getInstance().disable();
     }
 
+    std::vector<std::string> m_params;
     Builder m_builder;
     GenccOptions m_genccOptions;
     MockHelper m_helper;
@@ -47,13 +49,15 @@ public:
 
 TEST_F(BuilderTest, ErrorGettingCWD)
 {
+    utils::generateParams(m_params, "foo");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(false));
-    EXPECT_THROW(m_builder.doWork(std::vector<std::string>{ "foo" }), std::runtime_error);
+    EXPECT_THROW(m_builder.doWork(m_params), std::runtime_error);
 }
 
 TEST_F(BuilderTest, OneArgument)
 {
+    utils::generateParams(m_params, "foo");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(true));
     EXPECT_CALL(m_helper, removeFile(_))
@@ -66,11 +70,12 @@ TEST_F(BuilderTest, OneArgument)
         .WillOnce(Return());
     EXPECT_CALL(m_helper, runCommand(_))
         .WillOnce(Return(0));
-    m_builder.doWork(std::vector<std::string>{ "foo" });
+    m_builder.doWork(m_params);
 }
 
 TEST_F(BuilderTest, SeveralArguments)
 {
+    utils::generateParams(m_params, "foo bar foo bar");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(true));
     EXPECT_CALL(m_helper, removeFile(_))
@@ -83,11 +88,12 @@ TEST_F(BuilderTest, SeveralArguments)
         .WillOnce(Return());
     EXPECT_CALL(m_helper, runCommand(_))
         .WillOnce(Return(0));
-    m_builder.doWork(std::vector<std::string>{ "foo", "bar", "foo", "bar" });
+    m_builder.doWork(m_params);
 }
 
 TEST_F(BuilderTest, RemoveFiles)
 {
+    utils::generateParams(m_params, "foo");
     m_genccOptions.dbFilename = "foo";
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(true));
@@ -99,11 +105,12 @@ TEST_F(BuilderTest, RemoveFiles)
         .WillRepeatedly(Return());
     EXPECT_CALL(m_helper, runCommand(_))
         .WillOnce(Return(0));
-    m_builder.doWork(std::vector<std::string>{ "foo" });
+    m_builder.doWork(m_params);
 }
 
 TEST_F(BuilderTest, RunCommandError)
 {
+    utils::generateParams(m_params, "foo bar foo bar");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(true));
     EXPECT_CALL(m_helper, removeFile(_))
@@ -112,5 +119,5 @@ TEST_F(BuilderTest, RunCommandError)
         .WillRepeatedly(Return());
     EXPECT_CALL(m_helper, runCommand(_))
         .WillOnce(Return(-1));
-    m_builder.doWork(std::vector<std::string>{ "foo", "bar", "foo", "bar" });
+    m_builder.doWork(m_params);
 }
