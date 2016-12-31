@@ -58,9 +58,13 @@ void Compiler::doWork(const std::vector<std::string>& params)
     try {
         jsonObj << ss;
     } catch (const std::exception& ex) {
-        throw std::runtime_error(std::string("Error parsing ") + Constants::NAME + " options: " + ex.what());
+        throw std::runtime_error(std::string("Error parsing ") + Constants::GENCC_OPTIONS + ": " + ex.what());
     }
 
+    if ((jsonObj.find(Constants::BUILD) == jsonObj.end()) || (jsonObj.find(Constants::DB_FILENAME) == jsonObj.end())) {
+        throw std::runtime_error(std::string("Error parsing ") + Constants::GENCC_OPTIONS + ": "
+            + Constants::BUILD + " or " + Constants::DB_FILENAME + " missing");
+    }
     m_options->build = jsonObj[Constants::BUILD];
     m_options->dbFilename = jsonObj[Constants::DB_FILENAME];
 
@@ -82,7 +86,7 @@ void Compiler::doWork(const std::vector<std::string>& params)
     m_command = ss.str();
 
     LOG("%s\n", m_command.c_str());
-    writeCompilationDB();
+    writeCompilationDb();
 
     if (m_options->build) {
         if (int ret = m_helper->runCommand(ss.str())) {
@@ -91,7 +95,7 @@ void Compiler::doWork(const std::vector<std::string>& params)
     }
 }
 
-void Compiler::writeCompilationDB() const
+void Compiler::writeCompilationDb() const
 {
     std::string dbFilepath = m_options->dbFilename;
     std::string dbLockFilepath = dbFilepath + Constants::COMPILATION_DB_LOCK_EXT;

@@ -24,13 +24,13 @@
 
 #include "common.h"
 
-class Compiler final : public Common, public GenccWorker {
+class Compiler : public Common, public GenccWorker {
 public:
     Compiler(GenccOptions* options, Helper* helper);
     void doWork(const std::vector<std::string>& params) override;
 
-private:
-    void writeCompilationDB() const;
+protected:
+    void writeCompilationDb() const;
     void fallback(unsigned retries) const;
 
     std::string m_directory;
