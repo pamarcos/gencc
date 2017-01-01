@@ -106,11 +106,15 @@ TEST_F(CompilerTest, FallbackValuesAreDifferent)
 
     unsigned value = 0;
     std::unordered_set<unsigned> set;
+    EXPECT_CALL(m_helper, msleep(_))
+        .Times(MAX_FALLBACK_VALUE)
+        .WillRepeatedly(SaveArg<0>(&value));
+
     for (unsigned i = 0; i < MAX_FALLBACK_VALUE; ++i) {
-        EXPECT_CALL(m_helper, msleep(_))
-            .WillOnce(SaveArg<0>(&value));
-        set.insert(value);
         compilerMock.fallbackWrap(0);
+        set.insert(value);
     }
+
+    // Ensure at least half of the total values have been used by the fallback function
     EXPECT_GT(set.size(), MAX_FALLBACK_VALUE / 2);
 }
