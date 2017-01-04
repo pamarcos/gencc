@@ -26,7 +26,7 @@ clean: clean_coverage
 	rm -f $(DEP)
 	cd $(TESTS_DIR) && $(MAKE) $@
 
-tests functional_tests unit_tests: $(OUTPUT_BIN)
+check functional_tests unit_tests: $(OUTPUT_BIN)
 	cd $(TESTS_DIR) && $(MAKE) DEBUG=1 $@
 
 clean_coverage:
@@ -47,6 +47,6 @@ tidy:
 cppcheck:
 	cppcheck --enable=all --inconclusive src tests/unit_tests -igoogletest
 
-.PHONY: clean tests unit_tests functional_tests coverage all
+.PHONY: clean check unit_tests functional_tests coverage all
 
 -include $(DEP)

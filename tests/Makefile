@@ -1,6 +1,6 @@
-all: tests
+all: check
 
-tests: functional_tests unit_tests
+check: functional_tests unit_tests
 
 clean:
 	cd functional_tests && $(MAKE) $@
@@ -9,4 +9,4 @@ clean:
 functional_tests unit_tests:
 	cd $@ && $(MAKE)
 
-.PHONY: tests functional_tests unit_tests
+.PHONY: check functional_tests unit_tests
