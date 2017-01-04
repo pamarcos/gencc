@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/pamarcos/gencc.svg?branch=master)](https://travis-ci.org/pamarcos/gencc)
 [![codecov](https://codecov.io/gh/pamarcos/gencc/branch/master/graph/badge.svg)](https://codecov.io/gh/pamarcos/gencc)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 
 # gencc
 
@@ -35,17 +36,21 @@ Examples:
 
 ```./gencc -cxx g++ -cc gcc make``` will generate *compile_commands.json* for both *g++* and *gcc*
 
+## How to run unit tests
+
+You need a system with Unix tools such as *bash*, *diff* and *sort*. For Windows you can get that with [MSYS](https://msys2.github.io/).
+
+Run ```make check``` and both unit and functional tests will run.
+
 ## Status
 
 This is a very early (and yet usable) version of *gencc*. Please tell me if you find any bug with as much information as possible.
 
-It has been tested on OS X and Linux. Windows support will be added in the near future.
+It has been tested on OS X, Linux and Windows (with [MSYS](https://msys2.github.io/)).
 
 ## License
 
-Copyright (C) 2017 Pablo Marcos Oltra
-
-*GPLv3*
+**GPLv3**
 
 Copyright (C) 2017 Pablo Marcos Oltra
 
