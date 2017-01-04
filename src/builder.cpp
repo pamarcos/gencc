@@ -1,7 +1,7 @@
 /**
  * gencc is an application that generates compilation databases for clang
  *
- * Copyright (C) 2016 Pablo Marcos Oltra
+ * Copyright (C) 2017 Pablo Marcos Oltra
  *
  * This file is part of gencc.
  *
@@ -22,7 +22,7 @@
 #include "builder.h"
 #include "helper.h"
 
-#include "json.hpp"
+#include "json/json.hpp"
 #include <iostream>
 
 using json = nlohmann::json;
@@ -47,7 +47,7 @@ void Builder::doWork(const std::vector<std::string>& params)
 
     m_options->dbFilename = cwd + "/" + m_options->dbFilename;
     m_helper->removeFile(m_options->dbFilename);
-    m_helper->removeFile(m_options->dbFilename + Constants::COMPILATION_DB_LOCK_EXT);
+    m_helper->removeFile(m_options->dbFilename + Constants::COMPILE_DB_LOCK_EXT);
 
     // Serialize the options through an environment variable
     json jsonObj;

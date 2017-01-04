@@ -43,11 +43,28 @@ It has been tested on OS X and Linux. Windows support will be added in the near 
 
 ## License
 
-Copyright (C) 2016 Pablo Marcos Oltra
+Copyright (C) 2017 Pablo Marcos Oltra
 
-GPLv3
+*GPLv3*
+
+Copyright (C) 2017 Pablo Marcos Oltra
+
+gencc is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+gencc is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with gencc.  If not, see <http://www.gnu.org/licenses/>.
 
 ## 3rd-party licenses
+
+[Cross-platform C++ Snippet Library](https://github.com/cubiclesoft/cross-platform-cpp) is licensed under a dual MIT and LGPL license
 
 [JSON for Modern C++](https://github.com/nlohmann/json) is licensed under the MIT License
 

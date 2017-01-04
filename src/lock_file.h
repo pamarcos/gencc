@@ -1,7 +1,7 @@
 /**
  * gencc is an application that generates compilation databases for clang
  *
- * Copyright (C) 2016 Pablo Marcos Oltra
+ * Copyright (C) 2017 Pablo Marcos Oltra
  *
  * This file is part of gencc.
  *
@@ -36,6 +36,9 @@ public:
     virtual bool writeToFile(const std::string& from) const = 0;
     virtual bool readFromFile(std::string& to) const = 0;
 
+    std::string getFilename() const;
+
+protected:
     std::string m_filename;
 };
 

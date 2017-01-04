@@ -1,7 +1,7 @@
 /**
  * gencc is an application that generates compilation databases for clang
  *
- * Copyright (C) 2016 Pablo Marcos Oltra
+ * Copyright (C) 2017 Pablo Marcos Oltra
  *
  * This file is part of gencc.
  *
@@ -25,8 +25,8 @@ const char* Constants::VERSION = "0.1";
 const char* Constants::NAME = "gencc";
 const char* Constants::CXX = "CXX";
 const char* Constants::CC = "CC";
-const char* Constants::COMPILATION_DB = "compile_commands.json";
-const char* Constants::COMPILATION_DB_LOCK_EXT = ".lock";
+const char* Constants::COMPILE_DB = "compile_commands.json";
+const char* Constants::COMPILE_DB_LOCK_EXT = ".lock";
 const char* Constants::GENCC_OPTIONS = "GENCC_OPTIONS";
 const char* Constants::C_EXT = ".c";
 const char* Constants::GENCC_COMPILER_PARAM = "-gencc-compiler";

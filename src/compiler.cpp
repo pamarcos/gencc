@@ -1,7 +1,7 @@
 /**
  * gencc is an application that generates compilation databases for clang
  *
- * Copyright (C) 2016 Pablo Marcos Oltra
+ * Copyright (C) 2017 Pablo Marcos Oltra
  *
  * This file is part of gencc.
  *
@@ -21,7 +21,7 @@
 
 #include "compiler.h"
 #include "helper.h"
-#include "json.hpp"
+#include "json/json.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -70,17 +70,21 @@ void Compiler::doWork(const std::vector<std::string>& params)
 
     ss.str("");
     ss.clear();
-    ss << m_options->compiler << " ";
+
+    ss << m_options->compiler;
 
     m_directory = cwd;
     for (size_t i = 1; i < params.size(); ++i) {
-        ss << params.at(i);
-        if (i != params.size() - 1) {
-            ss << " ";
+        std::string param = params.at(i);
+        if (!param.empty()) {
+            if (!ss.str().empty()) {
+                ss << " ";
+            }
+            ss << param;
         }
 
-        if (params.at(i).find(Constants::C_EXT) != std::string::npos) {
-            m_file = m_directory + "/" + params.at(i);
+        if (param.find(Constants::C_EXT) != std::string::npos) {
+            m_file = m_directory + "/" + param;
         }
     }
     m_command = ss.str();
@@ -98,7 +102,7 @@ void Compiler::doWork(const std::vector<std::string>& params)
 void Compiler::writeCompilationDb() const
 {
     std::string dbFilepath = m_options->dbFilename;
-    std::string dbLockFilepath = dbFilepath + Constants::COMPILATION_DB_LOCK_EXT;
+    std::string dbLockFilepath = dbFilepath + Constants::COMPILE_DB_LOCK_EXT;
 
     unsigned retries = 1;
     do {
@@ -126,7 +130,6 @@ void Compiler::writeCompilationDb() const
         jsonDb.push_back(jsonObj);
 
         std::string checkStr;
-
         if (!dbLockFile.getLockFile()->readFromFile(checkStr)) {
             fallback(retries);
             continue;

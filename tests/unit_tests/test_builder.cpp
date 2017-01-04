@@ -1,7 +1,7 @@
 /**
  * gencc is an application that generates compilation databases for clang
  *
- * Copyright (C) 2016 Pablo Marcos Oltra
+ * Copyright (C) 2017 Pablo Marcos Oltra
  *
  * This file is part of gencc.
  *
@@ -49,7 +49,7 @@ public:
 
 TEST_F(BuilderTest, ErrorGettingCWD)
 {
-    utils::generateParams(m_params, "foo");
+    test_utils::generateParams(m_params, "foo");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(false));
     EXPECT_THROW(m_builder.doWork(m_params), std::runtime_error);
@@ -57,7 +57,7 @@ TEST_F(BuilderTest, ErrorGettingCWD)
 
 TEST_F(BuilderTest, OneArgument)
 {
-    utils::generateParams(m_params, "foo");
+    test_utils::generateParams(m_params, "foo");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(true));
     EXPECT_CALL(m_helper, removeFile(_))
@@ -75,7 +75,7 @@ TEST_F(BuilderTest, OneArgument)
 
 TEST_F(BuilderTest, SeveralArguments)
 {
-    utils::generateParams(m_params, "foo bar foo bar");
+    test_utils::generateParams(m_params, "foo bar foo bar");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(true));
     EXPECT_CALL(m_helper, removeFile(_))
@@ -93,13 +93,13 @@ TEST_F(BuilderTest, SeveralArguments)
 
 TEST_F(BuilderTest, RemoveFiles)
 {
-    utils::generateParams(m_params, "foo");
+    test_utils::generateParams(m_params, "foo");
     m_genccOptions.dbFilename = "foo";
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(true));
     EXPECT_CALL(m_helper, removeFile("/" + m_genccOptions.dbFilename))
         .WillOnce(Return());
-    EXPECT_CALL(m_helper, removeFile("/" + m_genccOptions.dbFilename + Constants::COMPILATION_DB_LOCK_EXT))
+    EXPECT_CALL(m_helper, removeFile("/" + m_genccOptions.dbFilename + Constants::COMPILE_DB_LOCK_EXT))
         .WillOnce(Return());
     EXPECT_CALL(m_helper, setEnvVar(_, _))
         .WillRepeatedly(Return());
@@ -110,7 +110,7 @@ TEST_F(BuilderTest, RemoveFiles)
 
 TEST_F(BuilderTest, RunCommandError)
 {
-    utils::generateParams(m_params, "foo bar foo bar");
+    test_utils::generateParams(m_params, "foo bar foo bar");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(true));
     EXPECT_CALL(m_helper, removeFile(_))

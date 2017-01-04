@@ -1,7 +1,7 @@
 /**
  * gencc is an application that generates compilation databases for clang
  *
- * Copyright (C) 2016 Pablo Marcos Oltra
+ * Copyright (C) 2017 Pablo Marcos Oltra
  *
  * This file is part of gencc.
  *
@@ -27,6 +27,11 @@
 
 class MockHelper : public Helper {
 public:
+    virtual std::unique_ptr<LockFile> getLockFile(const std::string& filename) const
+    {
+        return std::unique_ptr<LockFile>(getLockFileProxy(filename));
+    }
+
     MOCK_CONST_METHOD2(getEnvVar, bool(const char*, std::string&));
     MOCK_CONST_METHOD2(setEnvVar, void(const char*, const std::string&));
     MOCK_METHOD1(getCwd, bool(std::string&));
@@ -34,7 +39,7 @@ public:
     MOCK_CONST_METHOD1(msleep, void(unsigned));
     MOCK_CONST_METHOD1(fileExists, bool(const std::string& filename));
     MOCK_CONST_METHOD1(removeFile, void(const std::string& filename));
-    MOCK_CONST_METHOD1(getLockFile, std::unique_ptr<LockFile>(const std::string& filename));
+    MOCK_CONST_METHOD1(getLockFileProxy, LockFile*(const std::string& filename));
     MOCK_CONST_METHOD1(getFileIstream, std::unique_ptr<std::istream>(const std::string& filename));
     MOCK_CONST_METHOD1(getFileOstream, std::unique_ptr<std::ostream>(const std::string& filename));
 };

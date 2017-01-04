@@ -1,7 +1,7 @@
 /**
  * gencc is an application that generates compilation databases for clang
  *
- * Copyright (C) 2016 Pablo Marcos Oltra
+ * Copyright (C) 2017 Pablo Marcos Oltra
  *
  * This file is part of gencc.
  *
@@ -26,6 +26,11 @@
 LockFile::LockFile(const std::string& filename)
     : m_filename(filename)
 {
+}
+
+std::string LockFile::getFilename() const
+{
+    return m_filename;
 }
 
 LockFileGuard::LockFileGuard(std::unique_ptr<LockFile>&& lockFile)

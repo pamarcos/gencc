@@ -1,7 +1,7 @@
 /**
  * m_gencc is an application that generates compilation databases for clang
  *
- * Copyright (C) 2016 Pablo Marcos Oltra
+ * Copyright (C) 2017 Pablo Marcos Oltra
  *
  * This file is part of m_gencc.
  *
@@ -67,13 +67,13 @@ TEST_F(GenccTest, NoHelper)
 
 TEST_F(GenccTest, NotEnoughParameters)
 {
-    utils::generateParams(m_params, "m_gencc");
+    test_utils::generateParams(m_params, "m_gencc");
     EXPECT_NE(m_gencc.init(m_params), 0);
 }
 
 TEST_F(GenccTest, ErrorGettingCWD)
 {
-    utils::generateParams(m_params, "m_gencc -h");
+    test_utils::generateParams(m_params, "m_gencc -h");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(false));
     EXPECT_THROW(m_gencc.init(m_params), std::runtime_error);
@@ -81,7 +81,7 @@ TEST_F(GenccTest, ErrorGettingCWD)
 
 TEST_F(GenccTest, AddCWDtoBinaryPath)
 {
-    utils::generateParams(m_params, "m_gencc -h");
+    test_utils::generateParams(m_params, "m_gencc -h");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -91,7 +91,7 @@ TEST_F(GenccTest, AddCWDtoBinaryPath)
 
 TEST_F(GenccTest, AbsoluteBinaryPath)
 {
-    utils::generateParams(m_params, "/my/absolute/path/m_gencc -h");
+    test_utils::generateParams(m_params, "/my/absolute/path/m_gencc -h");
     EXPECT_CALL(m_helper, getEnvVar(_, _))
         .WillRepeatedly(Return(false));
     EXPECT_NE(m_gencc.init(m_params), 0);
@@ -99,7 +99,7 @@ TEST_F(GenccTest, AbsoluteBinaryPath)
 
 TEST_F(GenccTest, CompilerModeFail)
 {
-    utils::generateParams(m_params, "m_gencc -h");
+    test_utils::generateParams(m_params, "m_gencc -h");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -109,7 +109,7 @@ TEST_F(GenccTest, CompilerModeFail)
 
 TEST_F(GenccTest, CompilerModeSuccess)
 {
-    utils::generateParams(m_params, "m_gencc foo");
+    test_utils::generateParams(m_params, "m_gencc foo");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillOnce(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -120,7 +120,7 @@ TEST_F(GenccTest, CompilerModeSuccess)
 
 TEST_F(GenccTest, WorkerNullBuilderMode)
 {
-    utils::generateParams(m_params, "m_gencc foo");
+    test_utils::generateParams(m_params, "m_gencc foo");
     std::unique_ptr<GenccWorker> nullWorker(nullptr);
     m_gencc.setWorker(nullWorker);
     EXPECT_CALL(m_helper, getCwd(_))
@@ -140,7 +140,7 @@ TEST_F(GenccTest, WorkerNullBuilderMode)
 
 TEST_F(GenccTest, WorkerNullCompilerMode)
 {
-    utils::generateParams(m_params, "m_gencc foo");
+    test_utils::generateParams(m_params, "m_gencc foo");
     std::unique_ptr<GenccWorker> nullWorker(nullptr);
     m_gencc.setWorker(nullWorker);
     EXPECT_CALL(m_helper, getCwd(_))
@@ -159,7 +159,7 @@ TEST_F(GenccTest, WorkerNullCompilerMode)
 /* Parameters */
 TEST_F(GenccTest, CompilerParamNoValue)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::GENCC_COMPILER_PARAM);
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::GENCC_COMPILER_PARAM);
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -169,7 +169,7 @@ TEST_F(GenccTest, CompilerParamNoValue)
 
 TEST_F(GenccTest, CompilerParamValue)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::GENCC_COMPILER_PARAM + " foo");
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::GENCC_COMPILER_PARAM + " foo");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -181,7 +181,7 @@ TEST_F(GenccTest, CompilerParamValue)
 
 TEST_F(GenccTest, CxxParamNoValue)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_CXX);
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_CXX);
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -191,7 +191,7 @@ TEST_F(GenccTest, CxxParamNoValue)
 
 TEST_F(GenccTest, CxxParamValue)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_CXX + " foo");
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_CXX + " foo");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -203,7 +203,7 @@ TEST_F(GenccTest, CxxParamValue)
 
 TEST_F(GenccTest, CcParamNoValue)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_CC);
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_CC);
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -213,7 +213,7 @@ TEST_F(GenccTest, CcParamNoValue)
 
 TEST_F(GenccTest, CcParamValue)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_CC + " foo");
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_CC + " foo");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -225,7 +225,7 @@ TEST_F(GenccTest, CcParamValue)
 
 TEST_F(GenccTest, OutputParamNoValue)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_OUTPUT);
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_OUTPUT);
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -235,7 +235,7 @@ TEST_F(GenccTest, OutputParamNoValue)
 
 TEST_F(GenccTest, OutputParamValue)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_OUTPUT + " foo");
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_OUTPUT + " foo");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -247,7 +247,7 @@ TEST_F(GenccTest, OutputParamValue)
 
 TEST_F(GenccTest, RetriesParamNoValue)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_RETRIES);
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_RETRIES);
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -257,7 +257,7 @@ TEST_F(GenccTest, RetriesParamNoValue)
 
 TEST_F(GenccTest, RetriesParamValue)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_RETRIES + " 123");
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_RETRIES + " 123");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -269,7 +269,7 @@ TEST_F(GenccTest, RetriesParamValue)
 
 TEST_F(GenccTest, FallbackParamNoValue)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_FALLBACK);
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_FALLBACK);
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -279,7 +279,7 @@ TEST_F(GenccTest, FallbackParamNoValue)
 
 TEST_F(GenccTest, FallbackParamValue)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_FALLBACK + " 456");
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_FALLBACK + " 456");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -291,7 +291,7 @@ TEST_F(GenccTest, FallbackParamValue)
 
 TEST_F(GenccTest, BuildParam)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_BUILD);
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_BUILD);
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))
@@ -303,7 +303,7 @@ TEST_F(GenccTest, BuildParam)
 
 TEST_F(GenccTest, BuildParamWithMoreParams)
 {
-    utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_BUILD + " foo bar");
+    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_BUILD + " foo bar");
     EXPECT_CALL(m_helper, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_helper, getEnvVar(_, _))

@@ -1,7 +1,7 @@
 /**
  * gencc is an application that generates compilation databases for clang
  *
- * Copyright (C) 2016 Pablo Marcos Oltra
+ * Copyright (C) 2017 Pablo Marcos Oltra
  *
  * This file is part of gencc.
  *
@@ -32,8 +32,8 @@ struct Constants {
     static const char* NAME;
     static const char* CXX;
     static const char* CC;
-    static const char* COMPILATION_DB;
-    static const char* COMPILATION_DB_LOCK_EXT;
+    static const char* COMPILE_DB;
+    static const char* COMPILE_DB_LOCK_EXT;
     static const char* GENCC_OPTIONS;
     static const char* C_EXT;
     static const char* GENCC_COMPILER_PARAM;
@@ -63,7 +63,7 @@ enum class GenccMode {
 using GenccOptions = struct GenccOptions_s {
     GenccMode mode = GenccMode::NONE;
     bool build = false;
-    std::string dbFilename = Constants::COMPILATION_DB;
+    std::string dbFilename = Constants::COMPILE_DB;
     std::string cxx;
     std::string cc;
     std::string compiler;

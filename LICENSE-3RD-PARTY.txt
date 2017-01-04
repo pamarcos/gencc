@@ -1,3 +1,11 @@
+https://github.com/cubiclesoft/cross-platform-cpp
+
+Cross-platform C++ Snippet Library
+
+Has a liberal open source license. MIT or LGPL, your choice.
+
+=============================================================================
+
 https://github.com/nlohmann/json
 
 JSON for Modern C++ is licensed under the MIT License 
