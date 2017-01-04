@@ -23,22 +23,22 @@
 #include "builder.h"
 #include "common.h"
 #include "compiler.h"
-#include "helper.h"
+#include "utils.h"
 
 #include <iostream>
 
-Gencc::Gencc(Helper* helper)
-    : Common(&m_genccOptions, helper)
+Gencc::Gencc(Utils* utils)
+    : Common(&m_genccOptions, utils)
 {
 }
 
 bool Gencc::parseArgs(std::vector<std::string>& params)
 {
     std::string envValue;
-    if (m_helper->getEnvVar(Constants::CXX, envValue)) {
+    if (m_utils->getEnvVar(Constants::CXX, envValue)) {
         m_options->cxx = envValue;
     }
-    if (m_helper->getEnvVar(Constants::CC, envValue)) {
+    if (m_utils->getEnvVar(Constants::CC, envValue)) {
         m_options->cc = envValue;
     }
 
@@ -118,8 +118,8 @@ void Gencc::setWorker(std::unique_ptr<GenccWorker>& worker)
 
 int Gencc::init(std::vector<std::string>& params)
 {
-    if (m_options == nullptr || m_helper == nullptr) {
-        LOG("Options and helper cannot be null\n");
+    if (m_options == nullptr || m_utils == nullptr) {
+        LOG("Options and utils cannot be null\n");
         return -1;
     }
 
@@ -136,7 +136,7 @@ int Gencc::init(std::vector<std::string>& params)
     size_t pos = genccComand.find_first_of('/');
     if (pos != 0) {
         std::string cwd;
-        if (!m_helper->getCwd(cwd)) {
+        if (!m_utils->getCwd(cwd)) {
             throw std::runtime_error("Couldn't get current working dir");
         }
         genccComand = cwd + "/" + genccComand;
@@ -144,7 +144,7 @@ int Gencc::init(std::vector<std::string>& params)
     }
 
     std::string mode;
-    if (!m_helper->getEnvVar(Constants::GENCC_OPTIONS, mode)) {
+    if (!m_utils->getEnvVar(Constants::GENCC_OPTIONS, mode)) {
         m_options->mode = GenccMode::BUILDER;
     } else {
         m_options->mode = GenccMode::COMPILER;
@@ -159,9 +159,9 @@ int Gencc::init(std::vector<std::string>& params)
     if (m_worker == nullptr) {
         if (m_options->mode == GenccMode::BUILDER) {
             LOG("\n");
-            m_worker = std::unique_ptr<GenccWorker>(new Builder(m_options, m_helper));
+            m_worker = std::unique_ptr<GenccWorker>(new Builder(m_options, m_utils));
         } else if (m_options->mode == GenccMode::COMPILER) {
-            m_worker = std::unique_ptr<GenccWorker>(new Compiler(m_options, m_helper));
+            m_worker = std::unique_ptr<GenccWorker>(new Compiler(m_options, m_utils));
         }
     }
 

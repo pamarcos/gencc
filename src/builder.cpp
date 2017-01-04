@@ -20,15 +20,15 @@
  */
 
 #include "builder.h"
-#include "helper.h"
+#include "utils.h"
 
 #include "json/json.hpp"
 #include <iostream>
 
 using json = nlohmann::json;
 
-Builder::Builder(GenccOptions* options, Helper* helper)
-    : Common(options, helper)
+Builder::Builder(GenccOptions* options, Utils* utils)
+    : Common(options, utils)
 {
 }
 
@@ -37,7 +37,7 @@ void Builder::doWork(const std::vector<std::string>& params)
     std::string cwd;
     std::stringstream ss;
 
-    if (!m_helper->getCwd(cwd)) {
+    if (!m_utils->getCwd(cwd)) {
         throw std::runtime_error("Couldn't get current working dir");
     }
 
@@ -46,8 +46,8 @@ void Builder::doWork(const std::vector<std::string>& params)
     LOG("CWD = %s\n", cwd.c_str());
 
     m_options->dbFilename = cwd + "/" + m_options->dbFilename;
-    m_helper->removeFile(m_options->dbFilename);
-    m_helper->removeFile(m_options->dbFilename + Constants::COMPILE_DB_LOCK_EXT);
+    m_utils->removeFile(m_options->dbFilename);
+    m_utils->removeFile(m_options->dbFilename + Constants::COMPILE_DB_LOCK_EXT);
 
     // Serialize the options through an environment variable
     json jsonObj;
@@ -56,9 +56,9 @@ void Builder::doWork(const std::vector<std::string>& params)
     ss.str("");
     ss.clear();
     ss << jsonObj;
-    m_helper->setEnvVar(Constants::GENCC_OPTIONS, ss.str());
-    m_helper->setEnvVar(Constants::CXX, params.at(0) + " " + Constants::GENCC_COMPILER_PARAM + " " + m_options->cxx);
-    m_helper->setEnvVar(Constants::CC, params.at(0) + " " + Constants::GENCC_COMPILER_PARAM + " " + m_options->cc);
+    m_utils->setEnvVar(Constants::GENCC_OPTIONS, ss.str());
+    m_utils->setEnvVar(Constants::CXX, params.at(0) + " " + Constants::GENCC_COMPILER_PARAM + " " + m_options->cxx);
+    m_utils->setEnvVar(Constants::CC, params.at(0) + " " + Constants::GENCC_COMPILER_PARAM + " " + m_options->cc);
 
     ss.str("");
     ss.clear();
@@ -69,7 +69,7 @@ void Builder::doWork(const std::vector<std::string>& params)
         }
     }
 
-    if (int ret = m_helper->runCommand(ss.str())) {
+    if (int ret = m_utils->runCommand(ss.str())) {
         LOG("The command %s exited with error code %d\n", ss.str().c_str(), ret);
     }
 }

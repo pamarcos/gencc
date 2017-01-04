@@ -26,7 +26,7 @@
 
 class Compiler : public Common, public GenccWorker {
 public:
-    Compiler(GenccOptions* options, Helper* helper);
+    Compiler(GenccOptions* options, Utils* utils);
     void doWork(const std::vector<std::string>& params) override;
 
 protected:

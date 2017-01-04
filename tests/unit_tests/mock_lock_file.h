@@ -27,7 +27,7 @@
 
 class MockLockFile : public LockFile {
 public:
-    MockLockFile(const std::string& filename)
+    explicit MockLockFile(const std::string& filename)
         : LockFile(filename)
     {
     }

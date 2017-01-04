@@ -20,7 +20,7 @@
  */
 
 #include "compiler.h"
-#include "helper.h"
+#include "utils.h"
 #include "json/json.hpp"
 
 #include <cstdlib>
@@ -33,8 +33,8 @@
 
 using json = nlohmann::json;
 
-Compiler::Compiler(GenccOptions* options, Helper* helper)
-    : Common(options, helper)
+Compiler::Compiler(GenccOptions* options, Utils* utils)
+    : Common(options, utils)
 {
 }
 
@@ -43,14 +43,14 @@ void Compiler::doWork(const std::vector<std::string>& params)
     std::stringstream ss;
     std::string cwd;
 
-    if (!m_helper->getCwd(cwd)) {
+    if (!m_utils->getCwd(cwd)) {
         throw std::runtime_error("Couldn't get current working dir");
     }
 
     // Deserialize options embedded in the env variable
     std::string genccOptions;
     json jsonObj;
-    if (!m_helper->getEnvVar(Constants::GENCC_OPTIONS, genccOptions)) {
+    if (!m_utils->getEnvVar(Constants::GENCC_OPTIONS, genccOptions)) {
         throw std::runtime_error(std::string("Couldn't read env var ") + Constants::GENCC_OPTIONS);
     }
     ss << genccOptions;
@@ -93,7 +93,7 @@ void Compiler::doWork(const std::vector<std::string>& params)
     writeCompilationDb();
 
     if (m_options->build) {
-        if (int ret = m_helper->runCommand(ss.str())) {
+        if (int ret = m_utils->runCommand(ss.str())) {
             LOG("The command %s exited with error code %d\n", ss.str().c_str(), ret);
         }
     }
@@ -106,11 +106,11 @@ void Compiler::writeCompilationDb() const
 
     unsigned retries = 1;
     do {
-        if (m_helper->fileExists(dbLockFilepath)) {
+        if (m_utils->fileExists(dbLockFilepath)) {
             fallback(retries);
             continue;
         }
-        LockFileGuard dbLockFile(m_helper->getLockFile(dbLockFilepath));
+        LockFileGuard dbLockFile(m_utils->getLockFile(dbLockFilepath));
 
         if (!dbLockFile.getLockFile()->writeToFile(m_command)) {
             fallback(retries);
@@ -118,8 +118,8 @@ void Compiler::writeCompilationDb() const
         }
 
         json jsonDb = json::array();
-        if (m_helper->fileExists(m_options->dbFilename)) {
-            std::unique_ptr<std::istream> dbStream = m_helper->getFileIstream(m_options->dbFilename);
+        if (m_utils->fileExists(m_options->dbFilename)) {
+            std::unique_ptr<std::istream> dbStream = m_utils->getFileIstream(m_options->dbFilename);
             *dbStream >> jsonDb;
         }
 
@@ -139,7 +139,7 @@ void Compiler::writeCompilationDb() const
         // In case the string read now is not the same as the one written after creating
         // that file, we know a different process created it at the same time
         if (checkStr == m_command) {
-            std::unique_ptr<std::ostream> dbStream = m_helper->getFileOstream(m_options->dbFilename);
+            std::unique_ptr<std::ostream> dbStream = m_utils->getFileOstream(m_options->dbFilename);
             *dbStream << jsonDb.dump(4);
             dbStream->flush();
             break;
@@ -167,5 +167,5 @@ void Compiler::fallback(unsigned retries) const
     unsigned fallbackValue = dist(mt);
     LOG("%s - Lock file already exists. Trying again in %d ms. Attempt #%d\n",
         m_command.c_str(), fallbackValue, retries);
-    m_helper->msleep(fallbackValue);
+    m_utils->msleep(fallbackValue);
 }

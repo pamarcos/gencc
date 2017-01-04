@@ -52,7 +52,7 @@ struct Constants {
     static const char* PARAM_BUILD;
 };
 
-class Helper;
+class Utils;
 
 enum class GenccMode {
     NONE,
@@ -79,23 +79,23 @@ public:
 
 class Common {
 public:
-    Common(GenccOptions* options, Helper* helper)
+    Common(GenccOptions* options, Utils* utils)
         : m_options(options)
-        , m_helper(helper)
+        , m_utils(utils)
     {
     }
 
     virtual ~Common() = default;
 
-    Helper* getHelper() const noexcept { return m_helper; }
-    void setHelper(Helper* value) noexcept { m_helper = value; }
+    Utils* getUtils() const noexcept { return m_utils; }
+    void setUtils(Utils* value) noexcept { m_utils = value; }
 
     GenccOptions* getOptions() const noexcept { return m_options; }
     void setOptions(GenccOptions* value) noexcept { m_options = value; }
 
 protected:
     GenccOptions* m_options;
-    Helper* m_helper;
+    Utils* m_utils;
 };
 
 #endif // COMMON_H

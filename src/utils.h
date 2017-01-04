@@ -19,8 +19,8 @@
  * along with gencc.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HELPER_H
-#define HELPER_H
+#ifndef UTILS_H
+#define UTILS_H
 
 #include "lock_file.h"
 
@@ -29,9 +29,9 @@
 #include <memory>
 #include <string>
 
-class Helper {
+class Utils {
 public:
-    virtual ~Helper() = default;
+    virtual ~Utils() = default;
 
     // Environment variables
     virtual bool getEnvVar(const char* name, std::string& str) const = 0;
@@ -50,7 +50,7 @@ public:
     virtual std::unique_ptr<std::ostream> getFileOstream(const std::string& filename) const = 0;
 };
 
-class HelperImpl final : public Helper {
+class UtilsImpl final : public Utils {
 public:
     // Environment variables
     bool getEnvVar(const char* name, std::string& str) const override;
@@ -72,4 +72,4 @@ public:
     std::array<char, 128> m_buffer;
 };
 
-#endif // HELPER_H
+#endif // UTILS_H

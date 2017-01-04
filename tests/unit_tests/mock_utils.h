@@ -19,13 +19,13 @@
  * along with gencc.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MOCK_HELPER_H
-#define MOCK_HELPER_H
+#ifndef MOCK_UTILS_H
+#define MOCK_UTILS_H
 
 #include "gmock/gmock.h"
-#include "helper.h"
+#include "utils.h"
 
-class MockHelper : public Helper {
+class MockUtils : public Utils {
 public:
     virtual std::unique_ptr<LockFile> getLockFile(const std::string& filename) const
     {
@@ -44,4 +44,4 @@ public:
     MOCK_CONST_METHOD1(getFileOstream, std::unique_ptr<std::ostream>(const std::string& filename));
 };
 
-#endif // MOCK_HELPER_H
+#endif // MOCK_UTILS_H

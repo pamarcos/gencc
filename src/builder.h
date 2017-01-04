@@ -26,7 +26,7 @@
 
 class Builder final : public Common, public GenccWorker {
 public:
-    Builder(GenccOptions* options, Helper* helper);
+    Builder(GenccOptions* options, Utils* utils);
     void doWork(const std::vector<std::string>& params) override;
 };
 

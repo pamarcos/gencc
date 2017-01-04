@@ -23,7 +23,7 @@
 #include "gtest/gtest.h"
 
 #include "builder.h"
-#include "mock_helper.h"
+#include "mock_utils.h"
 #include "test_utils.h"
 
 using ::testing::_;
@@ -32,7 +32,7 @@ using ::testing::Return;
 class BuilderTest : public ::testing::Test {
 public:
     BuilderTest()
-        : m_builder(&m_genccOptions, &m_helper)
+        : m_builder(&m_genccOptions, &m_utils)
     {
     }
 
@@ -44,13 +44,13 @@ public:
     std::vector<std::string> m_params;
     Builder m_builder;
     GenccOptions m_genccOptions;
-    MockHelper m_helper;
+    MockUtils m_utils;
 };
 
 TEST_F(BuilderTest, ErrorGettingCWD)
 {
     test_utils::generateParams(m_params, "foo");
-    EXPECT_CALL(m_helper, getCwd(_))
+    EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(false));
     EXPECT_THROW(m_builder.doWork(m_params), std::runtime_error);
 }
@@ -58,17 +58,17 @@ TEST_F(BuilderTest, ErrorGettingCWD)
 TEST_F(BuilderTest, OneArgument)
 {
     test_utils::generateParams(m_params, "foo");
-    EXPECT_CALL(m_helper, getCwd(_))
+    EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
-    EXPECT_CALL(m_helper, removeFile(_))
+    EXPECT_CALL(m_utils, removeFile(_))
         .WillRepeatedly(Return());
-    EXPECT_CALL(m_helper, setEnvVar(Constants::GENCC_OPTIONS, _))
+    EXPECT_CALL(m_utils, setEnvVar(Constants::GENCC_OPTIONS, _))
         .WillOnce(Return());
-    EXPECT_CALL(m_helper, setEnvVar(Constants::CXX, _))
+    EXPECT_CALL(m_utils, setEnvVar(Constants::CXX, _))
         .WillOnce(Return());
-    EXPECT_CALL(m_helper, setEnvVar(Constants::CC, _))
+    EXPECT_CALL(m_utils, setEnvVar(Constants::CC, _))
         .WillOnce(Return());
-    EXPECT_CALL(m_helper, runCommand(_))
+    EXPECT_CALL(m_utils, runCommand(_))
         .WillOnce(Return(0));
     m_builder.doWork(m_params);
 }
@@ -76,17 +76,17 @@ TEST_F(BuilderTest, OneArgument)
 TEST_F(BuilderTest, SeveralArguments)
 {
     test_utils::generateParams(m_params, "foo bar foo bar");
-    EXPECT_CALL(m_helper, getCwd(_))
+    EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
-    EXPECT_CALL(m_helper, removeFile(_))
+    EXPECT_CALL(m_utils, removeFile(_))
         .WillRepeatedly(Return());
-    EXPECT_CALL(m_helper, setEnvVar(Constants::GENCC_OPTIONS, _))
+    EXPECT_CALL(m_utils, setEnvVar(Constants::GENCC_OPTIONS, _))
         .WillOnce(Return());
-    EXPECT_CALL(m_helper, setEnvVar(Constants::CXX, _))
+    EXPECT_CALL(m_utils, setEnvVar(Constants::CXX, _))
         .WillOnce(Return());
-    EXPECT_CALL(m_helper, setEnvVar(Constants::CC, _))
+    EXPECT_CALL(m_utils, setEnvVar(Constants::CC, _))
         .WillOnce(Return());
-    EXPECT_CALL(m_helper, runCommand(_))
+    EXPECT_CALL(m_utils, runCommand(_))
         .WillOnce(Return(0));
     m_builder.doWork(m_params);
 }
@@ -95,15 +95,15 @@ TEST_F(BuilderTest, RemoveFiles)
 {
     test_utils::generateParams(m_params, "foo");
     m_genccOptions.dbFilename = "foo";
-    EXPECT_CALL(m_helper, getCwd(_))
+    EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
-    EXPECT_CALL(m_helper, removeFile("/" + m_genccOptions.dbFilename))
+    EXPECT_CALL(m_utils, removeFile("/" + m_genccOptions.dbFilename))
         .WillOnce(Return());
-    EXPECT_CALL(m_helper, removeFile("/" + m_genccOptions.dbFilename + Constants::COMPILE_DB_LOCK_EXT))
+    EXPECT_CALL(m_utils, removeFile("/" + m_genccOptions.dbFilename + Constants::COMPILE_DB_LOCK_EXT))
         .WillOnce(Return());
-    EXPECT_CALL(m_helper, setEnvVar(_, _))
+    EXPECT_CALL(m_utils, setEnvVar(_, _))
         .WillRepeatedly(Return());
-    EXPECT_CALL(m_helper, runCommand(_))
+    EXPECT_CALL(m_utils, runCommand(_))
         .WillOnce(Return(0));
     m_builder.doWork(m_params);
 }
@@ -111,13 +111,13 @@ TEST_F(BuilderTest, RemoveFiles)
 TEST_F(BuilderTest, RunCommandError)
 {
     test_utils::generateParams(m_params, "foo bar foo bar");
-    EXPECT_CALL(m_helper, getCwd(_))
+    EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
-    EXPECT_CALL(m_helper, removeFile(_))
+    EXPECT_CALL(m_utils, removeFile(_))
         .WillRepeatedly(Return());
-    EXPECT_CALL(m_helper, setEnvVar(_, _))
+    EXPECT_CALL(m_utils, setEnvVar(_, _))
         .WillRepeatedly(Return());
-    EXPECT_CALL(m_helper, runCommand(_))
+    EXPECT_CALL(m_utils, runCommand(_))
         .WillOnce(Return(-1));
     m_builder.doWork(m_params);
 }

@@ -26,8 +26,8 @@
 
 #include "common.h"
 #include "compiler.h"
-#include "mock_helper.h"
 #include "mock_lock_file.h"
+#include "mock_utils.h"
 #include "test_utils.h"
 
 using ::testing::_;
@@ -39,7 +39,7 @@ using ::testing::ReturnRef;
 class CompilerTest : public ::testing::Test {
 public:
     CompilerTest()
-        : m_compiler(&m_genccOptions, &m_helper)
+        : m_compiler(&m_genccOptions, &m_utils)
     {
     }
 
@@ -51,13 +51,13 @@ public:
     std::vector<std::string> m_params;
     Compiler m_compiler;
     GenccOptions m_genccOptions;
-    MockHelper m_helper;
+    MockUtils m_utils;
 };
 
 class CompilerMock : public Compiler {
 public:
-    CompilerMock(GenccOptions* options, Helper* helper)
-        : Compiler(options, helper)
+    CompilerMock(GenccOptions* options, Utils* utils)
+        : Compiler(options, utils)
     {
     }
 
@@ -66,16 +66,16 @@ public:
 
 TEST_F(CompilerTest, ErrorGettingCWD)
 {
-    EXPECT_CALL(m_helper, getCwd(_))
+    EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(false));
     EXPECT_THROW(m_compiler.doWork(m_params), std::runtime_error);
 }
 
 TEST_F(CompilerTest, ErrorGettingGenccOptionsEnvVar)
 {
-    EXPECT_CALL(m_helper, getCwd(_))
+    EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
-    EXPECT_CALL(m_helper, getEnvVar(Constants::GENCC_OPTIONS, _))
+    EXPECT_CALL(m_utils, getEnvVar(Constants::GENCC_OPTIONS, _))
         .WillOnce(Return(false));
     EXPECT_THROW(m_compiler.doWork(m_params), std::runtime_error);
 }
@@ -83,9 +83,9 @@ TEST_F(CompilerTest, ErrorGettingGenccOptionsEnvVar)
 TEST_F(CompilerTest, GenccOptionsEnvVarsMissing)
 {
     std::string genccOptions = "{}";
-    EXPECT_CALL(m_helper, getCwd(_))
+    EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
-    EXPECT_CALL(m_helper, getEnvVar(Constants::GENCC_OPTIONS, _))
+    EXPECT_CALL(m_utils, getEnvVar(Constants::GENCC_OPTIONS, _))
         .WillOnce(DoAll(SetArgReferee<1>(genccOptions), Return(true)));
     EXPECT_THROW(m_compiler.doWork(m_params), std::runtime_error);
 }
@@ -93,9 +93,9 @@ TEST_F(CompilerTest, GenccOptionsEnvVarsMissing)
 TEST_F(CompilerTest, GenccOptionsEnvVarDbFilenameMissing)
 {
     std::string genccOptions = "{ \"build\":false }";
-    EXPECT_CALL(m_helper, getCwd(_))
+    EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
-    EXPECT_CALL(m_helper, getEnvVar(Constants::GENCC_OPTIONS, _))
+    EXPECT_CALL(m_utils, getEnvVar(Constants::GENCC_OPTIONS, _))
         .WillOnce(DoAll(SetArgReferee<1>(genccOptions), Return(true)));
     EXPECT_THROW(m_compiler.doWork(m_params), std::runtime_error);
 }
@@ -103,9 +103,9 @@ TEST_F(CompilerTest, GenccOptionsEnvVarDbFilenameMissing)
 TEST_F(CompilerTest, GenccOptionsEnvVarBuildMissingMissing)
 {
     std::string genccOptions = "{ \"dbFilename\":\"foo\" }";
-    EXPECT_CALL(m_helper, getCwd(_))
+    EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
-    EXPECT_CALL(m_helper, getEnvVar(Constants::GENCC_OPTIONS, _))
+    EXPECT_CALL(m_utils, getEnvVar(Constants::GENCC_OPTIONS, _))
         .WillOnce(DoAll(SetArgReferee<1>(genccOptions), Return(true)));
     EXPECT_THROW(m_compiler.doWork(m_params), std::runtime_error);
 }
@@ -119,15 +119,15 @@ TEST_F(CompilerTest, GenccOptionsEnvVarBuildMissingMissing)
     test_utils::generateParams(m_params, "compiler " + command);
     std::stringstream ss;
 
-    EXPECT_CALL(m_helper, getCwd(_))
+    EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
-    EXPECT_CALL(m_helper, getEnvVar(Constants::GENCC_OPTIONS, _))
+    EXPECT_CALL(m_utils, getEnvVar(Constants::GENCC_OPTIONS, _))
         .WillOnce(DoAll(SetArgReferee<1>(genccOptions), Return(true)));
-    EXPECT_CALL(m_helper, fileExists(lockFile->getFilename()))
+    EXPECT_CALL(m_utils, fileExists(lockFile->getFilename()))
         .WillOnce(Return(false));
-    EXPECT_CALL(m_helper, fileExists(dbFilename))
+    EXPECT_CALL(m_utils, fileExists(dbFilename))
         .WillOnce(Return(false));
-    EXPECT_CALL(m_helper, getLockFileProxy(lockFile->getFilename()))
+    EXPECT_CALL(m_utils, getLockFileProxy(lockFile->getFilename()))
         .WillOnce(Return(lockFile));
 
     EXPECT_CALL(*lockFile, createFile())
@@ -139,9 +139,9 @@ TEST_F(CompilerTest, GenccOptionsEnvVarBuildMissingMissing)
     EXPECT_CALL(*lockFile, readFromFile(_))
         .WillOnce(DoAll(SetArgReferee<0>(command), Return(true)));
 
-    EXPECT_CALL(m_helper, getFileOstream(dbFilename))
+    EXPECT_CALL(m_utils, getFileOstream(dbFilename))
         .WillOnce(::testing::ReturnPointee(static_cast<std::ostream*>(&ss)));
-    EXPECT_CALL(m_helper, getFileIstream(dbFilename))
+    EXPECT_CALL(m_utils, getFileIstream(dbFilename))
         .WillOnce(::testing::ReturnPointee(static_cast<std::istream*>(&ss)));
 
     m_compiler.doWork(m_params);
@@ -151,11 +151,11 @@ TEST_F(CompilerTest, FallbackValuesAreDifferent)
 {
     const unsigned MAX_FALLBACK_VALUE = 100;
     m_genccOptions.fallback = MAX_FALLBACK_VALUE;
-    CompilerMock compilerMock(&m_genccOptions, &m_helper);
+    CompilerMock compilerMock(&m_genccOptions, &m_utils);
 
     unsigned value = 0;
     std::unordered_set<unsigned> set;
-    EXPECT_CALL(m_helper, msleep(_))
+    EXPECT_CALL(m_utils, msleep(_))
         .Times(MAX_FALLBACK_VALUE)
         .WillRepeatedly(SaveArg<0>(&value));
 

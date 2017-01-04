@@ -20,14 +20,14 @@
  */
 
 #include "gencc.h"
-#include "helper.h"
+#include "utils.h"
 
 #include <iostream>
 
 int main(int argc, char* argv[])
 {
-    HelperImpl helper;
-    Gencc gencc(&helper);
+    UtilsImpl utils;
+    Gencc gencc(&utils);
 
     std::vector<std::string> params;
     for (int i = 0; i < argc; ++i) {
