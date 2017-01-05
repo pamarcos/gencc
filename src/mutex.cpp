@@ -19,22 +19,40 @@
  * along with gencc.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMPILER_H
-#define COMPILER_H
+#include "mutex.h"
 
-#include "common.h"
+std::string Mutex::getName() const
+{
+    return m_name;
+}
 
-class Compiler : public Common, public GenccWorker {
-public:
-    Compiler(GenccOptions* options, Utils* utils);
-    void doWork(const std::vector<std::string>& params) override;
+MutexImpl::MutexImpl()
+    : m_locked(false)
+{
+}
 
-protected:
-    void writeCompilationDb() const;
+bool MutexImpl::create(const char* name)
+{
+    m_name = name;
+    return m_mutex.Create(name);
+}
 
-    std::string m_directory;
-    std::string m_command;
-    std::string m_file;
-};
+void MutexImpl::lock(unsigned wait)
+{
+    if (!m_locked) {
+        // Spinlock
+        while (!m_mutex.Lock(wait)) {
+        }
+        m_locked = true;
+    }
+}
 
-#endif // COMPILER_H
+void MutexImpl::unlock(bool all)
+{
+    if (m_locked) {
+        // Spin-unlock
+        while (!m_mutex.Unlock(all)) {
+        }
+        m_locked = false;
+    }
+}

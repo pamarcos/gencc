@@ -19,22 +19,39 @@
  * along with gencc.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMPILER_H
-#define COMPILER_H
+#include "shared_mem.h"
 
-#include "common.h"
+std::string SharedMem::getName()
+{
+    return m_name;
+}
 
-class Compiler : public Common, public GenccWorker {
-public:
-    Compiler(GenccOptions* options, Utils* utils);
-    void doWork(const std::vector<std::string>& params) override;
+bool SharedMemImpl::create(const char* name, size_t size)
+{
+    if (!m_mutex.create(name)) {
+        return false;
+    }
+    m_mutex.lock();
+    m_name = name;
+    return m_sharedMem.Create(name, size);
+}
 
-protected:
-    void writeCompilationDb() const;
+bool SharedMemImpl::first()
+{
+    return m_sharedMem.First();
+}
 
-    std::string m_directory;
-    std::string m_command;
-    std::string m_file;
-};
+size_t SharedMemImpl::getSize()
+{
+    return m_sharedMem.GetSize();
+}
 
-#endif // COMPILER_H
+char* SharedMemImpl::rawData()
+{
+    return m_sharedMem.RawData();
+}
+
+void SharedMemImpl::unlockMutex()
+{
+    return m_mutex.unlock(true);
+}

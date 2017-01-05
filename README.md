@@ -38,7 +38,7 @@ Examples:
 
 ## How to run unit tests
 
-You need a system with Unix tools such as *bash*, *diff* and *sort*. For Windows you can get that with [MSYS](https://msys2.github.io/).
+You need a system with Unix tools such as *bash*, *diff*, *sed* and *sort*. For Windows you can get that with [MSYS](https://msys2.github.io/).
 
 Run ```make check``` and both unit and functional tests will run.
 

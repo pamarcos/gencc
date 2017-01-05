@@ -33,7 +33,6 @@ struct Constants {
     static const char* CXX;
     static const char* CC;
     static const char* COMPILE_DB;
-    static const char* COMPILE_DB_LOCK_EXT;
     static const char* GENCC_OPTIONS;
     static const char* C_EXT;
     static const char* GENCC_COMPILER_PARAM;
@@ -50,6 +49,8 @@ struct Constants {
     static const char* PARAM_RETRIES;
     static const char* PARAM_FALLBACK;
     static const char* PARAM_BUILD;
+    static const char* SHARED_MEM_NAME;
+    static const unsigned SHARED_MEM_SIZE;
 };
 
 class Utils;
@@ -69,6 +70,8 @@ using GenccOptions = struct GenccOptions_s {
     std::string compiler;
     unsigned retries = Constants::MAX_CDB_RETRIES;
     unsigned fallback = Constants::MAX_CDB_FALLBACK_SLEEP_IN_MS;
+    std::string sharedMemName = Constants::NAME;
+    unsigned sharedMemSize = Constants::SHARED_MEM_SIZE;
 };
 
 class GenccWorker {

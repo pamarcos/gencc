@@ -19,22 +19,38 @@
  * along with gencc.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMPILER_H
-#define COMPILER_H
+#ifndef MUTEX_H
+#define MUTEX_H
 
-#include "common.h"
+#include "cross-platform-cpp/sync/sync_mutex.h"
+#include <memory>
+#include <string>
 
-class Compiler : public Common, public GenccWorker {
+class Mutex {
 public:
-    Compiler(GenccOptions* options, Utils* utils);
-    void doWork(const std::vector<std::string>& params) override;
+    virtual ~Mutex() = default;
+
+    virtual bool create(const char* name = nullptr) = 0;
+    virtual void lock(unsigned wait = INFINITE) = 0;
+    virtual void unlock(bool all = false) = 0;
+
+    std::string getName() const;
 
 protected:
-    void writeCompilationDb() const;
-
-    std::string m_directory;
-    std::string m_command;
-    std::string m_file;
+    std::string m_name;
 };
 
-#endif // COMPILER_H
+class MutexImpl : public Mutex {
+public:
+    MutexImpl();
+
+    bool create(const char* name = nullptr) override;
+    void lock(unsigned wait = INFINITE) override;
+    void unlock(bool all = false) override;
+
+private:
+    CubicleSoft::Sync::Mutex m_mutex;
+    bool m_locked;
+};
+
+#endif // MUTEX_H

@@ -61,12 +61,11 @@ void Compiler::doWork(const std::vector<std::string>& params)
         throw std::runtime_error(std::string("Error parsing ") + Constants::GENCC_OPTIONS + ": " + ex.what());
     }
 
-    if ((jsonObj.find(Constants::BUILD) == jsonObj.end()) || (jsonObj.find(Constants::DB_FILENAME) == jsonObj.end())) {
+    if (jsonObj.find(Constants::BUILD) == jsonObj.end()) {
         throw std::runtime_error(std::string("Error parsing ") + Constants::GENCC_OPTIONS + ": "
-            + Constants::BUILD + " or " + Constants::DB_FILENAME + " missing");
+            + Constants::BUILD + " missing");
     }
     m_options->build = jsonObj[Constants::BUILD];
-    m_options->dbFilename = jsonObj[Constants::DB_FILENAME];
 
     ss.str("");
     ss.clear();
@@ -101,71 +100,34 @@ void Compiler::doWork(const std::vector<std::string>& params)
 
 void Compiler::writeCompilationDb() const
 {
-    std::string dbFilepath = m_options->dbFilename;
-    std::string dbLockFilepath = dbFilepath + Constants::COMPILE_DB_LOCK_EXT;
+    std::unique_ptr<SharedMem> sharedMem = m_utils->createSharedMem(Constants::SHARED_MEM_NAME, m_options->sharedMemSize);
 
-    unsigned retries = 1;
-    do {
-        if (m_utils->fileExists(dbLockFilepath)) {
-            fallback(retries);
-            continue;
-        }
-        LockFileGuard dbLockFile(m_utils->getLockFile(dbLockFilepath));
+    json jsonDb = json::array();
+    std::stringstream ss;
 
-        if (!dbLockFile.getLockFile()->writeToFile(m_command)) {
-            fallback(retries);
-            continue;
-        }
+    if (sharedMem->first()) {
+        throw std::runtime_error("Shared memory needs to be created first by builder process");
+    }
 
-        json jsonDb = json::array();
-        if (m_utils->fileExists(m_options->dbFilename)) {
-            std::unique_ptr<std::istream> dbStream = m_utils->getFileIstream(m_options->dbFilename);
-            *dbStream >> jsonDb;
-        }
+    ss << sharedMem->rawData();
+    if (!ss.str().empty()) {
+        jsonDb << ss;
+    }
 
-        json jsonObj;
-        jsonObj[Constants::DIRECTORY] = m_directory;
-        jsonObj[Constants::COMMAND] = m_command;
-        jsonObj[Constants::FILE] = m_file;
-        jsonDb.push_back(jsonObj);
+    json jsonObj;
+    jsonObj[Constants::DIRECTORY] = m_directory;
+    jsonObj[Constants::COMMAND] = m_command;
+    jsonObj[Constants::FILE] = m_file;
+    jsonDb.push_back(jsonObj);
 
-        std::string checkStr;
-        if (!dbLockFile.getLockFile()->readFromFile(checkStr)) {
-            fallback(retries);
-            continue;
-        }
+    ss.str("");
+    ss.clear();
+    ss << jsonDb.dump();
 
-        // Check to ensure that there was no race condition when creating dbLockFile
-        // In case the string read now is not the same as the one written after creating
-        // that file, we know a different process created it at the same time
-        if (checkStr == m_command) {
-            std::unique_ptr<std::ostream> dbStream = m_utils->getFileOstream(m_options->dbFilename);
-            *dbStream << jsonDb.dump(4);
-            dbStream->flush();
-            break;
-        } else {
-            // Do not remove the dbLockFile because the other process is the one that
-            // created it. However, there might be another race condition when checking
-            // the content, so we need to check again to ensure the file is removed
-            dbLockFile.removeFile(false);
-            fallback(retries);
-            std::string newCheck;
-            dbLockFile.getLockFile()->readFromFile(newCheck);
-            if (newCheck == checkStr) {
-                dbLockFile.removeFile(true);
-            }
-            continue;
-        }
-    } while (++retries <= m_options->retries);
-}
+    if (ss.str().size() > sharedMem->getSize()) {
+        throw std::runtime_error(std::string("JSON with size ") + std::to_string(ss.str().size())
+            + " needs a bigger shared memory. Current size: " + std::to_string(sharedMem->getSize()));
+    }
 
-void Compiler::fallback(unsigned retries) const
-{
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_int_distribution<unsigned> dist(1, m_options->fallback);
-    unsigned fallbackValue = dist(mt);
-    LOG("%s - Lock file already exists. Trying again in %d ms. Attempt #%d\n",
-        m_command.c_str(), fallbackValue, retries);
-    m_utils->msleep(fallbackValue);
+    memcpy(reinterpret_cast<void*>(sharedMem->rawData()), reinterpret_cast<const void*>(ss.str().c_str()), ss.str().size());
 }

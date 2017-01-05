@@ -21,12 +21,11 @@
 
 #include "common.h"
 
-const char* Constants::VERSION = "0.1";
+const char* Constants::VERSION = "0.2.0";
 const char* Constants::NAME = "gencc";
 const char* Constants::CXX = "CXX";
 const char* Constants::CC = "CC";
 const char* Constants::COMPILE_DB = "compile_commands.json";
-const char* Constants::COMPILE_DB_LOCK_EXT = ".lock";
 const char* Constants::GENCC_OPTIONS = "GENCC_OPTIONS";
 const char* Constants::C_EXT = ".c";
 const char* Constants::GENCC_COMPILER_PARAM = "-gencc-compiler";
@@ -43,3 +42,5 @@ const char* Constants::PARAM_OUTPUT = "-o";
 const char* Constants::PARAM_RETRIES = "-r";
 const char* Constants::PARAM_FALLBACK = "-f";
 const char* Constants::PARAM_BUILD = "-build";
+const char* Constants::SHARED_MEM_NAME = Constants::NAME;
+const unsigned Constants::SHARED_MEM_SIZE = 8192;

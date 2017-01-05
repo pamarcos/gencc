@@ -47,12 +47,10 @@ void Builder::doWork(const std::vector<std::string>& params)
 
     m_options->dbFilename = cwd + "/" + m_options->dbFilename;
     m_utils->removeFile(m_options->dbFilename);
-    m_utils->removeFile(m_options->dbFilename + Constants::COMPILE_DB_LOCK_EXT);
 
     // Serialize the options through an environment variable
     json jsonObj;
     jsonObj[Constants::BUILD] = m_options->build;
-    jsonObj[Constants::DB_FILENAME] = m_options->dbFilename;
     ss.str("");
     ss.clear();
     ss << jsonObj;
@@ -69,7 +67,27 @@ void Builder::doWork(const std::vector<std::string>& params)
         }
     }
 
+    std::unique_ptr<SharedMem> sharedMem = m_utils->createSharedMem(Constants::SHARED_MEM_NAME, m_options->sharedMemSize);
+    memset(sharedMem->rawData(), 0, m_options->sharedMemSize);
+    sharedMem->unlockMutex();
+
+    LOG("Created shared memory \"%s\" with size %u at %p\n",
+        sharedMem->getName().c_str(), sharedMem->getSize(), sharedMem->rawData());
+
     if (int ret = m_utils->runCommand(ss.str())) {
         LOG("The command %s exited with error code %d\n", ss.str().c_str(), ret);
     }
+
+    ss.str("");
+    ss.clear();
+    ss << sharedMem->rawData();
+    jsonObj.clear();
+
+    try {
+        ss >> jsonObj;
+    } catch (const std::exception& ex) {
+        throw std::runtime_error(std::string("Error parsing shared memory: ") + ex.what());
+    }
+    std::unique_ptr<std::ostream> dbStream = m_utils->getFileOstream(m_options->dbFilename);
+    *dbStream << jsonObj.dump(4);
 }

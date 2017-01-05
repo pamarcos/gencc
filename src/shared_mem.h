@@ -19,22 +19,40 @@
  * along with gencc.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMPILER_H
-#define COMPILER_H
+#ifndef SHARED_MEM_H
+#define SHARED_MEM_H
 
-#include "common.h"
+#include "cross-platform-cpp/sync/sync_sharedmem.h"
+#include "mutex.h"
+#include <string>
 
-class Compiler : public Common, public GenccWorker {
+class SharedMem {
 public:
-    Compiler(GenccOptions* options, Utils* utils);
-    void doWork(const std::vector<std::string>& params) override;
+    virtual ~SharedMem() = default;
+
+    virtual bool create(const char* name, size_t size) = 0;
+    virtual bool first() = 0;
+    virtual size_t getSize() = 0;
+    virtual char* rawData() = 0;
+    virtual void unlockMutex() = 0;
+
+    std::string getName();
 
 protected:
-    void writeCompilationDb() const;
-
-    std::string m_directory;
-    std::string m_command;
-    std::string m_file;
+    std::string m_name;
 };
 
-#endif // COMPILER_H
+class SharedMemImpl : public SharedMem {
+public:
+    bool create(const char* name, size_t size) override;
+    bool first() override;
+    size_t getSize() override;
+    char* rawData() override;
+    void unlockMutex() override;
+
+private:
+    CubicleSoft::Sync::SharedMem m_sharedMem;
+    MutexImpl m_mutex;
+};
+
+#endif // SHARED_MEM_H
