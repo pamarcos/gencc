@@ -27,20 +27,14 @@
 
 class MockUtils : public Utils {
 public:
-    virtual std::unique_ptr<LockFile> getLockFile(const std::string& filename) const
-    {
-        return std::unique_ptr<LockFile>(getLockFileProxy(filename));
-    }
-
     MOCK_CONST_METHOD2(getEnvVar, bool(const char*, std::string&));
     MOCK_CONST_METHOD2(setEnvVar, void(const char*, const std::string&));
     MOCK_METHOD1(getCwd, bool(std::string&));
     MOCK_CONST_METHOD1(runCommand, int(const std::string& str));
     MOCK_CONST_METHOD1(msleep, void(unsigned));
+    MOCK_CONST_METHOD2(createSharedMem, std::unique_ptr<SharedMem>(const std::string& name, size_t size));
     MOCK_CONST_METHOD1(fileExists, bool(const std::string& filename));
     MOCK_CONST_METHOD1(removeFile, void(const std::string& filename));
-    MOCK_CONST_METHOD1(getLockFileProxy, LockFile*(const std::string& filename));
-    MOCK_CONST_METHOD1(getFileIstream, std::unique_ptr<std::istream>(const std::string& filename));
     MOCK_CONST_METHOD1(getFileOstream, std::unique_ptr<std::ostream>(const std::string& filename));
 };
 

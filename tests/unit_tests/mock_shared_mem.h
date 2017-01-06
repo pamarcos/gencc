@@ -19,23 +19,19 @@
  * along with gencc.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MOCK_LOCK_FILE_H
-#define MOCK_LOCK_FILE_H
+#ifndef MOCK_SHARED_MEM_H
+#define MOCK_SHARED_MEM_H
 
 #include "gmock/gmock.h"
-#include "lock_file.h"
+#include "shared_mem.h"
 
-class MockLockFile : public LockFile {
+class MockSharedMem : public SharedMem {
 public:
-    explicit MockLockFile(const std::string& filename)
-        : LockFile(filename)
-    {
-    }
-
-    MOCK_CONST_METHOD0(createFile, void());
-    MOCK_CONST_METHOD0(removeFile, void());
-    MOCK_CONST_METHOD1(writeToFile, bool(const std::string& from));
-    MOCK_CONST_METHOD1(readFromFile, bool(std::string& to));
+    MOCK_METHOD2(create, bool(const char* name, size_t size));
+    MOCK_METHOD0(first, bool());
+    MOCK_METHOD0(getSize, size_t());
+    MOCK_METHOD0(rawData, char*());
+    MOCK_METHOD0(unlockMutex, void());
 };
 
-#endif // MOCK_LOCK_FILE_H
+#endif // MOCK_SHARED_MEM_H

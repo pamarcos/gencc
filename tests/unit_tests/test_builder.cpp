@@ -23,17 +23,25 @@
 #include "gtest/gtest.h"
 
 #include "builder.h"
+#include "mock_shared_mem.h"
 #include "mock_utils.h"
 #include "test_utils.h"
 
 using ::testing::_;
 using ::testing::Return;
+using ::testing::ByMove;
+using ::testing::StrEq;
 
 class BuilderTest : public ::testing::Test {
 public:
     BuilderTest()
         : m_builder(&m_genccOptions, &m_utils)
+        , m_uniqueSharedMem(new MockSharedMem())
+        , m_mockSharedMem(reinterpret_cast<MockSharedMem*>(m_uniqueSharedMem.get()))
+        , m_ostream(new std::stringstream())
     {
+        std::string json = "{\"foo\":true}";
+        strncpy(m_compilersBuffer.data(), json.c_str(), json.size());
     }
 
     void SetUp() override
@@ -45,6 +53,11 @@ public:
     Builder m_builder;
     GenccOptions m_genccOptions;
     MockUtils m_utils;
+    std::unique_ptr<SharedMem> m_uniqueSharedMem;
+    MockSharedMem* m_mockSharedMem;
+    std::array<char, Constants::SHARED_MEM_SIZE> m_builderBuffer;
+    std::array<char, Constants::SHARED_MEM_SIZE> m_compilersBuffer;
+    std::unique_ptr<std::ostream> m_ostream;
 };
 
 TEST_F(BuilderTest, ErrorGettingCWD)
@@ -55,21 +68,68 @@ TEST_F(BuilderTest, ErrorGettingCWD)
     EXPECT_THROW(m_builder.doWork(m_params), std::runtime_error);
 }
 
+TEST_F(BuilderTest, NoParams)
+{
+    EXPECT_THROW(m_builder.doWork(m_params), std::runtime_error);
+}
+
+TEST_F(BuilderTest, WrongJson)
+{
+    test_utils::generateParams(m_params, "foo");
+    EXPECT_CALL(m_utils, getCwd(_))
+        .WillOnce(Return(true));
+    EXPECT_CALL(m_utils, removeFile(_))
+        .WillOnce(Return());
+    EXPECT_CALL(m_utils, setEnvVar(_, _))
+        .WillRepeatedly(Return());
+    EXPECT_CALL(m_utils, createSharedMem(_, _))
+        .WillOnce(Return(ByMove(std::move(m_uniqueSharedMem))));
+
+    EXPECT_CALL(*m_mockSharedMem, rawData())
+        .WillRepeatedly(Return(m_builderBuffer.data()));
+    EXPECT_CALL(*m_mockSharedMem, unlockMutex())
+        .WillOnce(Return());
+    EXPECT_CALL(*m_mockSharedMem, getSize())
+        .WillOnce(Return(m_builderBuffer.size()));
+
+    EXPECT_CALL(m_utils, runCommand(_))
+        .WillOnce(Return(0));
+    EXPECT_THROW(m_builder.doWork(m_params), std::runtime_error);
+}
+
 TEST_F(BuilderTest, OneArgument)
 {
     test_utils::generateParams(m_params, "foo");
     EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
     EXPECT_CALL(m_utils, removeFile(_))
-        .WillRepeatedly(Return());
-    EXPECT_CALL(m_utils, setEnvVar(Constants::GENCC_OPTIONS, _))
         .WillOnce(Return());
-    EXPECT_CALL(m_utils, setEnvVar(Constants::CXX, _))
+
+    EXPECT_CALL(m_utils, setEnvVar(StrEq(Constants::GENCC_OPTIONS), _))
         .WillOnce(Return());
-    EXPECT_CALL(m_utils, setEnvVar(Constants::CC, _))
+    EXPECT_CALL(m_utils, setEnvVar(StrEq(Constants::CXX), _))
         .WillOnce(Return());
+    EXPECT_CALL(m_utils, setEnvVar(StrEq(Constants::CC), _))
+        .WillOnce(Return());
+    EXPECT_CALL(m_utils, createSharedMem(Constants::SHARED_MEM_NAME, Constants::SHARED_MEM_SIZE))
+        .WillOnce(Return(ByMove(std::move(m_uniqueSharedMem))));
+
+    EXPECT_CALL(*m_mockSharedMem, rawData())
+        .Times(3)
+        .WillOnce(Return(m_builderBuffer.data()))
+        .WillOnce(Return(m_builderBuffer.data()))
+        .WillOnce(Return(m_compilersBuffer.data()));
+    EXPECT_CALL(*m_mockSharedMem, getSize())
+        .WillOnce(Return(m_builderBuffer.size()));
+    EXPECT_CALL(*m_mockSharedMem, unlockMutex())
+        .WillOnce(Return());
+
     EXPECT_CALL(m_utils, runCommand(_))
         .WillOnce(Return(0));
+
+    EXPECT_CALL(m_utils, getFileOstream("/" + m_genccOptions.dbFilename))
+        .WillOnce(Return(ByMove(std::move(m_ostream))));
+
     m_builder.doWork(m_params);
 }
 
@@ -80,14 +140,32 @@ TEST_F(BuilderTest, SeveralArguments)
         .WillOnce(Return(true));
     EXPECT_CALL(m_utils, removeFile(_))
         .WillRepeatedly(Return());
-    EXPECT_CALL(m_utils, setEnvVar(Constants::GENCC_OPTIONS, _))
+
+    EXPECT_CALL(m_utils, setEnvVar(StrEq(Constants::GENCC_OPTIONS), _))
         .WillOnce(Return());
-    EXPECT_CALL(m_utils, setEnvVar(Constants::CXX, _))
+    EXPECT_CALL(m_utils, setEnvVar(StrEq(Constants::CXX), _))
         .WillOnce(Return());
-    EXPECT_CALL(m_utils, setEnvVar(Constants::CC, _))
+    EXPECT_CALL(m_utils, setEnvVar(StrEq(Constants::CC), _))
         .WillOnce(Return());
+    EXPECT_CALL(m_utils, createSharedMem(Constants::SHARED_MEM_NAME, Constants::SHARED_MEM_SIZE))
+        .WillOnce(Return(ByMove(std::move(m_uniqueSharedMem))));
+
+    EXPECT_CALL(*m_mockSharedMem, rawData())
+        .Times(3)
+        .WillOnce(Return(m_builderBuffer.data()))
+        .WillOnce(Return(m_builderBuffer.data()))
+        .WillOnce(Return(m_compilersBuffer.data()));
+    EXPECT_CALL(*m_mockSharedMem, getSize())
+        .WillOnce(Return(m_builderBuffer.size()));
+    EXPECT_CALL(*m_mockSharedMem, unlockMutex())
+        .WillOnce(Return());
+
     EXPECT_CALL(m_utils, runCommand(_))
         .WillOnce(Return(0));
+
+    EXPECT_CALL(m_utils, getFileOstream("/" + m_genccOptions.dbFilename))
+        .WillOnce(Return(ByMove(std::move(m_ostream))));
+
     m_builder.doWork(m_params);
 }
 
@@ -99,12 +177,27 @@ TEST_F(BuilderTest, RemoveFiles)
         .WillOnce(Return(true));
     EXPECT_CALL(m_utils, removeFile("/" + m_genccOptions.dbFilename))
         .WillOnce(Return());
-    EXPECT_CALL(m_utils, removeFile("/" + m_genccOptions.dbFilename + Constants::COMPILE_DB_LOCK_EXT))
-        .WillOnce(Return());
     EXPECT_CALL(m_utils, setEnvVar(_, _))
         .WillRepeatedly(Return());
+    EXPECT_CALL(m_utils, createSharedMem(_, _))
+        .WillOnce(Return(ByMove(std::move(m_uniqueSharedMem))));
+
+    EXPECT_CALL(*m_mockSharedMem, rawData())
+        .Times(3)
+        .WillOnce(Return(m_builderBuffer.data()))
+        .WillOnce(Return(m_builderBuffer.data()))
+        .WillOnce(Return(m_compilersBuffer.data()));
+    EXPECT_CALL(*m_mockSharedMem, getSize())
+        .WillOnce(Return(m_builderBuffer.size()));
+    EXPECT_CALL(*m_mockSharedMem, unlockMutex())
+        .WillOnce(Return());
+
     EXPECT_CALL(m_utils, runCommand(_))
         .WillOnce(Return(0));
+
+    EXPECT_CALL(m_utils, getFileOstream(_))
+        .WillOnce(Return(ByMove(std::move(m_ostream))));
+
     m_builder.doWork(m_params);
 }
 
@@ -114,10 +207,27 @@ TEST_F(BuilderTest, RunCommandError)
     EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
     EXPECT_CALL(m_utils, removeFile(_))
-        .WillRepeatedly(Return());
+        .WillOnce(Return());
     EXPECT_CALL(m_utils, setEnvVar(_, _))
         .WillRepeatedly(Return());
+    EXPECT_CALL(m_utils, createSharedMem(_, _))
+        .WillOnce(Return(ByMove(std::move(m_uniqueSharedMem))));
+
+    EXPECT_CALL(*m_mockSharedMem, rawData())
+        .Times(3)
+        .WillOnce(Return(m_builderBuffer.data()))
+        .WillOnce(Return(m_builderBuffer.data()))
+        .WillOnce(Return(m_compilersBuffer.data()));
+    EXPECT_CALL(*m_mockSharedMem, getSize())
+        .WillOnce(Return(m_builderBuffer.size()));
+    EXPECT_CALL(*m_mockSharedMem, unlockMutex())
+        .WillOnce(Return());
+
     EXPECT_CALL(m_utils, runCommand(_))
         .WillOnce(Return(-1));
+
+    EXPECT_CALL(m_utils, getFileOstream(_))
+        .WillOnce(Return(ByMove(std::move(m_ostream))));
+
     m_builder.doWork(m_params);
 }

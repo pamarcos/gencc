@@ -98,17 +98,6 @@ void UtilsImpl::removeFile(const std::string& filename) const
     std::remove(filename.c_str());
 }
 
-std::unique_ptr<LockFile> UtilsImpl::getLockFile(const std::string& filename) const
-{
-    return std::unique_ptr<LockFile>(new LockFileImpl(filename));
-}
-
-std::unique_ptr<std::istream> UtilsImpl::getFileIstream(const std::string& filename) const
-{
-    std::unique_ptr<std::istream> ifs(new std::ifstream(filename));
-    return ifs;
-}
-
 std::unique_ptr<std::ostream> UtilsImpl::getFileOstream(const std::string& filename) const
 {
     std::unique_ptr<std::ostream> ofs(new std::ofstream(filename));

@@ -22,8 +22,6 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "lock_file.h"
-#include "mutex.h"
 #include "shared_mem.h"
 
 #include <array>
@@ -44,14 +42,12 @@ public:
     virtual int runCommand(const std::string& str) const = 0;
     virtual void msleep(unsigned ms) const = 0;
 
-    // Shared memory and mutex
+    // Shared memory
     virtual std::unique_ptr<SharedMem> createSharedMem(const std::string& name, size_t size) const = 0;
 
     // File commands
     virtual bool fileExists(const std::string& filename) const = 0;
     virtual void removeFile(const std::string& filename) const = 0;
-    virtual std::unique_ptr<LockFile> getLockFile(const std::string& filename) const = 0;
-    virtual std::unique_ptr<std::istream> getFileIstream(const std::string& filename) const = 0;
     virtual std::unique_ptr<std::ostream> getFileOstream(const std::string& filename) const = 0;
 };
 
@@ -66,14 +62,12 @@ public:
     int runCommand(const std::string& str) const override;
     void msleep(unsigned ms) const override;
 
-    // Shared memory and mutex
+    // Shared memory
     std::unique_ptr<SharedMem> createSharedMem(const std::string& name, size_t size) const override;
 
     // File commands
     bool fileExists(const std::string& filename) const override;
     void removeFile(const std::string& filename) const override;
-    std::unique_ptr<LockFile> getLockFile(const std::string& filename) const override;
-    std::unique_ptr<std::istream> getFileIstream(const std::string& filename) const override;
     std::unique_ptr<std::ostream> getFileOstream(const std::string& filename) const override;
 
 public:

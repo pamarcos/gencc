@@ -24,7 +24,7 @@
 
 #include "common.h"
 
-class Compiler : public Common, public GenccWorker {
+class Compiler final : public Common, public GenccWorker {
 public:
     Compiler(GenccOptions* options, Utils* utils);
     void doWork(const std::vector<std::string>& params) override;

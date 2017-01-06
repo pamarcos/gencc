@@ -27,30 +27,26 @@
 
 #include "logger.h"
 
-struct Constants {
-    static const char* VERSION;
-    static const char* NAME;
-    static const char* CXX;
-    static const char* CC;
-    static const char* COMPILE_DB;
-    static const char* GENCC_OPTIONS;
-    static const char* C_EXT;
-    static const char* GENCC_COMPILER_PARAM;
-    static const char* DIRECTORY;
-    static const char* COMMAND;
-    static const char* FILE;
-    static const char* BUILD;
-    static const char* DB_FILENAME;
-    static const unsigned MAX_CDB_RETRIES;
-    static const unsigned MAX_CDB_FALLBACK_SLEEP_IN_MS;
-    static const char* PARAM_CXX;
-    static const char* PARAM_CC;
-    static const char* PARAM_OUTPUT;
-    static const char* PARAM_RETRIES;
-    static const char* PARAM_FALLBACK;
-    static const char* PARAM_BUILD;
-    static const char* SHARED_MEM_NAME;
-    static const unsigned SHARED_MEM_SIZE;
+namespace Constants {
+static constexpr char const* VERSION = "0.2.0";
+static constexpr char const* NAME = "gencc";
+static constexpr char const* CXX = "CXX";
+static constexpr char const* CC = "CC";
+static constexpr char const* COMPILE_DB = "compile_commands.json";
+static constexpr char const* GENCC_OPTIONS = "GENCC_OPTIONS";
+static constexpr char const* C_EXT = ".c";
+static constexpr char const* GENCC_COMPILER_PARAM = "-gencc-compiler";
+static constexpr char const* DIRECTORY = "directory";
+static constexpr char const* COMMAND = "command";
+static constexpr char const* FILE = "file";
+static constexpr char const* BUILD = "build";
+static constexpr char const* DB_FILENAME = "dbFilename";
+static constexpr char const* PARAM_CXX = "-cxx";
+static constexpr char const* PARAM_CC = "-cc";
+static constexpr char const* PARAM_OUTPUT = "-o";
+static constexpr char const* PARAM_BUILD = "-build";
+static constexpr char const* SHARED_MEM_NAME = NAME;
+static constexpr unsigned SHARED_MEM_SIZE = 8192;
 };
 
 class Utils;
@@ -68,8 +64,6 @@ using GenccOptions = struct GenccOptions_s {
     std::string cxx;
     std::string cc;
     std::string compiler;
-    unsigned retries = Constants::MAX_CDB_RETRIES;
-    unsigned fallback = Constants::MAX_CDB_FALLBACK_SLEEP_IN_MS;
     std::string sharedMemName = Constants::NAME;
     unsigned sharedMemSize = Constants::SHARED_MEM_SIZE;
 };

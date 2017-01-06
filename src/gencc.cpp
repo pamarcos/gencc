@@ -76,14 +76,6 @@ bool Gencc::parseArgs(std::vector<std::string>& params)
             it = params.erase(it);
             m_options->dbFilename = *it;
             params.erase(it);
-        } else if (param == Constants::PARAM_RETRIES && it + 1 != params.end()) {
-            it = params.erase(it);
-            m_options->retries = std::stoul(*it);
-            params.erase(it);
-        } else if (param == Constants::PARAM_FALLBACK && it + 1 != params.end()) {
-            it = params.erase(it);
-            m_options->fallback = std::stoul(*it);
-            params.erase(it);
         } else if (param == Constants::PARAM_BUILD) {
             params.erase(it);
             m_options->build = true;
@@ -101,8 +93,6 @@ void Gencc::help()
         "\t-cxx    [value] - CXX compiler\n"
         "\t-cc     [value] - CC compiler\n"
         "\t-o      [value] - DB file\n"
-        "\t-r      [value] - Number of retries if DB locked\n"
-        "\t-f      [value] - Max fallback time in ms in case of DB locked\n"
         "\t-build          - Call the actual compiler\n");
 }
 

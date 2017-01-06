@@ -61,7 +61,7 @@ TEST_F(GenccTest, LoggerEnabled)
 
 TEST_F(GenccTest, Noutils)
 {
-    m_gencc.setutils(nullptr);
+    m_gencc.setUtils(nullptr);
     EXPECT_NE(m_gencc.init(m_params), 0);
 }
 
@@ -243,50 +243,6 @@ TEST_F(GenccTest, OutputParamValue)
     EXPECT_CALL(*m_worker, doWork(_));
     EXPECT_EQ(m_gencc.init(m_params), 0);
     EXPECT_EQ(m_gencc.getGenccOptions().dbFilename, "foo");
-}
-
-TEST_F(GenccTest, RetriesParamNoValue)
-{
-    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_RETRIES);
-    EXPECT_CALL(m_utils, getCwd(_))
-        .WillRepeatedly(Return(true));
-    EXPECT_CALL(m_utils, getEnvVar(_, _))
-        .WillRepeatedly(Return(true));
-    EXPECT_NE(m_gencc.init(m_params), 0);
-}
-
-TEST_F(GenccTest, RetriesParamValue)
-{
-    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_RETRIES + " 123");
-    EXPECT_CALL(m_utils, getCwd(_))
-        .WillRepeatedly(Return(true));
-    EXPECT_CALL(m_utils, getEnvVar(_, _))
-        .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_worker, doWork(_));
-    EXPECT_EQ(m_gencc.init(m_params), 0);
-    EXPECT_EQ(m_gencc.getGenccOptions().retries, 123u);
-}
-
-TEST_F(GenccTest, FallbackParamNoValue)
-{
-    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_FALLBACK);
-    EXPECT_CALL(m_utils, getCwd(_))
-        .WillRepeatedly(Return(true));
-    EXPECT_CALL(m_utils, getEnvVar(_, _))
-        .WillRepeatedly(Return(true));
-    EXPECT_NE(m_gencc.init(m_params), 0);
-}
-
-TEST_F(GenccTest, FallbackParamValue)
-{
-    test_utils::generateParams(m_params, std::string("m_gencc ") + Constants::PARAM_FALLBACK + " 456");
-    EXPECT_CALL(m_utils, getCwd(_))
-        .WillRepeatedly(Return(true));
-    EXPECT_CALL(m_utils, getEnvVar(_, _))
-        .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_worker, doWork(_));
-    EXPECT_EQ(m_gencc.init(m_params), 0);
-    EXPECT_EQ(m_gencc.getGenccOptions().fallback, 456u);
 }
 
 TEST_F(GenccTest, BuildParam)

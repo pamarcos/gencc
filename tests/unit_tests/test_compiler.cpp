@@ -26,15 +26,12 @@
 
 #include "common.h"
 #include "compiler.h"
-#include "mock_lock_file.h"
 #include "mock_utils.h"
 #include "test_utils.h"
 
 using ::testing::_;
 using ::testing::Return;
 using ::testing::SetArgReferee;
-using ::testing::SaveArg;
-using ::testing::ReturnRef;
 
 class CompilerTest : public ::testing::Test {
 public:
@@ -52,16 +49,6 @@ public:
     Compiler m_compiler;
     GenccOptions m_genccOptions;
     MockUtils m_utils;
-};
-
-class CompilerMock : public Compiler {
-public:
-    CompilerMock(GenccOptions* options, Utils* utils)
-        : Compiler(options, utils)
-    {
-    }
-
-    void fallbackWrap(unsigned retries) { return fallback(retries); }
 };
 
 TEST_F(CompilerTest, ErrorGettingCWD)
@@ -108,62 +95,4 @@ TEST_F(CompilerTest, GenccOptionsEnvVarBuildMissingMissing)
     EXPECT_CALL(m_utils, getEnvVar(Constants::GENCC_OPTIONS, _))
         .WillOnce(DoAll(SetArgReferee<1>(genccOptions), Return(true)));
     EXPECT_THROW(m_compiler.doWork(m_params), std::runtime_error);
-}
-
-/* TEST_F(CompilerTest, GenccOptionsSuccess)
-{
-    std::string genccOptions = "{ \"build\":false, \"dbFilename\":\"foo\" }";
-    std::string dbFilename = "foo";
-    MockLockFile* lockFile = new MockLockFile(dbFilename + Constants::COMPILE_DB_LOCK_EXT);
-    std::string command = "foo bar";
-    test_utils::generateParams(m_params, "compiler " + command);
-    std::stringstream ss;
-
-    EXPECT_CALL(m_utils, getCwd(_))
-        .WillOnce(Return(true));
-    EXPECT_CALL(m_utils, getEnvVar(Constants::GENCC_OPTIONS, _))
-        .WillOnce(DoAll(SetArgReferee<1>(genccOptions), Return(true)));
-    EXPECT_CALL(m_utils, fileExists(lockFile->getFilename()))
-        .WillOnce(Return(false));
-    EXPECT_CALL(m_utils, fileExists(dbFilename))
-        .WillOnce(Return(false));
-    EXPECT_CALL(m_utils, getLockFileProxy(lockFile->getFilename()))
-        .WillOnce(Return(lockFile));
-
-    EXPECT_CALL(*lockFile, createFile())
-        .WillOnce(Return());
-    EXPECT_CALL(*lockFile, removeFile())
-        .WillOnce(Return());
-    EXPECT_CALL(*lockFile, writeToFile(command))
-        .WillOnce(Return(true));
-    EXPECT_CALL(*lockFile, readFromFile(_))
-        .WillOnce(DoAll(SetArgReferee<0>(command), Return(true)));
-
-    EXPECT_CALL(m_utils, getFileOstream(dbFilename))
-        .WillOnce(::testing::ReturnPointee(static_cast<std::ostream*>(&ss)));
-    EXPECT_CALL(m_utils, getFileIstream(dbFilename))
-        .WillOnce(::testing::ReturnPointee(static_cast<std::istream*>(&ss)));
-
-    m_compiler.doWork(m_params);
-} */
-
-TEST_F(CompilerTest, FallbackValuesAreDifferent)
-{
-    const unsigned MAX_FALLBACK_VALUE = 100;
-    m_genccOptions.fallback = MAX_FALLBACK_VALUE;
-    CompilerMock compilerMock(&m_genccOptions, &m_utils);
-
-    unsigned value = 0;
-    std::unordered_set<unsigned> set;
-    EXPECT_CALL(m_utils, msleep(_))
-        .Times(MAX_FALLBACK_VALUE)
-        .WillRepeatedly(SaveArg<0>(&value));
-
-    for (unsigned i = 0; i < MAX_FALLBACK_VALUE; ++i) {
-        compilerMock.fallbackWrap(0);
-        set.insert(value);
-    }
-
-    // Ensure at least half of the total values have been used by the fallback function
-    EXPECT_GT(set.size(), MAX_FALLBACK_VALUE / 2);
 }

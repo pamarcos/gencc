@@ -37,6 +37,10 @@ void Builder::doWork(const std::vector<std::string>& params)
     std::string cwd;
     std::stringstream ss;
 
+    if (params.size() < 1) {
+        throw std::runtime_error("Builder needs at least the -gencc-compiler param");
+    }
+
     if (!m_utils->getCwd(cwd)) {
         throw std::runtime_error("Couldn't get current working dir");
     }
