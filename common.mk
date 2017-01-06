@@ -7,6 +7,10 @@ else
 CXXFLAGS += -O2
 endif
 
+ifeq ($(shell uname -s),Linux)
+LDFLAGS += -pthread -lrt
+endif
+
 OUTPUT_BIN = $(ROOT)/$(NAME)
 TESTS_DIR = $(ROOT)/tests
 

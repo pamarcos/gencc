@@ -7,10 +7,6 @@ CXXFLAGS += -I$(CURDIR)/googletest
 CXXFLAGS := $(filter-out --coverage,$(CXXFLAGS))
 LDFLAGS += --coverage
 
-ifneq ($(shell uname),Darwin)
-LDFLAGS += -pthread
-endif
-
 TESTS_BUILD_DIR = $(BUILD_DIR)/tests/unit_tests
 
 TESTS_SRC = $(wildcard *.cpp)
@@ -30,16 +26,16 @@ all: run_unit_tests
 
 $(GTEST_OBJ): $(GTEST_SRC)
 	@mkdir -p $(dir $@)
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 $(TESTS_BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 unit_tests: $(UNIT_TESTS_BIN)
 
 $(UNIT_TESTS_BIN): $(TESTS_OBJ)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ)
+	$(CXX) $(CXXFLAGS) $(OBJ) -o $@ $(LDFLAGS) 
 
 run_unit_tests: $(ROOT)/unit_tests
 	$(UNIT_TESTS_BIN)

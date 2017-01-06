@@ -14,10 +14,10 @@ all: $(OUTPUT_BIN)
 
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 $(OUTPUT_BIN): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
+	$(CXX) $(CXXFLAGS) $(OBJ) -o $@ $(LDFLAGS)
 
 clean: clean_coverage
 	rm -rf $(BUILD_DIR)
