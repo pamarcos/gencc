@@ -1,5 +1,5 @@
 NAME = gencc
-CXXFLAGS += -MMD -MP -std=c++11 -Wpedantic -Wall -Wextra -Werror -I$(ROOT)/src -I$(ROOT)/third_party -I$(ROOT)/third_party/cross-platform-cpp/sync
+CXXFLAGS += -MMD -MP -std=c++11 -pedantic -Wall -Wextra -Werror -I$(ROOT)/src -I$(ROOT)/third_party -I$(ROOT)/third_party/cross-platform-cpp/sync
 
 ifeq ($(DEBUG),1)
 CXXFLAGS += -g -O0 -fsanitize=address --coverage

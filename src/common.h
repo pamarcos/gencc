@@ -47,7 +47,7 @@ static constexpr char const* PARAM_OUTPUT = "-o";
 static constexpr char const* PARAM_BUILD = "-build";
 static constexpr char const* SHARED_MEM_NAME = NAME;
 static constexpr unsigned SHARED_MEM_SIZE = 8192;
-};
+}
 
 class Utils;
 
