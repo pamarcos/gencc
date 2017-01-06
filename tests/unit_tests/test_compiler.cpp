@@ -22,16 +22,17 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include <unordered_set>
-
 #include "common.h"
 #include "compiler.h"
+#include "mock_shared_mem.h"
 #include "mock_utils.h"
 #include "test_utils.h"
 
 using ::testing::_;
 using ::testing::Return;
 using ::testing::SetArgReferee;
+using ::testing::StrEq;
+using ::testing::ByMove;
 
 class CompilerTest : public ::testing::Test {
 public:
@@ -62,7 +63,7 @@ TEST_F(CompilerTest, ErrorGettingGenccOptionsEnvVar)
 {
     EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
-    EXPECT_CALL(m_utils, getEnvVar(Constants::GENCC_OPTIONS, _))
+    EXPECT_CALL(m_utils, getEnvVar(StrEq(Constants::GENCC_OPTIONS), _))
         .WillOnce(Return(false));
     EXPECT_THROW(m_compiler.doWork(m_params), std::runtime_error);
 }
@@ -72,27 +73,17 @@ TEST_F(CompilerTest, GenccOptionsEnvVarsMissing)
     std::string genccOptions = "{}";
     EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
-    EXPECT_CALL(m_utils, getEnvVar(Constants::GENCC_OPTIONS, _))
+    EXPECT_CALL(m_utils, getEnvVar(StrEq(Constants::GENCC_OPTIONS), _))
         .WillOnce(DoAll(SetArgReferee<1>(genccOptions), Return(true)));
     EXPECT_THROW(m_compiler.doWork(m_params), std::runtime_error);
 }
 
-TEST_F(CompilerTest, GenccOptionsEnvVarDbFilenameMissing)
+/*TEST_F(CompilerTest, GenccOptionsSuccess)
 {
     std::string genccOptions = "{ \"build\":false }";
     EXPECT_CALL(m_utils, getCwd(_))
         .WillOnce(Return(true));
-    EXPECT_CALL(m_utils, getEnvVar(Constants::GENCC_OPTIONS, _))
+    EXPECT_CALL(m_utils, getEnvVar(StrEq(Constants::GENCC_OPTIONS), _))
         .WillOnce(DoAll(SetArgReferee<1>(genccOptions), Return(true)));
-    EXPECT_THROW(m_compiler.doWork(m_params), std::runtime_error);
-}
-
-TEST_F(CompilerTest, GenccOptionsEnvVarBuildMissingMissing)
-{
-    std::string genccOptions = "{ \"dbFilename\":\"foo\" }";
-    EXPECT_CALL(m_utils, getCwd(_))
-        .WillOnce(Return(true));
-    EXPECT_CALL(m_utils, getEnvVar(Constants::GENCC_OPTIONS, _))
-        .WillOnce(DoAll(SetArgReferee<1>(genccOptions), Return(true)));
-    EXPECT_THROW(m_compiler.doWork(m_params), std::runtime_error);
-}
+    m_compiler.doWork(m_params);
+}*/

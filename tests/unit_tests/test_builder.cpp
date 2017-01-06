@@ -37,7 +37,7 @@ public:
     BuilderTest()
         : m_builder(&m_genccOptions, &m_utils)
         , m_uniqueSharedMem(new MockSharedMem())
-        , m_mockSharedMem(reinterpret_cast<MockSharedMem*>(m_uniqueSharedMem.get()))
+        , m_mockSharedMem(static_cast<MockSharedMem*>(m_uniqueSharedMem.get()))
         , m_ostream(new std::stringstream())
     {
         std::string json = "{\"foo\":true}";

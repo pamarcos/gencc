@@ -30,7 +30,7 @@ functional_tests:
 	$(GENCC) $(MAKE) -C $(FUNC_TESTS_DIR)
 
 	# Wrong target
-	$(GENCC) $(MAKE) -C $(FUNC_TESTS_DIR) asdasd
+	$(GENCC) $(MAKE) -C $(FUNC_TESTS_DIR) asdasd | echo "Fail expected :)"
 
 	# Wrong GENCC_OPTIONS
 	env GENCC_OPTIONS=asdasd $(GENCC) $(MAKE) -C $(FUNC_TESTS_DIR) | echo "Fail expected :)"
@@ -57,13 +57,13 @@ functional_tests:
 
 	# Using multiple jobs to force collisions
 	rm -f $(COMPILE_COMMANDS)
-	$(GENCC) -cxx g++ -cc gcc make -j8 -C $(FUNC_TESTS_DIR)
+	$(GENCC) -cxx g++ -cc gcc make -j4 -C $(FUNC_TESTS_DIR)
 	$(call compare_json)
 
-	# Retries, fallback and build arguments
+	# Build argument
 	rm -f $(COMPILE_COMMANDS)
 	$(MAKE) -C $(FUNC_TESTS_DIR) clean
-	$(GENCC) -cxx g++ -cc gcc -build -r 10 -f 100 $(MAKE) -C $(FUNC_TESTS_DIR)
+	$(GENCC) -cxx g++ -cc gcc -build $(MAKE) -C $(FUNC_TESTS_DIR)
 	$(call compare_json)
 	test -f $(FUNC_TESTS_DIR)/test_source1.o
 	test -f $(FUNC_TESTS_DIR)/test_source2.o
