@@ -28,7 +28,7 @@ namespace CubicleSoft
 
 			if (MxWinMutex != NULL)
 			{
-				if (MxOwnerID > 0)
+				if (MxOwnerID != 0)
 				{
 					if (MxOwnerID == Util::GetCurrentThreadID())
 					{
@@ -156,7 +156,7 @@ namespace CubicleSoft
 		{
 			if (pthread_mutex_lock(&MxPthreadCritSection) != 0)  return false;
 
-			if (MxOwnerID > 0)
+			if (MxOwnerID != 0)
 			{
 				if (MxOwnerID == Util::GetCurrentThreadID())
 				{
