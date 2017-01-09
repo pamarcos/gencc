@@ -2,13 +2,17 @@ NAME = gencc
 CXXFLAGS += -MMD -MP -std=c++11 -pedantic -Wall -Wextra -Werror -I$(ROOT)/src -I$(ROOT)/third_party -I$(ROOT)/third_party/cross-platform-cpp/sync
 
 ifeq ($(DEBUG),1)
-CXXFLAGS += -g -O0 -fsanitize=address --coverage
+CXXFLAGS += -g -O0 --coverage
 else
 CXXFLAGS += -O2
 endif
 
+# AddressSanitizer is not available in Windows
 ifeq ($(shell uname -s),Linux)
 LDFLAGS += -pthread -lrt
+CXXFLAGS += -fsanitize=address
+else ifeq ($(shell uname -s),Darwin)
+CXXFLAGS += -fsanitize=address
 endif
 
 OUTPUT_BIN = $(ROOT)/$(NAME)
