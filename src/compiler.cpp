@@ -89,7 +89,10 @@ void Compiler::doWork(const std::vector<std::string>& params)
     m_command = ss.str();
 
     LOG("%s\n", m_command.c_str());
-    writeCompilationDb();
+
+    if (!m_file.empty()) {
+        writeCompilationDb();
+    }
 
     if (m_options->build) {
         if (int ret = m_utils->runCommand(ss.str())) {
@@ -109,9 +112,14 @@ void Compiler::writeCompilationDb() const
         throw std::runtime_error("Shared memory needs to be created first by builder process");
     }
 
-    ss << sharedMem->rawData();
+    char* data = sharedMem->rawData();
+    ss << data;
     if (!ss.str().empty()) {
-        jsonDb << ss;
+        try {
+            jsonDb << ss;
+        } catch (const std::exception& ex) {
+            throw std::runtime_error(std::string("Error parsing shared memory JSON: ") + ex.what());
+        }
     }
 
     json jsonObj;
@@ -129,5 +137,5 @@ void Compiler::writeCompilationDb() const
             + " needs a bigger shared memory. Current size: " + std::to_string(sharedMem->getSize()));
     }
 
-    memcpy(reinterpret_cast<void*>(sharedMem->rawData()), reinterpret_cast<const void*>(ss.str().c_str()), ss.str().size());
+    memcpy(reinterpret_cast<void*>(data), reinterpret_cast<const void*>(ss.str().c_str()), ss.str().size());
 }

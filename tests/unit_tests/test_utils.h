@@ -27,6 +27,10 @@
 
 namespace test_utils {
 
+static constexpr char const* JSON_GOOD = "{\"foo\":true}";
+static constexpr char const* JSON_BUILD_TRUE = "{\"build\":true}";
+static constexpr char const* JSON_BUILD_FALSE = "{\"build\":false}";
+
 void generateParams(std::vector<std::string>& vec, const std::string& str = "");
 }
 

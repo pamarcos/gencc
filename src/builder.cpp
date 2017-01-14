@@ -72,11 +72,12 @@ void Builder::doWork(const std::vector<std::string>& params)
     }
 
     std::unique_ptr<SharedMem> sharedMem = m_utils->createSharedMem(Constants::SHARED_MEM_NAME, m_options->sharedMemSize);
-    memset(sharedMem->rawData(), 0, m_options->sharedMemSize);
+    char* sharedMemData = sharedMem->rawData();
+    memset(sharedMemData, 0, m_options->sharedMemSize);
     sharedMem->unlockMutex();
 
     LOG("Created shared memory \"%s\" with size %u at %p\n",
-        sharedMem->getName().c_str(), sharedMem->getSize(), sharedMem->rawData());
+        sharedMem->getName().c_str(), sharedMem->getSize(), sharedMemData);
 
     if (int ret = m_utils->runCommand(ss.str())) {
         LOG("The command %s exited with error code %d\n", ss.str().c_str(), ret);

@@ -24,18 +24,24 @@
 
 #include "gencc.h"
 #include "mock_gencc_worker.h"
+#include "mock_shared_mem.h"
 #include "mock_utils.h"
 #include "test_utils.h"
 
 using ::testing::_;
 using ::testing::Return;
 using ::testing::StrEq;
+using ::testing::ByMove;
+using ::testing::SetArgReferee;
 
 class GenccTest : public ::testing::Test {
 public:
     GenccTest()
         : m_gencc(nullptr)
         , m_worker(nullptr)
+        , m_uniqueSharedMem(new MockSharedMem())
+        , m_mockSharedMem(static_cast<MockSharedMem*>(m_uniqueSharedMem.get()))
+        , m_ostream(new std::stringstream())
     {
     }
 
@@ -46,12 +52,18 @@ public:
         m_gencc.setUtils(&m_utils);
         m_gencc.setWorker(genccWorker);
         Logger::getInstance().disable();
+        strncpy(m_compilersBuffer.data(), test_utils::JSON_GOOD, strlen(test_utils::JSON_GOOD));
     }
 
     Gencc m_gencc;
     MockUtils m_utils;
     std::vector<std::string> m_params;
     MockGenccWorker* m_worker;
+    std::unique_ptr<SharedMem> m_uniqueSharedMem;
+    MockSharedMem* m_mockSharedMem;
+    std::array<char, Constants::SHARED_MEM_SIZE> m_builderBuffer;
+    std::array<char, Constants::SHARED_MEM_SIZE> m_compilersBuffer;
+    std::unique_ptr<std::ostream> m_ostream;
 };
 
 TEST_F(GenccTest, LoggerEnabled)
@@ -119,7 +131,7 @@ TEST_F(GenccTest, CompilerModeSuccess)
     EXPECT_EQ(m_gencc.init(m_params), 0);
 }
 
-/*TEST_F(GenccTest, WorkerNullBuilderMode)
+TEST_F(GenccTest, WorkerNullBuilderMode)
 {
     test_utils::generateParams(m_params, "gencc foo");
     std::unique_ptr<GenccWorker> nullWorker(nullptr);
@@ -134,6 +146,25 @@ TEST_F(GenccTest, CompilerModeSuccess)
         .WillRepeatedly(Return());
     EXPECT_CALL(m_utils, setEnvVar(_, _))
         .WillRepeatedly(Return());
+
+    EXPECT_CALL(m_utils, createSharedMem(_, _))
+        .WillOnce(Return(ByMove(std::move(m_uniqueSharedMem))));
+
+    EXPECT_CALL(*m_mockSharedMem, rawData())
+        .Times(2)
+        .WillOnce(Return(m_builderBuffer.data()))
+        .WillOnce(Return(m_compilersBuffer.data()));
+    EXPECT_CALL(*m_mockSharedMem, getSize())
+        .WillOnce(Return(m_builderBuffer.size()));
+    EXPECT_CALL(*m_mockSharedMem, unlockMutex())
+        .WillOnce(Return());
+
+    EXPECT_CALL(m_utils, runCommand(_))
+        .WillOnce(Return(0));
+
+    EXPECT_CALL(m_utils, getFileOstream(_))
+        .WillOnce(Return(ByMove(std::move(m_ostream))));
+
     EXPECT_EQ(m_gencc.init(m_params), 0);
 }
 
@@ -147,13 +178,14 @@ TEST_F(GenccTest, WorkerNullCompilerMode)
     EXPECT_CALL(m_utils, getEnvVar(_, _))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_utils, getEnvVar(StrEq(Constants::GENCC_OPTIONS), _))
-        .WillRepeatedly(Return(true));
+        .WillRepeatedly(DoAll(SetArgReferee<1>(test_utils::JSON_BUILD_FALSE), Return(true)));
     EXPECT_CALL(m_utils, removeFile(_))
         .WillRepeatedly(Return());
     EXPECT_CALL(m_utils, setEnvVar(_, _))
         .WillRepeatedly(Return());
-    EXPECT_THROW(m_gencc.init(m_params), std::runtime_error);
-}*/
+
+    EXPECT_EQ(m_gencc.init(m_params), 0);
+}
 
 /* Parameters */
 TEST_F(GenccTest, CompilerParamNoValue)

@@ -21,7 +21,7 @@
 
 #include "shared_mem.h"
 
-std::string SharedMem::getName()
+std::string SharedMem::getName() const
 {
     return m_name;
 }

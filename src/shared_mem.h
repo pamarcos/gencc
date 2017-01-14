@@ -36,7 +36,7 @@ public:
     virtual char* rawData() = 0;
     virtual void unlockMutex() = 0;
 
-    std::string getName();
+    std::string getName() const;
 
 protected:
     std::string m_name;
