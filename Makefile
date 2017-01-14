@@ -32,7 +32,7 @@ check functional_tests unit_tests: $(OUTPUT_BIN)
 clean_coverage:
 	find . -iname "*.gcda" | xargs rm -f
 
-coverage: unit_tests #functional_tests
+coverage: unit_tests functional_tests
 	mkdir -p coverage
 	gcovr -r . -d --html --html-details -o coverage/coverage.html -e "third_party.*" -e ".*unit_tests.*"
 
