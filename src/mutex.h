@@ -34,8 +34,6 @@ public:
     virtual void lock(unsigned wait = INFINITE) = 0;
     virtual void unlock(bool all = false) = 0;
 
-    std::string getName() const;
-
 protected:
     std::string m_name;
 };

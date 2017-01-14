@@ -72,11 +72,6 @@ int UtilsImpl::runCommand(const std::string& str) const
     return system(str.c_str());
 }
 
-void UtilsImpl::msleep(unsigned ms) const
-{
-    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
-}
-
 std::unique_ptr<SharedMem> UtilsImpl::createSharedMem(const std::string& name, size_t size) const
 {
     std::unique_ptr<SharedMem> sharedMem(new SharedMemImpl());
@@ -85,12 +80,6 @@ std::unique_ptr<SharedMem> UtilsImpl::createSharedMem(const std::string& name, s
             + sharedMem->getName() + "\" with size " + std::to_string(sharedMem->getSize()));
     }
     return sharedMem;
-}
-
-bool UtilsImpl::fileExists(const std::string& filename) const
-{
-    std::ifstream file(filename);
-    return file.good();
 }
 
 void UtilsImpl::removeFile(const std::string& filename) const

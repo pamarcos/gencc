@@ -21,11 +21,6 @@
 
 #include "mutex.h"
 
-std::string Mutex::getName() const
-{
-    return m_name;
-}
-
 MutexImpl::MutexImpl()
     : m_locked(false)
 {

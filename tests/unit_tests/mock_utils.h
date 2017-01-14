@@ -31,9 +31,7 @@ public:
     MOCK_CONST_METHOD2(setEnvVar, void(const char*, const std::string&));
     MOCK_METHOD1(getCwd, bool(std::string&));
     MOCK_CONST_METHOD1(runCommand, int(const std::string& str));
-    MOCK_CONST_METHOD1(msleep, void(unsigned));
     MOCK_CONST_METHOD2(createSharedMem, std::unique_ptr<SharedMem>(const std::string& name, size_t size));
-    MOCK_CONST_METHOD1(fileExists, bool(const std::string& filename));
     MOCK_CONST_METHOD1(removeFile, void(const std::string& filename));
     MOCK_CONST_METHOD1(getFileOstream, std::unique_ptr<std::ostream>(const std::string& filename));
 };
