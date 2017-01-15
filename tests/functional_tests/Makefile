@@ -4,7 +4,7 @@ include $(ROOT)/common.mk
 COMPILE_COMMANDS = compile_commands.json
 EXPECTED_COMPILE_COMMANDS = $(CURDIR)/$(COMPILE_COMMANDS).exp
 EXPECTED_COMPILE_COMMANDS_REAL = $(EXPECTED_COMPILE_COMMANDS).real
-FUNC_TESTS_DIR = test
+SRC_DIR = src
 
 define compare_json
 	@bash -c "diff -u <(sort $(EXPECTED_COMPILE_COMMANDS_REAL)) <(sort $(COMPILE_COMMANDS))"
@@ -26,55 +26,60 @@ functional_tests:
 	# Wrong arguments
 	$(GENCC) -asd -esd | echo "Fail expected :)"
 
-	# Simple case
-	$(GENCC) $(MAKE) -C $(FUNC_TESTS_DIR)
+	# Simple project
+		# Simple case
+		$(GENCC) $(MAKE) -f Makefile.simple
 
-	# Wrong target
-	$(GENCC) $(MAKE) -C $(FUNC_TESTS_DIR) asdasd | echo "Fail expected :)"
+		# Wrong target
+		$(GENCC) $(MAKE) -f Makefile.simple asdasd | echo "Fail expected :)"
 
-	# Wrong GENCC_OPTIONS
-	env GENCC_OPTIONS=asdasd $(GENCC) $(MAKE) -C $(FUNC_TESTS_DIR) | echo "Fail expected :)"
+		# Wrong GENCC_OPTIONS
+		env GENCC_OPTIONS=asdasd $(GENCC) $(MAKE) -f Makefile.simple | echo "Fail expected :)"
 
-	# Passing CXX and CC through env var
-	rm -f $(COMPILE_COMMANDS)
-	env CXX=g++ CC=gcc $(GENCC) $(MAKE) -C $(FUNC_TESTS_DIR)
-	$(call compare_json)
+		# Passing CXX and CC through env var
+		rm -f $(COMPILE_COMMANDS)
+		env CXX=g++ CC=gcc $(GENCC) $(MAKE) -f Makefile.simple
+		$(call compare_json)
 
-	# Passing CXX and CC through arguments
-	rm -f $(COMPILE_COMMANDS)
-	$(GENCC) -cxx g++ -cc gcc $(MAKE) -C $(FUNC_TESTS_DIR)
-	$(call compare_json)
+		# Passing CXX and CC through arguments
+		rm -f $(COMPILE_COMMANDS)
+		$(GENCC) -cxx g++ -cc gcc $(MAKE) -f Makefile.simple
+		$(call compare_json)
 
-	# Passing CXX and CC through both env var and arguments
-	rm -f $(COMPILE_COMMANDS)
-	env CXX=clang++ CC=clang $(GENCC) -cxx g++ -cc gcc $(MAKE) -C $(FUNC_TESTS_DIR)
-	$(call compare_json)
+		# Passing CXX and CC through both env var and arguments
+		rm -f $(COMPILE_COMMANDS)
+		env CXX=clang++ CC=clang $(GENCC) -cxx g++ -cc gcc $(MAKE) -f Makefile.simple
+		$(call compare_json)
 
-	# Passing CXX and CC through both env var and arguments
-	rm -f $(COMPILE_COMMANDS)
-	env CXX=clang++ CC=clang $(GENCC) -cxx g++ -cc gcc -o $(COMPILE_COMMANDS) $(MAKE) -C $(FUNC_TESTS_DIR)
-	$(call compare_json)
+		# Passing CXX and CC through both env var and arguments
+		rm -f $(COMPILE_COMMANDS)
+		env CXX=clang++ CC=clang $(GENCC) -cxx g++ -cc gcc -o $(COMPILE_COMMANDS) $(MAKE) -f Makefile.simple
+		$(call compare_json)
 
-	# Using multiple jobs to force collisions
-	rm -f $(COMPILE_COMMANDS)
-	$(GENCC) -cxx g++ -cc gcc make -j4 -C $(FUNC_TESTS_DIR)
-	$(call compare_json)
+		# Using multiple jobs to force collisions
+		rm -f $(COMPILE_COMMANDS)
+		$(GENCC) -cxx g++ -cc gcc make -j4 -f Makefile.simple
+		$(call compare_json)
 
-	# Build argument
-	rm -f $(COMPILE_COMMANDS)
-	$(MAKE) -C $(FUNC_TESTS_DIR) clean
-	$(GENCC) -cxx g++ -cc gcc -build $(MAKE) -C $(FUNC_TESTS_DIR)
-	$(call compare_json)
-	test -f $(FUNC_TESTS_DIR)/test_source1.o
-	test -f $(FUNC_TESTS_DIR)/test_source2.o
-	test -f $(FUNC_TESTS_DIR)/test_source3.o
-	test -f $(FUNC_TESTS_DIR)/test_source4.o
-	test -f $(FUNC_TESTS_DIR)/test_source5.o
-	test -f $(FUNC_TESTS_DIR)/test_source6.o
-	test -f $(FUNC_TESTS_DIR)/test_source7.o
-	test -f $(FUNC_TESTS_DIR)/test_source8.o
+		# Not enough shared memory
+		rm -f $(COMPILE_COMMANDS)
+		$(GENCC) -cxx g++ -cc gcc -m 1024 make -j4 -f Makefile.simple | echo "Fail expected :)"
+
+		# Build argument
+		rm -f $(COMPILE_COMMANDS)
+		$(MAKE) -f Makefile.simple clean
+		$(GENCC) -cxx g++ -cc gcc -m 4096 -build $(MAKE) -f Makefile.simple
+		$(call compare_json)
+		test -f $(SRC_DIR)/test_source1.o
+		test -f $(SRC_DIR)/test_source2.o
+		test -f $(SRC_DIR)/test_source3.o
+		test -f $(SRC_DIR)/test_source4.o
+		test -f $(SRC_DIR)/test_source5.o
+		test -f $(SRC_DIR)/test_source6.o
+		test -f $(SRC_DIR)/test_source7.o
+		test -f $(SRC_DIR)/test_source8.o
 
 clean:
-	cd $(FUNC_TESTS_DIR) && $(MAKE) $@
+	cd $(SRC_DIR) && $(MAKE) $@
 
 .PHONY: functional_tests

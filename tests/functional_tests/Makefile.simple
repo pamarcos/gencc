@@ -1,4 +1,4 @@
-SRC = $(wildcard *.cpp *.c)
+SRC = $(wildcard src/*.cpp src/*.c)
 OBJ = $(SRC:.cpp=.o)
 OBJ := $(OBJ:.c=.o)
 
