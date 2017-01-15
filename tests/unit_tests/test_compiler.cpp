@@ -46,7 +46,7 @@ public:
     void SetUp() override
     {
         Logger::getInstance().disable();
-        strncpy(m_compilersBuffer.data(), test_utils::JSON_BUILD_TRUE, strlen(test_utils::JSON_BUILD_TRUE));
+        memset(m_compilerBuffer.data(), 0, m_compilerBuffer.size());
     }
 
     std::vector<std::string> m_params;
@@ -55,7 +55,7 @@ public:
     MockUtils m_utils;
     std::unique_ptr<SharedMem> m_uniqueSharedMem;
     MockSharedMem* m_mockSharedMem;
-    std::array<char, Constants::SHARED_MEM_SIZE> m_compilersBuffer;
+    std::array<char, Constants::SHARED_MEM_SIZE> m_compilerBuffer;
 };
 
 TEST_F(CompilerTest, ErrorGettingCWD)
@@ -159,9 +159,94 @@ TEST_F(CompilerTest, BadJsonInSharedMemory)
     EXPECT_CALL(*m_mockSharedMem, first())
         .WillOnce(Return(false));
 
-    strncpy(m_compilersBuffer.data(), "foo", 3);
+    strncpy(m_compilerBuffer.data(), "foo", 3);
     EXPECT_CALL(*m_mockSharedMem, rawData())
-        .WillOnce(Return(m_compilersBuffer.data()));
+        .WillOnce(Return(m_compilerBuffer.data()));
 
     EXPECT_THROW(m_compiler.doWork(m_params), std::runtime_error);
+}
+
+TEST_F(CompilerTest, EmptyJsonInSharedMemoryAndNotEnoughMemory)
+{
+    test_utils::generateParams(m_params, "foo bar.c");
+    EXPECT_CALL(m_utils, getCwd(_))
+        .WillOnce(Return(true));
+    EXPECT_CALL(m_utils, getEnvVar(StrEq(Constants::GENCC_OPTIONS), _))
+        .WillOnce(DoAll(SetArgReferee<1>(test_utils::JSON_BUILD_FALSE), Return(true)));
+
+    EXPECT_CALL(m_utils, createSharedMem(_, _))
+        .WillOnce(Return(ByMove(std::move(m_uniqueSharedMem))));
+    EXPECT_CALL(*m_mockSharedMem, first())
+        .WillOnce(Return(false));
+
+    EXPECT_CALL(*m_mockSharedMem, rawData())
+        .WillOnce(Return(m_compilerBuffer.data()));
+    EXPECT_CALL(*m_mockSharedMem, getSize())
+        .WillRepeatedly(Return(0));
+
+    EXPECT_THROW(m_compiler.doWork(m_params), std::runtime_error);
+}
+
+TEST_F(CompilerTest, EmptyJsonInSharedMemorySuccess)
+{
+    test_utils::generateParams(m_params, "foo bar.c");
+    EXPECT_CALL(m_utils, getCwd(_))
+        .WillOnce(Return(true));
+    EXPECT_CALL(m_utils, getEnvVar(StrEq(Constants::GENCC_OPTIONS), _))
+        .WillOnce(DoAll(SetArgReferee<1>(test_utils::JSON_BUILD_FALSE), Return(true)));
+
+    EXPECT_CALL(m_utils, createSharedMem(_, _))
+        .WillOnce(Return(ByMove(std::move(m_uniqueSharedMem))));
+    EXPECT_CALL(*m_mockSharedMem, first())
+        .WillOnce(Return(false));
+
+    EXPECT_CALL(*m_mockSharedMem, rawData())
+        .WillOnce(Return(m_compilerBuffer.data()));
+    EXPECT_CALL(*m_mockSharedMem, getSize())
+        .WillRepeatedly(Return(m_compilerBuffer.size()));
+
+    m_compiler.doWork(m_params);
+}
+
+TEST_F(CompilerTest, EmptyJsonInSharedMemoryAndMultipleArgumentsSuccess)
+{
+    test_utils::generateParams(m_params, "foo -a -b foo.c");
+    EXPECT_CALL(m_utils, getCwd(_))
+        .WillOnce(Return(true));
+    EXPECT_CALL(m_utils, getEnvVar(StrEq(Constants::GENCC_OPTIONS), _))
+        .WillOnce(DoAll(SetArgReferee<1>(test_utils::JSON_BUILD_FALSE), Return(true)));
+
+    EXPECT_CALL(m_utils, createSharedMem(_, _))
+        .WillOnce(Return(ByMove(std::move(m_uniqueSharedMem))));
+    EXPECT_CALL(*m_mockSharedMem, first())
+        .WillOnce(Return(false));
+
+    EXPECT_CALL(*m_mockSharedMem, rawData())
+        .WillOnce(Return(m_compilerBuffer.data()));
+    EXPECT_CALL(*m_mockSharedMem, getSize())
+        .WillRepeatedly(Return(m_compilerBuffer.size()));
+
+    m_compiler.doWork(m_params);
+}
+
+TEST_F(CompilerTest, JsonInSharedMemorySuccess)
+{
+    test_utils::generateParams(m_params, "foo bar.c");
+    EXPECT_CALL(m_utils, getCwd(_))
+        .WillOnce(Return(true));
+    EXPECT_CALL(m_utils, getEnvVar(StrEq(Constants::GENCC_OPTIONS), _))
+        .WillOnce(DoAll(SetArgReferee<1>(test_utils::JSON_BUILD_FALSE), Return(true)));
+
+    EXPECT_CALL(m_utils, createSharedMem(_, _))
+        .WillOnce(Return(ByMove(std::move(m_uniqueSharedMem))));
+    EXPECT_CALL(*m_mockSharedMem, first())
+        .WillOnce(Return(false));
+
+    strncpy(m_compilerBuffer.data(), test_utils::JSON_DB_GOOD, strlen(test_utils::JSON_DB_GOOD));
+    EXPECT_CALL(*m_mockSharedMem, rawData())
+        .WillOnce(Return(m_compilerBuffer.data()));
+    EXPECT_CALL(*m_mockSharedMem, getSize())
+        .WillRepeatedly(Return(m_compilerBuffer.size()));
+
+    m_compiler.doWork(m_params);
 }

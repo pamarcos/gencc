@@ -45,8 +45,7 @@ public:
     void SetUp() override
     {
         Logger::getInstance().disable();
-
-        strncpy(m_compilersBuffer.data(), test_utils::JSON_GOOD, strlen(test_utils::JSON_GOOD));
+        strncpy(m_compilerBuffer.data(), test_utils::JSON_DB_GOOD, strlen(test_utils::JSON_DB_GOOD));
     }
 
     std::vector<std::string> m_params;
@@ -56,7 +55,7 @@ public:
     std::unique_ptr<SharedMem> m_uniqueSharedMem;
     MockSharedMem* m_mockSharedMem;
     std::array<char, Constants::SHARED_MEM_SIZE> m_builderBuffer;
-    std::array<char, Constants::SHARED_MEM_SIZE> m_compilersBuffer;
+    std::array<char, Constants::SHARED_MEM_SIZE> m_compilerBuffer;
     std::unique_ptr<std::ostream> m_ostream;
 };
 
@@ -117,7 +116,7 @@ TEST_F(BuilderTest, OneArgument)
     EXPECT_CALL(*m_mockSharedMem, rawData())
         .Times(2)
         .WillOnce(Return(m_builderBuffer.data()))
-        .WillOnce(Return(m_compilersBuffer.data()));
+        .WillOnce(Return(m_compilerBuffer.data()));
     EXPECT_CALL(*m_mockSharedMem, getSize())
         .WillOnce(Return(m_builderBuffer.size()));
     EXPECT_CALL(*m_mockSharedMem, unlockMutex())
@@ -152,7 +151,7 @@ TEST_F(BuilderTest, SeveralArguments)
     EXPECT_CALL(*m_mockSharedMem, rawData())
         .Times(2)
         .WillOnce(Return(m_builderBuffer.data()))
-        .WillOnce(Return(m_compilersBuffer.data()));
+        .WillOnce(Return(m_compilerBuffer.data()));
     EXPECT_CALL(*m_mockSharedMem, getSize())
         .WillOnce(Return(m_builderBuffer.size()));
     EXPECT_CALL(*m_mockSharedMem, unlockMutex())
@@ -183,7 +182,7 @@ TEST_F(BuilderTest, RemoveFiles)
     EXPECT_CALL(*m_mockSharedMem, rawData())
         .Times(2)
         .WillOnce(Return(m_builderBuffer.data()))
-        .WillOnce(Return(m_compilersBuffer.data()));
+        .WillOnce(Return(m_compilerBuffer.data()));
     EXPECT_CALL(*m_mockSharedMem, getSize())
         .WillOnce(Return(m_builderBuffer.size()));
     EXPECT_CALL(*m_mockSharedMem, unlockMutex())
@@ -213,7 +212,7 @@ TEST_F(BuilderTest, RunCommandError)
     EXPECT_CALL(*m_mockSharedMem, rawData())
         .Times(2)
         .WillOnce(Return(m_builderBuffer.data()))
-        .WillOnce(Return(m_compilersBuffer.data()));
+        .WillOnce(Return(m_compilerBuffer.data()));
     EXPECT_CALL(*m_mockSharedMem, getSize())
         .WillOnce(Return(m_builderBuffer.size()));
     EXPECT_CALL(*m_mockSharedMem, unlockMutex())

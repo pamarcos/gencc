@@ -27,7 +27,7 @@
 
 namespace test_utils {
 
-static constexpr char const* JSON_GOOD = "{\"foo\":true}";
+static constexpr char const* JSON_DB_GOOD = "[{\"foo\":true}]";
 static constexpr char const* JSON_BUILD_TRUE = "{\"build\":true}";
 static constexpr char const* JSON_BUILD_FALSE = "{\"build\":false}";
 
