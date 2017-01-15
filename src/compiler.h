@@ -30,6 +30,7 @@ public:
     void doWork(const std::vector<std::string>& params) override;
 
 protected:
+    void parseParameters(const std::vector<std::string>& params, std::stringstream& ss);
     void writeCompilationDb() const;
 
     std::string m_directory;

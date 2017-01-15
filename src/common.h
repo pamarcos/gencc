@@ -22,6 +22,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -44,11 +45,24 @@ static constexpr char const* DB_FILENAME = "dbFilename";
 static constexpr char const* PARAM_CXX = "-cxx";
 static constexpr char const* PARAM_CC = "-cc";
 static constexpr char const* PARAM_OUTPUT = "-o";
+static constexpr char const* PARAM_DONT_LINK = "-c";
 static constexpr char const* PARAM_BUILD = "-build";
 static constexpr char const* SHARED_MEM_NAME = NAME;
 static constexpr unsigned SHARED_MEM_SIZE = 8192;
 static constexpr char const* PARAM_SHARED_MEMORY = "-m";
 static constexpr char const* SHARED_MEMORY = "shared_memory";
+
+static const std::set<std::string> COMPILER_GEN_DEP_OPTIONS = {
+    "-M",
+    "-MM",
+    "-MF",
+    "-MQ",
+    "-MP",
+    "-MG",
+    "-MT",
+    "-MD",
+    "-MMD"
+};
 }
 
 class Utils;

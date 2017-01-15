@@ -1,41 +1,41 @@
 [
     {
-        "command": "g++ -c -o src/test_source1.o src/test_source1.cpp",
+        "command": "g++ -c -o src/test_source1.cpp.o src/test_source1.cpp",
         "directory": "$PWD",
         "file": "$PWD/src/test_source1.cpp"
     },
     {
-        "command": "g++ -c -o src/test_source2.o src/test_source2.cpp",
+        "command": "g++ -c -o src/test_source2.cpp.o src/test_source2.cpp",
         "directory": "$PWD",
         "file": "$PWD/src/test_source2.cpp"
     },
     {
-        "command": "g++ -c -o src/test_source3.o src/test_source3.cpp",
+        "command": "g++ -c -o src/test_source3.cpp.o src/test_source3.cpp",
         "directory": "$PWD",
         "file": "$PWD/src/test_source3.cpp"
     },
     {
-        "command": "g++ -c -o src/test_source4.o src/test_source4.cpp",
+        "command": "g++ -c -o src/test_source4.cpp.o src/test_source4.cpp",
         "directory": "$PWD",
         "file": "$PWD/src/test_source4.cpp"
     },
     {
-        "command": "gcc -c -o src/test_source5.o src/test_source5.c",
+        "command": "gcc -c -o src/test_source5.c.o src/test_source5.c",
         "directory": "$PWD",
         "file": "$PWD/src/test_source5.c"
     },
     {
-        "command": "gcc -c -o src/test_source6.o src/test_source6.c",
+        "command": "gcc -c -o src/test_source6.c.o src/test_source6.c",
         "directory": "$PWD",
         "file": "$PWD/src/test_source6.c"
     },
     {
-        "command": "gcc -c -o src/test_source7.o src/test_source7.c",
+        "command": "gcc -c -o src/test_source7.c.o src/test_source7.c",
         "directory": "$PWD",
         "file": "$PWD/src/test_source7.c"
     },
     {
-        "command": "gcc -c -o src/test_source8.o src/test_source8.c",
+        "command": "gcc -c -o src/test_source8.c.o src/test_source8.c",
         "directory": "$PWD",
         "file": "$PWD/src/test_source8.c"
     }

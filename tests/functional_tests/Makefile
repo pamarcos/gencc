@@ -70,16 +70,21 @@ functional_tests:
 		$(MAKE) -f Makefile.simple clean
 		$(GENCC) -cxx g++ -cc gcc -m 4096 -build $(MAKE) -f Makefile.simple
 		$(call compare_json)
-		test -f $(SRC_DIR)/test_source1.o
-		test -f $(SRC_DIR)/test_source2.o
-		test -f $(SRC_DIR)/test_source3.o
-		test -f $(SRC_DIR)/test_source4.o
-		test -f $(SRC_DIR)/test_source5.o
-		test -f $(SRC_DIR)/test_source6.o
-		test -f $(SRC_DIR)/test_source7.o
-		test -f $(SRC_DIR)/test_source8.o
+		test -f $(SRC_DIR)/test_source1.cpp.o
+		test -f $(SRC_DIR)/test_source2.cpp.o
+		test -f $(SRC_DIR)/test_source3.cpp.o
+		test -f $(SRC_DIR)/test_source4.cpp.o
+		test -f $(SRC_DIR)/test_source5.c.o
+		test -f $(SRC_DIR)/test_source6.c.o
+		test -f $(SRC_DIR)/test_source7.c.o
+		test -f $(SRC_DIR)/test_source8.c.o
+
+	# Dependencies project
+		rm -f $(COMPILE_COMMANDS)
+		$(GENCC) -cxx g++ -cc gcc $(MAKE) -f Makefile.dependencies
+		$(call compare_json)
 
 clean:
-	cd $(SRC_DIR) && $(MAKE) $@
+	rm -f $(SRC_DIR)/*.o $(SRC_DIR)/*.d
 
 .PHONY: functional_tests

@@ -26,7 +26,7 @@ clean: clean_coverage
 	rm -f $(DEP)
 	cd $(TESTS_DIR) && $(MAKE) $@
 
-check functional_tests unit_tests: $(OUTPUT_BIN)
+check functional_tests unit_tests: clean_coverage $(OUTPUT_BIN)
 	cd $(TESTS_DIR) && $(MAKE) DEBUG=1 $@
 
 clean_coverage:

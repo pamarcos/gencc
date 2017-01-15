@@ -74,19 +74,7 @@ void Compiler::doWork(const std::vector<std::string>& params)
     ss << m_options->compiler;
 
     m_directory = cwd;
-    for (size_t i = 1; i < params.size(); ++i) {
-        std::string param = params.at(i);
-        if (!param.empty()) {
-            if (!ss.str().empty()) {
-                ss << " ";
-            }
-            ss << param;
-        }
-
-        if (param.find(Constants::C_EXT) != std::string::npos) {
-            m_file = m_directory + "/" + param;
-        }
-    }
+    parseParameters(params, ss);
     m_command = ss.str();
 
     LOG("%s\n", m_command.c_str());
@@ -99,6 +87,40 @@ void Compiler::doWork(const std::vector<std::string>& params)
         if (int ret = m_utils->runCommand(ss.str())) {
             LOG("The command %s exited with error code %d\n", ss.str().c_str(), ret);
         }
+    }
+}
+
+void Compiler::parseParameters(const std::vector<std::string>& params, std::stringstream& ss)
+{
+    bool ignoreCompilerCall = false;
+    bool compiling = false;
+    for (size_t i = 1; i < params.size(); ++i) {
+        std::string param = params.at(i);
+
+        // Ignore compiler calls used to generate dependencies that do not actually compile
+        if (Constants::COMPILER_GEN_DEP_OPTIONS.find(param) != Constants::COMPILER_GEN_DEP_OPTIONS.end()) {
+            ignoreCompilerCall = true;
+        }
+        if (param == Constants::PARAM_OUTPUT || param == Constants::PARAM_DONT_LINK) {
+            compiling = true;
+        }
+
+        if (!param.empty()) {
+            if (!ss.str().empty()) {
+                ss << " ";
+            }
+            ss << param;
+        }
+
+        if (param.find(Constants::C_EXT) != std::string::npos) {
+            m_file = m_directory + "/" + param;
+        }
+    }
+
+    if (ignoreCompilerCall && !compiling) {
+        m_file.clear();
+        ss.str("");
+        ss.clear();
     }
 }
 

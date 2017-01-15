@@ -15,4 +15,4 @@ unit_tests
 *.html
 *.gcda
 *.gcno
-
+*.d
