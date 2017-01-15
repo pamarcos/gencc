@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/pamarcos/gencc.svg?branch=master)](https://travis-ci.org/pamarcos/gencc)
 [![codecov](https://codecov.io/gh/pamarcos/gencc/branch/master/graph/badge.svg)](https://codecov.io/gh/pamarcos/gencc)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+[![Coverity](https://scan.coverity.com/projects/11476/badge.svg)](https://scan.coverity.com/projects/pamarcos-gencc)
 
 # gencc
 
