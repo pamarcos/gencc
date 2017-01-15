@@ -151,6 +151,12 @@ int Gencc::init(std::vector<std::string>& params)
         return -1;
     }
 
+    // If no command is given to be executed, don't do anything
+    if (params.size() <= 1) {
+        LOG("No command given to be executed");
+        return 0;
+    }
+
     if (m_worker == nullptr) {
         if (m_options->mode == GenccMode::BUILDER) {
             LOG("\n");

@@ -37,10 +37,6 @@ void Builder::doWork(const std::vector<std::string>& params)
     std::string cwd;
     std::stringstream ss;
 
-    if (params.size() < 1) {
-        throw std::runtime_error("Builder needs at least the -gencc-compiler param");
-    }
-
     if (!m_utils->getCwd(cwd)) {
         throw std::runtime_error("Couldn't get current working dir");
     }
@@ -75,6 +71,7 @@ void Builder::doWork(const std::vector<std::string>& params)
     std::unique_ptr<SharedMem> sharedMem = m_utils->createSharedMem(Constants::SHARED_MEM_NAME, m_options->sharedMemSize);
     char* sharedMemData = sharedMem->rawData();
     memset(sharedMemData, 0, m_options->sharedMemSize);
+    strncpy(sharedMemData, "{}", 2);
     sharedMem->unlockMutex();
 
     LOG("Created shared memory \"%s\" with size %u at %p\n",
