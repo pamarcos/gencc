@@ -72,7 +72,7 @@ TEST_F(GenccTest, LoggerEnabled)
     Logger::getInstance().log("Logger test\n");
 }
 
-TEST_F(GenccTest, Noutils)
+TEST_F(GenccTest, NoUtils)
 {
     m_gencc.setUtils(nullptr);
     EXPECT_NE(m_gencc.init(m_params), 0);
@@ -200,12 +200,11 @@ TEST_F(GenccTest, CompilerParamNoValue)
 
 TEST_F(GenccTest, CompilerParamValue)
 {
-    test_utils::generateParams(m_params, std::string("gencc ") + Constants::GENCC_COMPILER_PARAM + " foo bar");
+    test_utils::generateParams(m_params, std::string("gencc ") + Constants::GENCC_COMPILER_PARAM + " foo");
     EXPECT_CALL(m_utils, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_utils, getEnvVar(_, _))
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_worker, doWork(_));
     EXPECT_EQ(m_gencc.init(m_params), 0);
     EXPECT_EQ(m_gencc.getGenccOptions().compiler, "foo");
 }
@@ -222,12 +221,11 @@ TEST_F(GenccTest, CxxParamNoValue)
 
 TEST_F(GenccTest, CxxParamValue)
 {
-    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_CXX + " foo bar");
+    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_CXX + " foo");
     EXPECT_CALL(m_utils, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_utils, getEnvVar(_, _))
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_worker, doWork(_));
     EXPECT_EQ(m_gencc.init(m_params), 0);
     EXPECT_EQ(m_gencc.getGenccOptions().cxx, "foo");
 }
@@ -244,12 +242,11 @@ TEST_F(GenccTest, CcParamNoValue)
 
 TEST_F(GenccTest, CcParamValue)
 {
-    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_CC + " foo bar");
+    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_CC + " foo");
     EXPECT_CALL(m_utils, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_utils, getEnvVar(_, _))
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_worker, doWork(_));
     EXPECT_EQ(m_gencc.init(m_params), 0);
     EXPECT_EQ(m_gencc.getGenccOptions().cc, "foo");
 }
@@ -266,31 +263,29 @@ TEST_F(GenccTest, OutputParamNoValue)
 
 TEST_F(GenccTest, OutputParamValue)
 {
-    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_OUTPUT + " foo bar");
+    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_OUTPUT + " foo");
     EXPECT_CALL(m_utils, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_utils, getEnvVar(_, _))
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_worker, doWork(_));
     EXPECT_EQ(m_gencc.init(m_params), 0);
     EXPECT_EQ(m_gencc.getGenccOptions().dbFilename, "foo");
 }
 
 TEST_F(GenccTest, BuildParam)
 {
-    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_BUILD + " foo");
+    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_BUILD);
     EXPECT_CALL(m_utils, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_utils, getEnvVar(_, _))
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_worker, doWork(_));
     EXPECT_EQ(m_gencc.init(m_params), 0);
     EXPECT_TRUE(m_gencc.getGenccOptions().build);
 }
 
 TEST_F(GenccTest, BuildParamWithMoreParams)
 {
-    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_BUILD + " foo bar");
+    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_BUILD + " foo");
     EXPECT_CALL(m_utils, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_utils, getEnvVar(_, _))
@@ -312,12 +307,11 @@ TEST_F(GenccTest, SharedMemoryParamNoValue)
 
 TEST_F(GenccTest, SharedMemoryParam)
 {
-    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_SHARED_MEMORY + " 123 foo bar");
+    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_SHARED_MEMORY + " 123");
     EXPECT_CALL(m_utils, getCwd(_))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(m_utils, getEnvVar(_, _))
         .WillRepeatedly(Return(true));
-    EXPECT_CALL(*m_worker, doWork(_));
     EXPECT_EQ(m_gencc.init(m_params), 0);
     EXPECT_EQ(m_gencc.getGenccOptions().sharedMemSize, 123u);
 }

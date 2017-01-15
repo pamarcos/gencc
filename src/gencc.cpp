@@ -93,12 +93,14 @@ bool Gencc::parseArgs(std::vector<std::string>& params)
 
 void Gencc::help()
 {
-    LOG("\nUsage:\n"
+    LOG("version %s\n"
+        "Usage:\n"
         "\t-cxx    [value] - CXX compiler\n"
         "\t-cc     [value] - CC compiler\n"
         "\t-o      [value] - Output file\n"
         "\t-m      [value] - Size of shared memory to use in bytes\n"
-        "\t-build          - Call the actual compiler\n");
+        "\t-build          - Call the actual compiler\n",
+        Constants::VERSION);
 }
 
 GenccOptions Gencc::getGenccOptions() const
@@ -118,7 +120,7 @@ int Gencc::init(std::vector<std::string>& params)
         return -1;
     }
 
-    LOG("%s v%s: ", Constants::NAME, Constants::VERSION);
+    LOG("%s: ", Constants::NAME);
 
     if (params.size() < 2) {
         help();
