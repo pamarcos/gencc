@@ -8,16 +8,6 @@ env:
    #   via the "travis encrypt" command using the project repo's public key
    - secure: "RbA+oAbskTLzw4I4PQqj7xsmngH0x2cDut1pf5am2IIchI/qsUr8NQwXF4pSFiQRhEOCRGNDaxee7opxhgamBTO7+rLcWs1eEvobxgxXQIHjh3NYlrMkANHVLt2TK5QJI+HElxn0U0MHrYaPWeRYl4BgWxWHT38exBJA1JgZxadsh2Toy9HCwR5JuuccOFdphF0pRjdOiQ5eWT3Na9LfosTIFQYxdFQUsdyU/2vD5Q6wCFyaIUKE93BqL4OkdJnM2wceKLaf8lqs05co8uzrl5PT9jRXirBK4jEn8XOu4hYJPWGSZCNPUQLcrgmA/wxzMJ0zfwzp0sx4Wy9l1e6kgHUEfdpqpW31SoRlkQ3HT147kOlCdnb/Uuofccc7ilU2KmuoKV52U/2dEjxsqt5L3bSHIvbtp0ULDBwLE5JcPyoPJ4U/oWPF0slpCMme2HiIY8qsSe3vwLYGuq//6DAk2AOKpcGaXcqr6HrAH1k4hJVU8JPIfeNVNoeiI+s0jGfJQ+sjvji03y8CHrVfm/6hN7zDGugNgPHiS8vtiFa5SvSeOKlVuQRK6od8l8zs8ET/6AFcfturXXnTlMcZKP+DtKrHaRh5emKqj3F8JbrCma+H9hoWb0rkNf5j72nEajEyLk2kwOloLjv1jOLCTuZspTPxtQJp9BNaHnD746oxyxc="
 
-addons:
-  coverity_scan:
-    project:
-      name: "pamarcos/gencc"
-      description: "Build submitted via Travis CI"
-    notification_email: pablo.marcos.oltra@gmail.com
-    build_command_prepend: "make clean"
-    build_command:   "make -j4"
-    branch_pattern: coverity_scan
-
 matrix:
   include:
     - os: linux
@@ -30,6 +20,15 @@ matrix:
           packages:
             - g++-5
             - gcovr
+          coverity_scan:
+            project:
+              name: "pamarcos/gencc"
+              description: "Build submitted via Travis CI"
+            notification_email: pablo.marcos.oltra@gmail.com
+            build_command_prepend: "make clean"
+            build_command:   "make -j4"
+            branch_pattern: coverity_scan
+
       after_success:
         - make -j4 coverage
         - bash <(curl -s https://codecov.io/bash)
@@ -56,8 +55,9 @@ before_install:
       sudo add-apt-repository ppa:jonathonf/binutils --yes || true;
       sudo apt-get update -qq --yes || true;
       sudo apt-get install -qq --yes --force-yes binutils;
+
+      echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-;
     fi
-  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 before_script:
   - export CXX=$COMPILER
