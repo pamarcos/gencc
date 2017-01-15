@@ -67,35 +67,6 @@ TEST_F(BuilderTest, ErrorGettingCWD)
     EXPECT_THROW(m_builder.doWork(m_params), std::runtime_error);
 }
 
-TEST_F(BuilderTest, NoParams)
-{
-    EXPECT_THROW(m_builder.doWork(m_params), std::runtime_error);
-}
-
-TEST_F(BuilderTest, WrongJson)
-{
-    test_utils::generateParams(m_params, "foo");
-    EXPECT_CALL(m_utils, getCwd(_))
-        .WillOnce(Return(true));
-    EXPECT_CALL(m_utils, removeFile(_))
-        .WillOnce(Return());
-    EXPECT_CALL(m_utils, setEnvVar(_, _))
-        .WillRepeatedly(Return());
-    EXPECT_CALL(m_utils, createSharedMem(_, _))
-        .WillOnce(Return(ByMove(std::move(m_uniqueSharedMem))));
-
-    EXPECT_CALL(*m_mockSharedMem, rawData())
-        .WillRepeatedly(Return(m_builderBuffer.data()));
-    EXPECT_CALL(*m_mockSharedMem, unlockMutex())
-        .WillOnce(Return());
-    EXPECT_CALL(*m_mockSharedMem, getSize())
-        .WillOnce(Return(m_builderBuffer.size()));
-
-    EXPECT_CALL(m_utils, runCommand(_))
-        .WillOnce(Return(0));
-    EXPECT_THROW(m_builder.doWork(m_params), std::runtime_error);
-}
-
 TEST_F(BuilderTest, OneArgument)
 {
     test_utils::generateParams(m_params, "foo");

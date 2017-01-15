@@ -71,7 +71,6 @@ void Builder::doWork(const std::vector<std::string>& params)
     std::unique_ptr<SharedMem> sharedMem = m_utils->createSharedMem(Constants::SHARED_MEM_NAME, m_options->sharedMemSize);
     char* sharedMemData = sharedMem->rawData();
     memset(sharedMemData, 0, m_options->sharedMemSize);
-    strncpy(sharedMemData, "{}", 2);
     sharedMem->unlockMutex();
 
     LOG("Created shared memory \"%s\" with size %u at %p\n",
@@ -86,11 +85,14 @@ void Builder::doWork(const std::vector<std::string>& params)
     ss << sharedMem->rawData();
     jsonObj.clear();
 
-    try {
-        ss >> jsonObj;
-    } catch (const std::exception& ex) {
-        throw std::runtime_error(std::string("Error parsing shared memory: ") + ex.what());
+    if (!ss.str().empty()) {
+        try {
+            ss >> jsonObj;
+        } catch (const std::exception& ex) {
+            throw std::runtime_error(std::string("Error parsing shared memory: ") + ex.what());
+        }
+
+        std::unique_ptr<std::ostream> dbStream = m_utils->getFileOstream(m_options->dbFilename);
+        *dbStream << jsonObj.dump(4);
     }
-    std::unique_ptr<std::ostream> dbStream = m_utils->getFileOstream(m_options->dbFilename);
-    *dbStream << jsonObj.dump(4);
 }
