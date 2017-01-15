@@ -47,6 +47,8 @@ static constexpr char const* PARAM_OUTPUT = "-o";
 static constexpr char const* PARAM_BUILD = "-build";
 static constexpr char const* SHARED_MEM_NAME = NAME;
 static constexpr unsigned SHARED_MEM_SIZE = 8192;
+static constexpr char const* PARAM_SHARED_MEMORY = "-m";
+static constexpr char const* SHARED_MEMORY = "shared_memory";
 }
 
 class Utils;
@@ -64,7 +66,6 @@ using GenccOptions = struct GenccOptions_s {
     std::string cxx;
     std::string cc;
     std::string compiler;
-    std::string sharedMemName = Constants::NAME;
     unsigned sharedMemSize = Constants::SHARED_MEM_SIZE;
 };
 

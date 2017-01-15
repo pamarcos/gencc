@@ -61,11 +61,12 @@ void Compiler::doWork(const std::vector<std::string>& params)
         throw std::runtime_error(std::string("Error parsing ") + Constants::GENCC_OPTIONS + ": " + ex.what());
     }
 
-    if (jsonObj.find(Constants::BUILD) == jsonObj.end()) {
+    if (jsonObj.find(Constants::BUILD) == jsonObj.end() || jsonObj.find(Constants::SHARED_MEMORY) == jsonObj.end()) {
         throw std::runtime_error(std::string("Error parsing ") + Constants::GENCC_OPTIONS + ": "
-            + Constants::BUILD + " missing");
+            + Constants::BUILD + " or " + Constants::SHARED_MEMORY + " missing");
     }
     m_options->build = jsonObj[Constants::BUILD];
+    m_options->sharedMemSize = jsonObj[Constants::SHARED_MEMORY];
 
     ss.str("");
     ss.clear();

@@ -76,6 +76,10 @@ bool Gencc::parseArgs(std::vector<std::string>& params)
             it = params.erase(it);
             m_options->dbFilename = *it;
             params.erase(it);
+        } else if (param == Constants::PARAM_SHARED_MEMORY && it + 1 != params.end()) {
+            it = params.erase(it);
+            m_options->sharedMemSize = std::stoi(*it);
+            params.erase(it);
         } else if (param == Constants::PARAM_BUILD) {
             params.erase(it);
             m_options->build = true;
@@ -92,7 +96,8 @@ void Gencc::help()
     LOG("\nUsage:\n"
         "\t-cxx    [value] - CXX compiler\n"
         "\t-cc     [value] - CC compiler\n"
-        "\t-o      [value] - DB file\n"
+        "\t-o      [value] - Output file\n"
+        "\t-m      [value] - Size of shared memory to use in bytes\n"
         "\t-build          - Call the actual compiler\n");
 }
 

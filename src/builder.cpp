@@ -55,6 +55,7 @@ void Builder::doWork(const std::vector<std::string>& params)
     // Serialize the options through an environment variable
     json jsonObj;
     jsonObj[Constants::BUILD] = m_options->build;
+    jsonObj[Constants::SHARED_MEMORY] = m_options->sharedMemSize;
     ss.str("");
     ss.clear();
     ss << jsonObj;

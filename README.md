@@ -22,7 +22,8 @@ The same *gencc* binary is used both for the builder or main (master) as well as
 Usage:
 	-cxx    [value] - CXX compiler
 	-cc     [value] - CC compiler
-	-o      [value] - DB file
+	-o      [value] - Output file
+	-m      [value] - Size of shared memory to use in bytes
 	-build          - Call the actual compiler
 ```
 

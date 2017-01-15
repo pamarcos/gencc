@@ -299,3 +299,25 @@ TEST_F(GenccTest, BuildParamWithMoreParams)
     EXPECT_EQ(m_gencc.init(m_params), 0);
     EXPECT_TRUE(m_gencc.getGenccOptions().build);
 }
+
+TEST_F(GenccTest, SharedMemoryParamNoValue)
+{
+    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_SHARED_MEMORY);
+    EXPECT_CALL(m_utils, getCwd(_))
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(m_utils, getEnvVar(_, _))
+        .WillRepeatedly(Return(true));
+    EXPECT_NE(m_gencc.init(m_params), 0);
+}
+
+TEST_F(GenccTest, SharedMemoryParam)
+{
+    test_utils::generateParams(m_params, std::string("gencc ") + Constants::PARAM_SHARED_MEMORY + " 123");
+    EXPECT_CALL(m_utils, getCwd(_))
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(m_utils, getEnvVar(_, _))
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_worker, doWork(_));
+    EXPECT_EQ(m_gencc.init(m_params), 0);
+    EXPECT_EQ(m_gencc.getGenccOptions().sharedMemSize, 123u);
+}
