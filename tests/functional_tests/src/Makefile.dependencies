@@ -1,5 +1,4 @@
-SRC_DIR = src
-SRC = $(wildcard $(SRC_DIR)/*.cpp $(SRC_DIR)/*.c)
+SRC = $(wildcard *.cpp *.c)
 OBJ = $(SRC:.cpp=.cpp.o)
 OBJ := $(OBJ:.c=.c.o)
 DEP = $(OBJ:.o=.d)
@@ -8,14 +7,14 @@ all: clean $(OBJ)
 
 $(OBJ): clean
 
-$(SRC_DIR)/%.cpp.o: $(SRC_DIR)/%.cpp
+%.cpp.o: %.cpp
 	$(CXX) -M $< -MF $@
 	$(CXX) -MM $< -MF $@
 	$(CXX) -MD $< -MF $@
 	$(CXX) -MMD $< -MF $@
 	$(CXX) -c -o $@ $<
 
-$(SRC_DIR)/%.c.o: $(SRC_DIR)/%.c
+%.c.o: %.c
 	$(CC) -M $< -MF $@
 	$(CC) -MM $< -MF $@
 	$(CC) -MD $< -MF $@
@@ -23,7 +22,7 @@ $(SRC_DIR)/%.c.o: $(SRC_DIR)/%.c
 	$(CC) -c -o $@ $<
 
 clean:
-	rm -f $(SRC_DIR)/*.o $(SRC_DIR)/*.d
+	rm -f *.o *.d
 
 dbg-%:
 	@echo "Makefile: Value of $* = $($*)"

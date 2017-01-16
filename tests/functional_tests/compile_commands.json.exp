@@ -1,42 +1,42 @@
 [
     {
-        "command": "g++ -c -o src/test_source1.cpp.o src/test_source1.cpp",
-        "directory": "$PWD",
+        "command": "g++ -c -o test_source1.cpp.o test_source1.cpp",
+        "directory": "$PWD/src",
         "file": "$PWD/src/test_source1.cpp"
     },
     {
-        "command": "g++ -c -o src/test_source2.cpp.o src/test_source2.cpp",
-        "directory": "$PWD",
+        "command": "g++ -c -o test_source2.cpp.o test_source2.cpp",
+        "directory": "$PWD/src",
         "file": "$PWD/src/test_source2.cpp"
     },
     {
-        "command": "g++ -c -o src/test_source3.cpp.o src/test_source3.cpp",
-        "directory": "$PWD",
+        "command": "g++ -c -o test_source3.cpp.o test_source3.cpp",
+        "directory": "$PWD/src",
         "file": "$PWD/src/test_source3.cpp"
     },
     {
-        "command": "g++ -c -o src/test_source4.cpp.o src/test_source4.cpp",
-        "directory": "$PWD",
+        "command": "g++ -c -o test_source4.cpp.o test_source4.cpp",
+        "directory": "$PWD/src",
         "file": "$PWD/src/test_source4.cpp"
     },
     {
-        "command": "gcc -c -o src/test_source5.c.o src/test_source5.c",
-        "directory": "$PWD",
+        "command": "gcc -c -o test_source5.c.o test_source5.c",
+        "directory": "$PWD/src",
         "file": "$PWD/src/test_source5.c"
     },
     {
-        "command": "gcc -c -o src/test_source6.c.o src/test_source6.c",
-        "directory": "$PWD",
+        "command": "gcc -c -o test_source6.c.o test_source6.c",
+        "directory": "$PWD/src",
         "file": "$PWD/src/test_source6.c"
     },
     {
-        "command": "gcc -c -o src/test_source7.c.o src/test_source7.c",
-        "directory": "$PWD",
+        "command": "gcc -c -o test_source7.c.o test_source7.c",
+        "directory": "$PWD/src",
         "file": "$PWD/src/test_source7.c"
     },
     {
-        "command": "gcc -c -o src/test_source8.c.o src/test_source8.c",
-        "directory": "$PWD",
+        "command": "gcc -c -o test_source8.c.o test_source8.c",
+        "directory": "$PWD/src",
         "file": "$PWD/src/test_source8.c"
     }
 ]

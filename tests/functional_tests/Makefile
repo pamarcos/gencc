@@ -28,47 +28,47 @@ functional_tests:
 
 	# Simple project
 		# Simple case
-		$(GENCC) $(MAKE) -f Makefile.simple
+		$(GENCC) $(MAKE) -C $(SRC_DIR) -f Makefile.simple
 
 		# Wrong target
-		$(GENCC) $(MAKE) -f Makefile.simple asdasd | echo "Fail expected :)"
+		$(GENCC) $(MAKE) -C $(SRC_DIR) -f Makefile.simple asdasd | echo "Fail expected :)"
 
 		# Wrong GENCC_OPTIONS
-		env GENCC_OPTIONS=asdasd $(GENCC) $(MAKE) -f Makefile.simple | echo "Fail expected :)"
+		env GENCC_OPTIONS=asdasd $(GENCC) $(MAKE) -C $(SRC_DIR) -f Makefile.simple | echo "Fail expected :)"
 
 		# Passing CXX and CC through env var
 		rm -f $(COMPILE_COMMANDS)
-		env CXX=g++ CC=gcc $(GENCC) $(MAKE) -f Makefile.simple
+		env CXX=g++ CC=gcc $(GENCC) $(MAKE) -C $(SRC_DIR) -f Makefile.simple
 		$(call compare_json)
 
 		# Passing CXX and CC through arguments
 		rm -f $(COMPILE_COMMANDS)
-		$(GENCC) -cxx g++ -cc gcc $(MAKE) -f Makefile.simple
+		$(GENCC) -cxx g++ -cc gcc $(MAKE) -C $(SRC_DIR) -f Makefile.simple
 		$(call compare_json)
 
 		# Passing CXX and CC through both env var and arguments
 		rm -f $(COMPILE_COMMANDS)
-		env CXX=clang++ CC=clang $(GENCC) -cxx g++ -cc gcc $(MAKE) -f Makefile.simple
+		env CXX=clang++ CC=clang $(GENCC) -cxx g++ -cc gcc $(MAKE) -C $(SRC_DIR) -f Makefile.simple
 		$(call compare_json)
 
 		# Passing CXX and CC through both env var and arguments
 		rm -f $(COMPILE_COMMANDS)
-		env CXX=clang++ CC=clang $(GENCC) -cxx g++ -cc gcc -o $(COMPILE_COMMANDS) $(MAKE) -f Makefile.simple
+		env CXX=clang++ CC=clang $(GENCC) -cxx g++ -cc gcc -o $(COMPILE_COMMANDS) $(MAKE) -C $(SRC_DIR) -f Makefile.simple
 		$(call compare_json)
 
 		# Using multiple jobs to force collisions
 		rm -f $(COMPILE_COMMANDS)
-		$(GENCC) -cxx g++ -cc gcc make -j4 -f Makefile.simple
+		$(GENCC) -cxx g++ -cc gcc make -j4 -C $(SRC_DIR) -f Makefile.simple
 		$(call compare_json)
 
 		# Not enough shared memory
 		rm -f $(COMPILE_COMMANDS)
-		$(GENCC) -cxx g++ -cc gcc -m 1024 make -j4 -f Makefile.simple | echo "Fail expected :)"
+		$(GENCC) -cxx g++ -cc gcc -m 1024 make -j4 -C $(SRC_DIR) -f Makefile.simple | echo "Fail expected :)"
 
 		# Build argument
 		rm -f $(COMPILE_COMMANDS)
-		$(MAKE) -f Makefile.simple clean
-		$(GENCC) -cxx g++ -cc gcc -m 4096 -build $(MAKE) -f Makefile.simple
+		$(MAKE) -C $(SRC_DIR) -f Makefile.simple clean
+		$(GENCC) -cxx g++ -cc gcc -m 4096 -build $(MAKE) -C $(SRC_DIR) -f Makefile.simple
 		$(call compare_json)
 		test -f $(SRC_DIR)/test_source1.cpp.o
 		test -f $(SRC_DIR)/test_source2.cpp.o
@@ -81,7 +81,7 @@ functional_tests:
 
 	# Dependencies project
 		rm -f $(COMPILE_COMMANDS)
-		$(GENCC) -cxx g++ -cc gcc $(MAKE) -f Makefile.dependencies
+		$(GENCC) -cxx g++ -cc gcc $(MAKE) -C $(SRC_DIR) -f Makefile.dependencies
 		$(call compare_json)
 
 clean:
