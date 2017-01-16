@@ -61,25 +61,24 @@ void Compiler::doWork(const std::vector<std::string>& params)
         throw std::runtime_error(std::string("Error parsing ") + Constants::GENCC_OPTIONS + ": " + ex.what());
     }
 
-    if (jsonObj.find(Constants::BUILD) == jsonObj.end() || jsonObj.find(Constants::SHARED_MEMORY) == jsonObj.end()) {
+    if (jsonObj.find(Constants::BUILD) == jsonObj.end() || jsonObj.find(Constants::SHARED_MEMORY_SIZE) == jsonObj.end()) {
         throw std::runtime_error(std::string("Error parsing ") + Constants::GENCC_OPTIONS + ": "
-            + Constants::BUILD + " or " + Constants::SHARED_MEMORY + " missing");
+            + Constants::BUILD + " or " + Constants::SHARED_MEMORY_SIZE + " missing");
     }
     m_options->build = jsonObj[Constants::BUILD];
-    m_options->sharedMemSize = jsonObj[Constants::SHARED_MEMORY];
-
-    ss.str("");
-    ss.clear();
-
-    ss << m_options->compiler;
+    m_options->sharedMemSize = jsonObj[Constants::SHARED_MEMORY_SIZE];
 
     m_directory = cwd;
-    parseParameters(params, ss);
-    m_command = ss.str();
+    ss.str("");
+    ss.clear();
+    ss << m_options->compiler;
+    for (size_t i = 1; i < params.size(); ++i) {
+        ss << " " << params.at(i);
+    }
+    LOG("%s\n", ss.str().c_str());
+    parseParameters(params);
 
-    LOG("%s\n", m_command.c_str());
-
-    if (!m_file.empty()) {
+    if (!m_files.empty()) {
         writeCompilationDb();
     }
 
@@ -90,10 +89,14 @@ void Compiler::doWork(const std::vector<std::string>& params)
     }
 }
 
-void Compiler::parseParameters(const std::vector<std::string>& params, std::stringstream& ss)
+void Compiler::parseParameters(const std::vector<std::string>& params)
 {
     bool ignoreCompilerCall = false;
     bool compiling = false;
+    bool firstSource = true;
+
+    m_command.emplace_back(m_options->compiler);
+
     for (size_t i = 1; i < params.size(); ++i) {
         std::string param = params.at(i);
 
@@ -105,22 +108,25 @@ void Compiler::parseParameters(const std::vector<std::string>& params, std::stri
             compiling = true;
         }
 
-        if (!param.empty()) {
-            if (!ss.str().empty()) {
-                ss << " ";
-            }
-            ss << param;
-        }
+        size_t pos;
+        if (((param.size() >= strlen(Constants::C_EXT))
+                && ((pos = param.find(Constants::C_EXT)) == param.size() - strlen(Constants::C_EXT)))
+            || (param.size() >= strlen(Constants::CPP_EXT)
+                   && (pos = param.find(Constants::CPP_EXT)) == param.size() - strlen(Constants::CPP_EXT))) {
+            m_files.emplace_back(param);
 
-        if (param.find(Constants::C_EXT) != std::string::npos) {
-            m_file = m_directory + "/" + param;
+            if (firstSource) {
+                m_firstSrcPos = m_command.size();
+                m_command.emplace_back(param);
+                firstSource = false;
+            }
+        } else if (!param.empty()) {
+            m_command.emplace_back(param);
         }
     }
 
     if (ignoreCompilerCall && !compiling) {
-        m_file.clear();
-        ss.str("");
-        ss.clear();
+        m_files.clear();
     }
 }
 
@@ -146,10 +152,25 @@ void Compiler::writeCompilationDb() const
     }
 
     json jsonObj;
-    jsonObj[Constants::DIRECTORY] = m_directory;
-    jsonObj[Constants::COMMAND] = m_command;
-    jsonObj[Constants::FILE] = m_file;
-    jsonDb.push_back(jsonObj);
+    std::string command;
+    for (auto it = m_files.begin(); it != m_files.end(); ++it) {
+        jsonObj.clear();
+        jsonObj[Constants::DIRECTORY] = m_directory;
+        command.clear();
+        for (size_t i = 0; i < m_command.size(); ++i) {
+            if (i == m_firstSrcPos) {
+                command += *it;
+            } else {
+                command += m_command.at(i);
+            }
+            if (i != m_command.size() - 1) {
+                command += " ";
+            }
+        }
+        jsonObj[Constants::COMMAND] = command;
+        jsonObj[Constants::FILE] = m_directory + "/" + *it;
+        jsonDb.push_back(jsonObj);
+    }
 
     ss.str("");
     ss.clear();

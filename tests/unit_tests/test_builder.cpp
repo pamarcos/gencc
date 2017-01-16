@@ -46,6 +46,7 @@ public:
     {
         Logger::getInstance().disable();
         strncpy(m_compilerBuffer.data(), test_utils::JSON_DB_GOOD, strlen(test_utils::JSON_DB_GOOD));
+        m_genccOptions.cxx = "foo";
     }
 
     std::vector<std::string> m_params;

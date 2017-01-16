@@ -1,0 +1,42 @@
+[
+    {
+        "command": "g++ test_source1.cpp -c -o cpp.o",
+        "directory": "/Users/pablo/Repos/gencc/tests/functional_tests/src",
+        "file": "/Users/pablo/Repos/gencc/tests/functional_tests/src/test_source1.cpp"
+    },
+    {
+        "command": "g++ test_source2.cpp -c -o cpp.o",
+        "directory": "/Users/pablo/Repos/gencc/tests/functional_tests/src",
+        "file": "/Users/pablo/Repos/gencc/tests/functional_tests/src/test_source2.cpp"
+    },
+    {
+        "command": "g++ test_source3.cpp -c -o cpp.o",
+        "directory": "/Users/pablo/Repos/gencc/tests/functional_tests/src",
+        "file": "/Users/pablo/Repos/gencc/tests/functional_tests/src/test_source3.cpp"
+    },
+    {
+        "command": "g++ test_source4.cpp -c -o cpp.o",
+        "directory": "/Users/pablo/Repos/gencc/tests/functional_tests/src",
+        "file": "/Users/pablo/Repos/gencc/tests/functional_tests/src/test_source4.cpp"
+    },
+    {
+        "command": "gcc test_source5.c -c -o c.o",
+        "directory": "/Users/pablo/Repos/gencc/tests/functional_tests/src",
+        "file": "/Users/pablo/Repos/gencc/tests/functional_tests/src/test_source5.c"
+    },
+    {
+        "command": "gcc test_source6.c -c -o c.o",
+        "directory": "/Users/pablo/Repos/gencc/tests/functional_tests/src",
+        "file": "/Users/pablo/Repos/gencc/tests/functional_tests/src/test_source6.c"
+    },
+    {
+        "command": "gcc test_source7.c -c -o c.o",
+        "directory": "/Users/pablo/Repos/gencc/tests/functional_tests/src",
+        "file": "/Users/pablo/Repos/gencc/tests/functional_tests/src/test_source7.c"
+    },
+    {
+        "command": "gcc test_source8.c -c -o c.o",
+        "directory": "/Users/pablo/Repos/gencc/tests/functional_tests/src",
+        "file": "/Users/pablo/Repos/gencc/tests/functional_tests/src/test_source8.c"
+    }
+]

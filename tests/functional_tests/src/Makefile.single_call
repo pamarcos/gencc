@@ -1,0 +1,14 @@
+SRC_CPP = $(wildcard *.cpp)
+SRC_C = $(wildcard *.c)
+
+all: clean
+	$(CXX) $(SRC_CPP) -c -o cpp.o
+	$(CC) $(SRC_C) -c -o c.o
+
+clean:
+	rm -f *.o
+
+dbg-%:
+	@echo "Makefile: Value of $* = $($*)"
+
+.PHONY: clean

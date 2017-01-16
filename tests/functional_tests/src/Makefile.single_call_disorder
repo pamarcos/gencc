@@ -1,0 +1,11 @@
+all: clean
+	$(CXX) test_source1.cpp -c test_source3.cpp -o cpp.o test_source2.cpp test_source4.cpp
+	$(CC) test_source8.c -c test_source5.c -o c.o test_source7.c test_source6.c
+
+clean:
+	rm -f *.o
+
+dbg-%:
+	@echo "Makefile: Value of $* = $($*)"
+
+.PHONY: clean

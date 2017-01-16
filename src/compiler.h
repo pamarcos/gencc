@@ -30,12 +30,13 @@ public:
     void doWork(const std::vector<std::string>& params) override;
 
 protected:
-    void parseParameters(const std::vector<std::string>& params, std::stringstream& ss);
+    void parseParameters(const std::vector<std::string>& params);
     void writeCompilationDb() const;
 
     std::string m_directory;
-    std::string m_command;
-    std::string m_file;
+    std::vector<std::string> m_command;
+    std::vector<std::string> m_files;
+    size_t m_firstSrcPos;
 };
 
 #endif // COMPILER_H

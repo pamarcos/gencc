@@ -28,8 +28,8 @@
 namespace test_utils {
 
 static constexpr char const* JSON_DB_GOOD = "[{\"foo\":true}]";
-static constexpr char const* JSON_BUILD_TRUE = "{\"build\":true,\"shared_memory\":8192}";
-static constexpr char const* JSON_BUILD_FALSE = "{\"build\":false,\"shared_memory\":8192}";
+static constexpr char const* JSON_BUILD_TRUE = "{\"build\":true,\"shared_memory_size\":8192}";
+static constexpr char const* JSON_BUILD_FALSE = "{\"build\":false,\"shared_memory_size\":8192}";
 
 void generateParams(std::vector<std::string>& vec, const std::string& str = "");
 }

@@ -41,9 +41,13 @@ void Builder::doWork(const std::vector<std::string>& params)
         throw std::runtime_error("Couldn't get current working dir");
     }
 
-    LOG("Original CXX = %s\n", m_options->cxx.c_str());
-    LOG("Original CC = %s\n", m_options->cc.c_str());
-    LOG("CWD = %s\n", cwd.c_str());
+    LOG("\tOriginal CXX = %s\n", m_options->cxx.c_str());
+    LOG("\tOriginal CC = %s\n", m_options->cc.c_str());
+    LOG("\tCWD = %s\n", cwd.c_str());
+
+    if (m_options->cxx.empty() && m_options->cc.empty()) {
+        throw std::runtime_error("No CXX nor CC set either in the environment or through a parameter");
+    }
 
     m_options->dbFilename = cwd + "/" + m_options->dbFilename;
     m_utils->removeFile(m_options->dbFilename);
@@ -51,7 +55,7 @@ void Builder::doWork(const std::vector<std::string>& params)
     // Serialize the options through an environment variable
     json jsonObj;
     jsonObj[Constants::BUILD] = m_options->build;
-    jsonObj[Constants::SHARED_MEMORY] = m_options->sharedMemSize;
+    jsonObj[Constants::SHARED_MEMORY_SIZE] = m_options->sharedMemSize;
     ss.str("");
     ss.clear();
     ss << jsonObj;
@@ -73,9 +77,10 @@ void Builder::doWork(const std::vector<std::string>& params)
     memset(sharedMemData, 0, m_options->sharedMemSize);
     sharedMem->unlockMutex();
 
-    LOG("Created shared memory \"%s\" with size %u at %p\n",
+    LOG("\tCreated shared memory \"%s\" with size %u at %p\n",
         sharedMem->getName().c_str(), sharedMem->getSize(), sharedMemData);
 
+    LOG("\tRunning build command: %s\n", ss.str().c_str());
     if (int ret = m_utils->runCommand(ss.str())) {
         LOG("The command %s exited with error code %d\n", ss.str().c_str(), ret);
     }

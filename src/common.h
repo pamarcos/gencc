@@ -29,13 +29,14 @@
 #include "logger.h"
 
 namespace Constants {
-static constexpr char const* VERSION = "0.2.0";
+static constexpr char const* VERSION = "0.2.1";
 static constexpr char const* NAME = "gencc";
 static constexpr char const* CXX = "CXX";
 static constexpr char const* CC = "CC";
 static constexpr char const* COMPILE_DB = "compile_commands.json";
 static constexpr char const* GENCC_OPTIONS = "GENCC_OPTIONS";
 static constexpr char const* C_EXT = ".c";
+static constexpr char const* CPP_EXT = ".cpp";
 static constexpr char const* GENCC_COMPILER_PARAM = "-gencc-compiler";
 static constexpr char const* DIRECTORY = "directory";
 static constexpr char const* COMMAND = "command";
@@ -50,7 +51,7 @@ static constexpr char const* PARAM_BUILD = "-build";
 static constexpr char const* SHARED_MEM_NAME = NAME;
 static constexpr unsigned SHARED_MEM_SIZE = 8192;
 static constexpr char const* PARAM_SHARED_MEMORY = "-m";
-static constexpr char const* SHARED_MEMORY = "shared_memory";
+static constexpr char const* SHARED_MEMORY_SIZE = "shared_memory_size";
 
 static const std::set<std::string> COMPILER_GEN_DEP_OPTIONS = {
     "-M",

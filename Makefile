@@ -17,7 +17,7 @@ $(BUILD_DIR)/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 $(OUTPUT_BIN): $(OBJ)
-	$(CXX) $(CXXFLAGS) $(OBJ) -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LDFLAGS)
 
 clean: clean_coverage
 	rm -rf $(BUILD_DIR)

@@ -133,7 +133,7 @@ TEST_F(GenccTest, CompilerModeSuccess)
 
 TEST_F(GenccTest, WorkerNullBuilderMode)
 {
-    test_utils::generateParams(m_params, "gencc foo");
+    test_utils::generateParams(m_params, "gencc " + std::string(Constants::PARAM_CXX) + " foo bar");
     std::unique_ptr<GenccWorker> nullWorker(nullptr);
     m_gencc.setWorker(nullWorker);
     EXPECT_CALL(m_utils, getCwd(_))

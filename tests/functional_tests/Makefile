@@ -4,10 +4,16 @@ include $(ROOT)/common.mk
 COMPILE_COMMANDS = compile_commands.json
 EXPECTED_COMPILE_COMMANDS = $(CURDIR)/$(COMPILE_COMMANDS).exp
 EXPECTED_COMPILE_COMMANDS_REAL = $(EXPECTED_COMPILE_COMMANDS).real
+EXPECTED_COMPILE_COMMANDS_SC = $(CURDIR)/$(COMPILE_COMMANDS).sc.exp
+EXPECTED_COMPILE_COMMANDS_SC_REAL = $(EXPECTED_COMPILE_COMMANDS).sc.real
 SRC_DIR = src
 
 define compare_json
 	@bash -c "diff -u <(sort $(EXPECTED_COMPILE_COMMANDS_REAL)) <(sort $(COMPILE_COMMANDS))"
+endef
+
+define compare_json_sc
+	@bash -c "diff -u <(sort $(EXPECTED_COMPILE_COMMANDS_SC_REAL)) <(sort $(COMPILE_COMMANDS))"
 endef
 
 GENCC = $(ROOT)/$(NAME)
@@ -19,6 +25,7 @@ functional_tests:
 
 	# Generate expected output independently of the project folder
 	sed 's:$$PWD:$(CURDIR):g' $(EXPECTED_COMPILE_COMMANDS) > $(EXPECTED_COMPILE_COMMANDS_REAL)
+	sed 's:$$PWD:$(CURDIR):g' $(EXPECTED_COMPILE_COMMANDS_SC) > $(EXPECTED_COMPILE_COMMANDS_SC_REAL)
 
 	# No arguments
 	$(GENCC) | echo "Fail expected :)"
@@ -28,7 +35,7 @@ functional_tests:
 
 	# Simple project
 		# Simple case
-		$(GENCC) $(MAKE) -C $(SRC_DIR) -f Makefile.simple
+		$(GENCC) $(MAKE) -C $(SRC_DIR) -f Makefile.simple | echo "Fail expected :)"
 
 		# Wrong target
 		$(GENCC) $(MAKE) -C $(SRC_DIR) -f Makefile.simple asdasd | echo "Fail expected :)"
@@ -80,9 +87,19 @@ functional_tests:
 		test -f $(SRC_DIR)/test_source8.c.o
 
 	# Dependencies project
-		rm -f $(COMPILE_COMMANDS)
-		$(GENCC) -cxx g++ -cc gcc $(MAKE) -C $(SRC_DIR) -f Makefile.dependencies
-		$(call compare_json)
+	rm -f $(COMPILE_COMMANDS)
+	$(GENCC) -cxx g++ -cc gcc $(MAKE) -C $(SRC_DIR) -f Makefile.dependencies
+	$(call compare_json)
+
+	# Single call
+	rm -f $(COMPILE_COMMANDS)
+	$(GENCC) -cxx g++ -cc gcc $(MAKE) -C $(SRC_DIR) -f Makefile.single_call
+	$(call compare_json_sc)
+
+	# Single call disorder
+	rm -f $(COMPILE_COMMANDS)
+	$(GENCC) -cxx g++ -cc gcc $(MAKE) -C $(SRC_DIR) -f Makefile.single_call_disorder
+	$(call compare_json_sc)
 
 clean:
 	rm -f $(SRC_DIR)/*.o $(SRC_DIR)/*.d
