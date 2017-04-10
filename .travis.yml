@@ -20,14 +20,14 @@ matrix:
           packages:
             - g++-5
             - gcovr
-          coverity_scan:
-            project:
-              name: "pamarcos/gencc"
-              description: "Build submitted via Travis CI"
-            notification_email: pablo.marcos.oltra@gmail.com
-            build_command_prepend: "make clean"
-            build_command: "make -j4"
-            branch_pattern: master
+        coverity_scan:
+          project:
+            name: "pamarcos/gencc"
+            description: "Build submitted via Travis CI"
+          notification_email: pablo.marcos.oltra@gmail.com
+          build_command_prepend: "make clean"
+          build_command: "make -j4"
+          branch_pattern: master
 
       after_success:
         - make -j4 coverage
